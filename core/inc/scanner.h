@@ -53,11 +53,6 @@ namespace Jsai {
 
         void loadScript(const std::string &scriptFile);
     };
-
-    class Parser {
-    public:
-        Parser();
-    };
 }
 
 #endif //JS_SCRIPT_AI_LIBRARY_H

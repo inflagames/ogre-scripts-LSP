@@ -3,8 +3,10 @@ project(js_ai)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_library(js_ai STATIC core/src/library.cpp
-        core/inc/token.h)
+add_library(js_ai STATIC
+        core/src/scanner.cpp
+        core/src/parser.cpp
+)
 
 # testing
 enable_testing()

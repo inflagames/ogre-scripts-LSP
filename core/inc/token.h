@@ -8,22 +8,45 @@
 namespace Jsai {
     enum Token {
         // system
-        function_tk = 0, // function
-        request_tk, // request
-        let_tk, // let
+        break_tk, // break
+        case_tk, // case
+        catch_tk, // catch
+//        class_tk, // todo: not in plan
         const_tk, // const
+        continue_tk, //
+        default_tk, //
+        delete_tk, //
+        do_while_tk, // do
+        else_tk, // else
+//        export_tk,
+//        extends,
+        false_tk, // false
+//        finally_tk,
+        for_tk, // for
+        function_tk, // function
+        if_tk, // if
+//        import_tk,
+        in_tk,
+        instanceof_tk,
+        let_tk,
+        new_tk,
+        null_tk,
+        return_tk,
+//        super_tk
+        switch_tk,
+        this_tk,
+//        throw_tk,
+        true_tk, // true
+//        try_tk,
+        typeof_tk,
         var_tk, // var
+//        void_tk,
+        while_tk, // while
+        with_tk,
+
         string_literal,
         number_literal,
-        if_tk, // if
-        else_tk, // else
-        for_tk, // for
-        do_while_tk, // do
-        while_tk, // while
-        true_tk, // true
-        false_tk, // false
         identifier, // any variable|function|class identifier
-
 
         // symbols
         colon_tk, // : X
@@ -39,9 +62,9 @@ namespace Jsai {
         right_square_bracket_tk, // ] X
 
         // string
-        double_quote_tk, // " X
-        single_quote_tk, // ' X
-        back_apostrophe, // ` X
+        double_quote_tk, // " X todo: probably not needed
+        single_quote_tk, // ' X todo: probably not needed
+        back_apostrophe, // ` X todo: probably not needed
 
         // math
         equals_tk, // = X
@@ -59,7 +82,7 @@ namespace Jsai {
         vertical_bar_tk, // | X
 
         // system
-        EOF_tk,
+        EOF_tk, // todo: probably not needed
     };
 
     struct TokenValue {

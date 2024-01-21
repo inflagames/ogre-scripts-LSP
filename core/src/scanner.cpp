@@ -1,4 +1,4 @@
-#include "../inc/library.h"
+#include "../inc/scanner.h"
 
 #include <utility>
 
@@ -49,10 +49,10 @@ Jsai::TokenValue Jsai::Scanner::nextToken() {
                 return consumeString('"');
             }
             case '\'':
-                // toDo (gonzalezext)[21.01.24]:
-                return symbolToken(single_quote_tk);
+                symbolToken(single_quote_tk);
+                return consumeString('\'');
             case '`':
-                // toDo (gonzalezext)[21.01.24]: tbd
+                // toDo (gonzalezext)[21.01.24]: tbd probably not supported (to be considered)
                 return symbolToken(back_apostrophe);
             case '=':
                 return symbolToken(equals_tk);
@@ -210,8 +210,4 @@ bool Jsai::Scanner::consumeEmpty() {
 bool Jsai::Scanner::nextCharacter() {
     file.get(ch);
     return !file.eof();
-}
-
-Jsai::Parser::Parser() {
-
 }

@@ -4,7 +4,7 @@
 
 #include "gtest/gtest.h"
 
-#include "../core/inc/library.h"
+#include "../core/inc/scanner.h"
 
 TEST (SimpleScannerTest, scanner_ShouldOpenScriptFile) {
     Jsai::Scanner *scanner = new Jsai::Scanner();
@@ -23,16 +23,17 @@ TEST (SimpleScannerTest, scanner_ShouldReadCorrectlyTheTokens) {
             Jsai::Token::const_tk, Jsai::Token::identifier, Jsai::Token::equals_tk, Jsai::Token::number_literal,
             Jsai::Token::semicolon_tk,
             // line
-            Jsai::Token::const_tk, Jsai::Token::identifier, Jsai::Token::equals_tk, Jsai::Token::number_literal,
+            Jsai::Token::let_tk, Jsai::Token::identifier, Jsai::Token::equals_tk, Jsai::Token::number_literal,
             Jsai::Token::semicolon_tk,
             // line
-            Jsai::Token::const_tk, Jsai::Token::identifier, Jsai::Token::equals_tk, Jsai::Token::identifier,
-            Jsai::Token::identifier, Jsai::Token::plus_tk, Jsai::Token::identifier, Jsai::Token::semicolon_tk,
+            Jsai::Token::var_tk, Jsai::Token::identifier, Jsai::Token::equals_tk, Jsai::Token::identifier,
+            Jsai::Token::plus_tk, Jsai::Token::identifier, Jsai::Token::semicolon_tk,
             // line
             Jsai::Token::identifier, Jsai::Token::period_tk, Jsai::Token::identifier, Jsai::Token::left_parenthesis_tk,
             Jsai::Token::string_literal, Jsai::Token::plus_tk, Jsai::Token::identifier, Jsai::Token::plus_tk,
             Jsai::Token::string_literal, Jsai::Token::plus_tk, Jsai::Token::identifier, Jsai::Token::plus_tk,
-            Jsai::Token::string_literal, Jsai::Token::plus_tk, Jsai::Token::identifier, Jsai::Token::right_parenthesis_tk,
+            Jsai::Token::string_literal, Jsai::Token::plus_tk, Jsai::Token::identifier,
+            Jsai::Token::right_parenthesis_tk,
             Jsai::Token::semicolon_tk
     };
 

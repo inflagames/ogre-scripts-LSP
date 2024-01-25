@@ -61,6 +61,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
             case '"':
                 return consumeString('"');
             case '*': {
+                // toDo (gonzalezext)[25.01.24]: validate if the * as empty character after in that case return asterisk_tk
                 auto res = consumeString('*');
                 return {match_literal, res.literal};
             }
@@ -169,6 +170,8 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
                 return {source_tk};
             } else if (literal == "technique") {
                 return {technique_tk};
+            } else if (literal == "texture_unit") {
+                return {texture_unit_tk};
             } else if (literal == "unified") {
                 return {unified_tk};
             } else if (literal == "vertex_program") {

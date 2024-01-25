@@ -13,6 +13,8 @@ namespace OgreScriptLSP {
         delegate_tk,
         entry_point_tk,
         fragment_program_tk,
+        fragment_program_ref_tk,
+        import_tk,
         material_tk,
         param_named_tk,
         pass_tk,
@@ -20,8 +22,10 @@ namespace OgreScriptLSP {
         set_tk,
         source_tk,
         technique_tk,
+        texture_unit_tk,
         unified_tk,
         vertex_program_tk,
+        vertex_program_ref_tk,
 
         int_tk,
         false_tk,
@@ -47,7 +51,7 @@ namespace OgreScriptLSP {
         equals_tk, // = X todo: probably not needed
         plus_tk, // + X todo: probably not needed
         minus_tk, // - X todo: probably not needed
-        asterisk_tk, // * X todo: probably not needed
+        asterisk_tk, // *
         slash_tk, // / X todo: probably not needed
         tilde_accent_tk, // ~ X todo: probably not needed
 

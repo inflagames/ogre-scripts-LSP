@@ -4,14 +4,14 @@
 
 #include "../inc/parser.h"
 
-Jsai::Parser::Parser() {
+OgreScriptLSP::Parser::Parser() {
     scanner = new Scanner();
 }
 
-void Jsai::Parser::loadScript(const std::string &scriptFile) {
+void OgreScriptLSP::Parser::loadScript(const std::string &scriptFile) {
     scanner->loadScript(scriptFile);
 }
 
-void Jsai::Parser::lexer() {
+void OgreScriptLSP::Parser::parse() {
 
 }

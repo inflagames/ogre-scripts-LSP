@@ -7,37 +7,35 @@
 #include "../core/inc/scanner.h"
 
 TEST (SimpleScannerTest, scanner_ShouldOpenScriptFile) {
-    Jsai::Scanner *scanner = new Jsai::Scanner();
-    std::string scriptFile = "./examples/add_two_numbers.js";
+    OgreScriptLSP::Scanner *scanner = new OgreScriptLSP::Scanner();
+    std::string scriptFile = "./examples/frag_vert_declarations.material";
     scanner->loadScript(scriptFile);
 
     ASSERT_TRUE(scanner->file.is_open());
 }
 
 TEST (SimpleScannerTest, scanner_ShouldReadCorrectlyTheTokens) {
-    Jsai::Scanner *scanner = new Jsai::Scanner();
-    scanner->loadScript("./examples/add_two_numbers.js");
+    OgreScriptLSP::Scanner *scanner = new OgreScriptLSP::Scanner();
+    scanner->loadScript("./examples/frag_vert_declarations.material");
 
-    std::vector<Jsai::Token> tokens = {
+    std::vector<OgreScriptLSP::Token> tokens = {
             // line
-            Jsai::Token::const_tk, Jsai::Token::identifier, Jsai::Token::equals_tk, Jsai::Token::number_literal,
-            Jsai::Token::semicolon_tk,
+            OgreScriptLSP::fragment_program_tk, OgreScriptLSP::identifier, OgreScriptLSP::glsl_tk,
+            OgreScriptLSP::glsles_tk, OgreScriptLSP::left_curly_bracket_tk,
             // line
-            Jsai::Token::let_tk, Jsai::Token::identifier, Jsai::Token::equals_tk, Jsai::Token::number_literal,
-            Jsai::Token::semicolon_tk,
+            OgreScriptLSP::source_tk, OgreScriptLSP::identifier,
             // line
-            Jsai::Token::var_tk, Jsai::Token::identifier, Jsai::Token::equals_tk, Jsai::Token::identifier,
-            Jsai::Token::plus_tk, Jsai::Token::identifier, Jsai::Token::semicolon_tk,
+            OgreScriptLSP::right_curly_bracket_tk,
             // line
-            Jsai::Token::identifier, Jsai::Token::period_tk, Jsai::Token::identifier, Jsai::Token::left_parenthesis_tk,
-            Jsai::Token::string_literal, Jsai::Token::plus_tk, Jsai::Token::identifier, Jsai::Token::plus_tk,
-            Jsai::Token::string_literal, Jsai::Token::plus_tk, Jsai::Token::identifier, Jsai::Token::plus_tk,
-            Jsai::Token::string_literal, Jsai::Token::plus_tk, Jsai::Token::identifier,
-            Jsai::Token::right_parenthesis_tk,
-            Jsai::Token::semicolon_tk
+            OgreScriptLSP::vertex_program_tk, OgreScriptLSP::identifier, OgreScriptLSP::glsl_tk,
+            OgreScriptLSP::glsles_tk, OgreScriptLSP::left_curly_bracket_tk,
+            // line
+            OgreScriptLSP::source_tk, OgreScriptLSP::identifier,
+            // line
+            OgreScriptLSP::right_curly_bracket_tk,
     };
 
-    std::vector<Jsai::TokenValue> result = scanner->parse();
+    std::vector<OgreScriptLSP::TokenValue> result = scanner->parse();
     ASSERT_EQ(tokens.size(), result.size());
     for (int i = 0; i < tokens.size(); ++i) {
         ASSERT_EQ(tokens[i], result[i].tk);

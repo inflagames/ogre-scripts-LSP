@@ -7,7 +7,7 @@
 
 #include "token.h"
 
-namespace Jsai {
+namespace OgreScriptLSP {
     class Scanner {
     public:
         std::ifstream file;

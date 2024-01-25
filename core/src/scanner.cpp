@@ -2,15 +2,15 @@
 
 #include <utility>
 
-Jsai::Scanner::Scanner() = default;
+OgreScriptLSP::Scanner::Scanner() = default;
 
-void Jsai::Scanner::loadScript(const std::string &scriptFile) {
+void OgreScriptLSP::Scanner::loadScript(const std::string &scriptFile) {
     file.open(scriptFile);
     ch = ' ';
 }
 
-std::vector<Jsai::TokenValue> Jsai::Scanner::parse() {
-    std::vector<Jsai::TokenValue> list;
+std::vector<OgreScriptLSP::TokenValue> OgreScriptLSP::Scanner::parse() {
+    std::vector<OgreScriptLSP::TokenValue> list;
     while (true) {
         auto tk = nextToken();
         if (tk.tk == EOF_tk) {
@@ -21,47 +21,11 @@ std::vector<Jsai::TokenValue> Jsai::Scanner::parse() {
     return list;
 }
 
-Jsai::TokenValue Jsai::Scanner::nextToken() {
+OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
     std::string tkStr;
 
     while (consumeEmpty()) {
         switch (ch) {
-            case ':':
-                return symbolToken(colon_tk);
-            case ';':
-                return symbolToken(semicolon_tk);
-            case ',':
-                return symbolToken(comma_tk);
-            case '\\':
-                return symbolToken(backslash_tk);
-            case '(':
-                return symbolToken(left_parenthesis_tk);
-            case ')':
-                return symbolToken(right_parenthesis_tk);
-            case '{':
-                return symbolToken(left_curly_bracket_tk);
-            case '[':
-                return symbolToken(left_square_bracket_tk);
-            case ']':
-                return symbolToken(right_square_bracket_tk);
-            case '"': {
-                symbolToken(double_quote_tk);
-                return consumeString('"');
-            }
-            case '\'':
-                symbolToken(single_quote_tk);
-                return consumeString('\'');
-            case '`':
-                // toDo (gonzalezext)[21.01.24]: tbd probably not supported (to be considered)
-                return symbolToken(back_apostrophe);
-            case '=':
-                return symbolToken(equals_tk);
-            case '+':
-                return symbolToken(plus_tk);
-            case '-':
-                return symbolToken(minus_tk);
-            case '*':
-                return symbolToken(asterisk_tk);
             case '/': {
                 auto tkValue = symbolToken(slash_tk);
                 // check if is a comment to consume it
@@ -69,32 +33,48 @@ Jsai::TokenValue Jsai::Scanner::nextToken() {
                     consumeComment();
                     continue;
                 }
-                if (ch == '*') {
-                    consumeComment(false);
-                    continue;
-                }
-                return tkValue;
+                // toDo (gonzalezext)[25.01.24]: check if multiline comments are permitted
+//                if (ch == '*') {
+//                    consumeComment(false);
+//                    continue;
+//                }
+                // todo: exception if not comment
             }
-            case '~':
-                return symbolToken(tilde_accent_tk);
-            case '!':
-                return symbolToken(exclamation_tk);
-            case '<':
-                return symbolToken(lt_tk);
-            case '>':
-                return symbolToken(gt_tk);
-            case '&':
-                return symbolToken(ampersand_tk);
-            case '|':
-                return symbolToken(vertical_bar_tk);
+            case ':':
+                return symbolToken(colon_tk);
+            case ';':
+                return symbolToken(semicolon_tk);
+                // toDo (gonzalezext)[25.01.24]: not sure if parenthesis are used
+//            case '(':
+//                return symbolToken(left_parenthesis_tk);
+//            case ')':
+                return symbolToken(right_parenthesis_tk);
+            case '{':
+                return symbolToken(left_curly_bracket_tk);
+            case '}':
+                return symbolToken(right_curly_bracket_tk);
+                // toDo (gonzalezext)[25.01.24]: not sure if square bracket are used
+//            case '[':
+//                return symbolToken(left_square_bracket_tk);
+//            case ']':
+//                return symbolToken(right_square_bracket_tk);
+            case '"': {
+                return consumeString('"');
+            }
+                // toDo (gonzalezext)[25.01.24]: check if string literals can be defined with simple_quote_tk
+//            case '\'':
+//                return consumeString('\'');
+            case '-':
             case '.': {
-                auto tkValue = symbolToken(period_tk);
+                // toDo (gonzalezext)[25.01.24]: handle number that start with minus
                 // handle number literal that start with period
                 if (isdigit(ch)) {
-                    tkValue = consumeNumber(false);
+                    auto tkValue = consumeNumber(false);
                     tkValue.literal.insert(0, 1, '.');
+                } else {
+                    // toDo (gonzalezext)[25.01.24]: throw error here
                 }
-                return tkValue;
+                return {EOF_tk};
             }
             default:
                 if (isdigit(ch)) {
@@ -111,7 +91,7 @@ Jsai::TokenValue Jsai::Scanner::nextToken() {
     return {EOF_tk};
 }
 
-void Jsai::Scanner::consumeComment(bool lineComment) {
+void OgreScriptLSP::Scanner::consumeComment(bool lineComment) {
     nextCharacter(); // consume second ch in comment
     nextCharacter(); // consume first ch after comment definition
     char pCh = ch;
@@ -123,12 +103,12 @@ void Jsai::Scanner::consumeComment(bool lineComment) {
     }
 }
 
-Jsai::TokenValue Jsai::Scanner::symbolToken(Jsai::Token tk) {
+OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::symbolToken(OgreScriptLSP::Token tk) {
     nextCharacter();
     return {tk};
 }
 
-Jsai::TokenValue Jsai::Scanner::consumeNumber(bool isFirstPeriod) {
+OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeNumber(bool isFirstPeriod) {
     std::string literal;
     while (true) {
         literal.push_back(ch);
@@ -142,7 +122,7 @@ Jsai::TokenValue Jsai::Scanner::consumeNumber(bool isFirstPeriod) {
     }
 }
 
-Jsai::TokenValue Jsai::Scanner::consumeString(char stringDelimiter) {
+OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeString(char stringDelimiter) {
     std::string literal;
     while (true) {
         if (ch == stringDelimiter) {
@@ -156,49 +136,57 @@ Jsai::TokenValue Jsai::Scanner::consumeString(char stringDelimiter) {
     }
 }
 
-Jsai::TokenValue Jsai::Scanner::nextLiteral() {
+OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
     std::string literal;
     while (true) {
         literal.push_back(ch);
         if (!nextCharacter() || !validLiteral(ch, false)) {
-            if (literal == "function") {
-                return {function_tk};
-            } else if (literal == "request") {
-                return {request_tk};
-            } else if (literal == "let") {
-                return {let_tk};
-            } else if (literal == "const") {
-                return {const_tk};
-            } else if (literal == "var") {
-                return {var_tk};
-            } else if (literal == "if") {
-                return {if_tk};
-            } else if (literal == "else") {
-                return {else_tk};
-            } else if (literal == "for") {
-                return {for_tk};
-            } else if (literal == "do") {
-                return {do_while_tk};
-            } else if (literal == "while") {
-                return {while_tk};
-            } else if (literal == "true") {
-                return {true_tk};
-            } else if (literal == "false") {
-                return {false_tk};
+            if (literal == "abstract") {
+                return {abstract_tk};
+            } else if (literal == "default_params") {
+                return {default_params_tk};
+            } else if (literal == "delegate") {
+                return {delegate_tk};
+            } else if (literal == "entry_point") {
+                return {entry_point_tk};
+            } else if (literal == "fragment_program") {
+                return {fragment_program_tk};
+            } else if (literal == "glsl") {
+                return {glsl_tk};
+            } else if (literal == "glsles") {
+                return {glsles_tk};
+            } else if (literal == "material") {
+                return {material_tk};
+            } else if (literal == "param_named") {
+                return {param_named_tk};
+            } else if (literal == "pass") {
+                return {pass_tk};
+            } else if (literal == "profiles") {
+                return {profiles_tk};
+            } else if (literal == "set") {
+                return {set_tk};
+            } else if (literal == "source") {
+                return {source_tk};
+            } else if (literal == "technique") {
+                return {technique_tk};
+            } else if (literal == "unified") {
+                return {unified_tk};
+            } else if (literal == "vertex_program") {
+                return {vertex_program_tk};
             }
             return {identifier, literal};
         }
     }
 }
 
-bool Jsai::Scanner::validLiteral(char c, bool startCharacter) {
+bool OgreScriptLSP::Scanner::validLiteral(char c, bool startCharacter) {
     if (startCharacter) {
-        return isalpha(c) || c == '_' || c == '$';
+        return isalpha(c) || c == '_' || c == '$' || c == '/' || c == '.';
     }
-    return isalnum(c) || c == '_' || c == '$';
+    return isalnum(c) || c == '_' || c == '$' || c == '/' || c == '.';
 }
 
-bool Jsai::Scanner::consumeEmpty() {
+bool OgreScriptLSP::Scanner::consumeEmpty() {
     while (ch == ' ' || ch == '\n' || ch == '\t' || ch == '\v' || ch == '\f' || ch == '\r') {
         if (!nextCharacter()) {
             return false;
@@ -207,7 +195,7 @@ bool Jsai::Scanner::consumeEmpty() {
     return true;
 }
 
-bool Jsai::Scanner::nextCharacter() {
+bool OgreScriptLSP::Scanner::nextCharacter() {
     file.get(ch);
     return !file.eof();
 }

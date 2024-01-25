@@ -13,7 +13,7 @@ file(COPY examples DESTINATION ${CMAKE_BINARY_DIR}/tests)
 
 add_executable(test_run Test.cpp SimpleScannerTest.cpp)
 
-target_link_libraries(test_run gtest gtest_main js_ai)
+target_link_libraries(test_run gtest gtest_main ogre_scripts_LSP)
 
 include(GoogleTest)
 gtest_discover_tests(test_run)

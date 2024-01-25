@@ -7,7 +7,7 @@
 
 #include "scanner.h"
 
-namespace Jsai {
+namespace OgreScriptLSP {
     class Parser {
     private:
         Scanner *scanner;
@@ -17,7 +17,7 @@ namespace Jsai {
 
         void loadScript(const std::string &scriptFile);
 
-        void lexer();
+        void parse();
     };
 }
 

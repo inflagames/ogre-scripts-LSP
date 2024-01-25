@@ -1,0 +1,10 @@
+abstract pass ParentPass {
+    diffuse $diffuse_colour
+}
+material Test{
+    technique {
+        pass : ParentPass {
+            set $diffuse_colour "1 0 0 1"
+        }
+    }
+}

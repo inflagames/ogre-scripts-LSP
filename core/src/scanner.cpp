@@ -58,8 +58,11 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
 //                return symbolToken(left_square_bracket_tk);
 //            case ']':
 //                return symbolToken(right_square_bracket_tk);
-            case '"': {
+            case '"':
                 return consumeString('"');
+            case '*': {
+                auto res = consumeString('*');
+                return {match_literal, res.literal};
             }
                 // toDo (gonzalezext)[25.01.24]: check if string literals can be defined with simple_quote_tk
 //            case '\'':
@@ -124,6 +127,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeNumber(bool isFirstPeri
 
 OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeString(char stringDelimiter) {
     std::string literal;
+    nextCharacter();
     while (true) {
         if (ch == stringDelimiter) {
             nextCharacter();
@@ -151,10 +155,6 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
                 return {entry_point_tk};
             } else if (literal == "fragment_program") {
                 return {fragment_program_tk};
-            } else if (literal == "glsl") {
-                return {glsl_tk};
-            } else if (literal == "glsles") {
-                return {glsles_tk};
             } else if (literal == "material") {
                 return {material_tk};
             } else if (literal == "param_named") {
@@ -173,6 +173,8 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
                 return {unified_tk};
             } else if (literal == "vertex_program") {
                 return {vertex_program_tk};
+            } else if (literal.starts_with('$')) {
+                return {variable, literal};
             }
             return {identifier, literal};
         }

@@ -1,0 +1,5 @@
+abstract technique Overrider {
+    pass *colour* {
+        diffuse 0 0 0 0
+    }
+}

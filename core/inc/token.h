@@ -13,8 +13,6 @@ namespace OgreScriptLSP {
         delegate_tk,
         entry_point_tk,
         fragment_program_tk,
-        glsl_tk,
-        glsles_tk,
         material_tk,
         param_named_tk,
         pass_tk,
@@ -29,7 +27,9 @@ namespace OgreScriptLSP {
         false_tk,
         true_tk,
 
+        variable,
         string_literal,
+        match_literal,
         number_literal,
         identifier, // any variable|function|class identifier
 

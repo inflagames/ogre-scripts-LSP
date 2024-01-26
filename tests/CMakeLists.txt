@@ -11,9 +11,14 @@ FetchContent_MakeAvailable(googletest)
 
 file(COPY examples DESTINATION ${CMAKE_BINARY_DIR}/tests)
 
-add_executable(test_run Test.cpp SimpleScannerTest.cpp)
+add_executable(test_run
+        Test.cpp
+        SimpleScannerTest.cpp
+        LSPTest.cpp
+        LSPInitializeTest.cpp
+)
 
-target_link_libraries(test_run gtest gtest_main ogre_scripts_LSP)
+target_link_libraries(test_run gtest gtest_main ogre_scripts_LSP_lib)
 
 include(GoogleTest)
 gtest_discover_tests(test_run)

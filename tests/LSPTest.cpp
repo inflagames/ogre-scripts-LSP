@@ -1,0 +1,47 @@
+//
+// Created by Guillermo on 25.05.23.
+//
+
+#include "gtest/gtest.h"
+
+#include "../core/inc/LspServer.h"
+
+TEST (LSPTest, readHeader_ShouldReadCorrectlyTheHeader) {
+    auto *lsp = new LspServer();
+    std::istringstream osMock(
+            "Content-Length: 18\r\nS1: naa\r\nS2:hah  ahah\r\nContent-Type: application/vscode; charset=utf-8\r\n\r\n");
+
+    Action msg = lsp->readHeaders(osMock);
+
+    ASSERT_EQ(18, msg.contentLength);
+    ASSERT_EQ("application/vscode; charset=utf-8", msg.contentType);
+}
+
+TEST (LSPTest, readBody_ShouldReadCorrectlyTheBody) {
+    auto *lsp = new LspServer();
+    std::istringstream osMock("{\"id\": 1234,\"method\": \"shutdown\"}");
+
+    Action msg = lsp->readContent({39, "", new RequestMessage()}, osMock);
+
+    ASSERT_TRUE(msg.message != nullptr);
+    ASSERT_EQ("1234", ((RequestMessage *) msg.message)->id);
+    ASSERT_EQ("shutdown", ((RequestMessage *) msg.message)->method);
+}
+
+TEST (LSPTest, readHeadBody_ShouldReadCorrectlyTheHeadAndBody) {
+    auto *lsp = new LspServer();
+    std::istringstream osMock(
+            "Content-Length: 59\r\nContent-Type: application/vscode; charset=utf-8\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\": 1234,\"method\": \"shutdown\"}");
+
+    Action msg = lsp->readHeaders(osMock);
+
+    ASSERT_EQ(59, msg.contentLength);
+    ASSERT_EQ("application/vscode; charset=utf-8", msg.contentType);
+
+    msg = lsp->readContent(msg, osMock);
+
+    ASSERT_TRUE(msg.message != nullptr);
+    ASSERT_EQ("2.0", ((RequestMessage *) msg.message)->jsonrpc);
+    ASSERT_EQ("1234", ((RequestMessage *) msg.message)->id);
+    ASSERT_EQ("shutdown", ((RequestMessage *) msg.message)->method);
+}

@@ -6,6 +6,7 @@
 #include <nlohmann/json.hpp>
 
 #include "../core/inc/LspServer.h"
+#include "utils.h"
 
 TEST (LSPInitializeTest, readHeadBody_ShouldReadCorrectlyTheHeadAndBody) {
     auto *lsp = new LspServer();
@@ -29,21 +30,6 @@ TEST (LSPInitializeTest, readHeadBody_ShouldReadCorrectlyTheHeadAndBody) {
     ASSERT_EQ(31, p->processId);
     ASSERT_EQ("/some/that", p->rootUri);
 }
-
-namespace test_utils {
-    static std::string extractJson(std::string text, int pos = 0) {
-        std::string res;
-        while (text[pos] != '{') pos++;
-        int c = 0;
-        do {
-            res.push_back(text[pos]);
-            if (text[pos] == '{') c++;
-            if (text[pos] == '}') c--;
-            pos++;
-        } while (c);
-        return res;
-    }
-};
 
 TEST (LSPInitializeTest, readHeadBody_ShouldInitializeConnectionWithClient) {
     auto *lsp = new LspServer();

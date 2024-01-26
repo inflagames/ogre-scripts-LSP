@@ -17,7 +17,7 @@ TEST (LSPTest, readHeader_ShouldReadCorrectlyTheHeader) {
     ASSERT_EQ("application/vscode; charset=utf-8", msg.contentType);
 }
 
-TEST (LSPTest, readBody_ShouldReadCorrectlyTheBody) {
+TEST (LSPTest, readBody_ShouldReadCorrectlyTheBody_Shutdown) {
     auto *lsp = new LspServer();
     std::istringstream osMock("{\"id\": 1234,\"method\": \"shutdown\"}");
 
@@ -26,6 +26,17 @@ TEST (LSPTest, readBody_ShouldReadCorrectlyTheBody) {
     ASSERT_TRUE(msg.message != nullptr);
     ASSERT_EQ("1234", ((RequestMessage *) msg.message)->id);
     ASSERT_EQ("shutdown", ((RequestMessage *) msg.message)->method);
+}
+
+TEST (LSPTest, readBody_ShouldReadCorrectlyTheBody_Exit) {
+    auto *lsp = new LspServer();
+    std::istringstream osMock("{\"id\": 1234,\"method\": \"exit\"}");
+
+    Action msg = lsp->readContent({35, "", new RequestMessage()}, osMock);
+
+    ASSERT_TRUE(msg.message != nullptr);
+    ASSERT_EQ("1234", ((RequestMessage *) msg.message)->id);
+    ASSERT_EQ("exit", ((RequestMessage *) msg.message)->method);
 }
 
 TEST (LSPTest, readHeadBody_ShouldReadCorrectlyTheHeadAndBody) {

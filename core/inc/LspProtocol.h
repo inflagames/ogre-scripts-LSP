@@ -5,6 +5,7 @@
 #ifndef OGRE_SCRIPTS_LSP_LIB_LSPPROTOCOL_H
 #define OGRE_SCRIPTS_LSP_LIB_LSPPROTOCOL_H
 
+#include <utility>
 #include <vector>
 
 #include <nlohmann/json.hpp>
@@ -12,18 +13,24 @@
 struct Message {
     std::string jsonrpc;
 
-    virtual void formJson(const nlohmann::json &j) {};
+    explicit Message(std::string jsonrpc) : jsonrpc(std::move(jsonrpc)) {}
 
-    virtual void toJson(nlohmann::json &j) {};
+    virtual void fromJson(const nlohmann::json &j) = 0;
+
+    virtual nlohmann::json toJson() = 0;
 };
 
 
 struct ParamsBase {
-    virtual void formJson(const nlohmann::json &j) {};
+    virtual void fromJson(const nlohmann::json &j) {};
 };
 
 struct WorkDoneProgressParams : ParamsBase {
     std::string workDoneToken;
+};
+
+struct ResultBase {
+    virtual nlohmann::json toJson() {};
 };
 
 /**
@@ -55,7 +62,7 @@ struct InitializeParams : WorkDoneProgressParams {
     };
     std::vector<WorkspaceFolder> workspaceFolders;
 
-    virtual void formJson(const nlohmann::json &j) {
+    void fromJson(const nlohmann::json &j) override {
         if (j.contains("processId")) {
             j.at("processId").get_to(processId);
         }
@@ -69,17 +76,65 @@ struct InitializeParams : WorkDoneProgressParams {
 };
 
 /**
+ * 'textDocument/formatting' request
+ */
+struct DocumentFormattingParams : WorkDoneProgressParams {
+    struct TextDocumentIdentifier {
+        std::string uri;
+    } textDocument;
+
+    struct FormattingOptions {
+        uint32_t tabSize;
+        bool insertSpaces;
+        bool trimTrailingWhitespace = true;
+        bool insertFinalNewline = false;
+        bool trimFinalNewLines = false;
+    } options;
+
+    void fromJson(const nlohmann::json &j) override {
+        if (j.contains("textDocument") && j.at("textDocument").contains("uri")) {
+            j.at("textDocument").at("uri").get_to(textDocument.uri);
+        }
+        if (j.contains("options")) {
+            if (j.at("options").contains("tabSize")) {
+                j.at("options").at("tabSize").get_to(options.tabSize);
+            }
+            if (j.at("options").contains("insertSpaces")) {
+                j.at("options").at("insertSpaces").get_to(options.insertSpaces);
+            }
+            if (j.at("options").contains("trimTrailingWhitespace")) {
+                j.at("options").at("trimTrailingWhitespace").get_to(options.trimTrailingWhitespace);
+            }
+            if (j.at("options").contains("insertFinalNewline")) {
+                j.at("options").at("insertFinalNewline").get_to(options.insertFinalNewline);
+            }
+            if (j.at("options").contains("trimFinalNewLines")) {
+                j.at("options").at("trimFinalNewLines").get_to(options.trimFinalNewLines);
+            }
+        }
+    }
+};
+
+/**
  * 'initialize' response
  */
-struct InitializeResult {
+struct InitializeResult : ResultBase {
     struct ServerCapabilities {
-        bool documentFormattingProvider;
+        bool documentFormattingProvider = true;
     } capabilities;
 
     struct ServerInfo {
-        std::string name;
-        std::string version;
+        std::string name = "ogre-scripts-LSP";
+        // toDo (gonzalezext)[26.01.24]: version should be provide via CMAKE variable
+        std::string version = "1.0.0";
     } serverInfo;
+
+    nlohmann::json toJson() override {
+        return nlohmann::json{
+                {"capabilities", {{"documentFormattingProvider", capabilities.documentFormattingProvider}}},
+                {"serverInfo",   {{"name",                       serverInfo.name}, {"version", serverInfo.version}}}
+        };
+    };
 };
 
 struct RequestMessage : Message {
@@ -87,7 +142,12 @@ struct RequestMessage : Message {
     std::string method;
     ParamsBase *params;
 
-    void fromJson(const nlohmann::json &j) {
+    RequestMessage() : Message("") {
+        jsonrpc = method = id = "";
+        params = new ParamsBase();
+    }
+
+    void fromJson(const nlohmann::json &j) override {
         if (j.contains("jsonrpc")) {
             j.at("jsonrpc").get_to(jsonrpc);
         }
@@ -104,10 +164,12 @@ struct RequestMessage : Message {
         if (j.contains("params")) {
             if ("initialize" == method) {
                 params = new InitializeParams();
-                params->formJson(j.at("params"));
+                params->fromJson(j.at("params"));
             }
         }
     }
+
+    nlohmann::json toJson() override {}
 };
 
 enum ErrorCode {
@@ -123,17 +185,37 @@ enum ErrorCode {
 
 struct ResponseMessage : Message {
     std::string id;
-    std::string result;
+    ResultBase *result;
+
     struct ResponseError {
         ErrorCode code;
         std::string message;
         std::string data;
+
+        nlohmann::json toJson() {
+            return nlohmann::json{{"code",    code},
+                                  {"message", message},
+                                  {"data",    data}};
+        };
     } error;
 
-    virtual void toJson(nlohmann::json &j) {
-        j = nlohmann::json{{"id",     id},
-                           {"result", result}};
+    ResponseMessage() : Message("2.0") {
+        id = "";
+        result = nullptr;
+        error = {};
+    }
+
+    nlohmann::json toJson() override {
+        if (nullptr != result) {
+            return nlohmann::json{{"id",     id},
+                                  {"result", result->toJson()}};
+        } else {
+            return nlohmann::json{{"id",    id},
+                                  {"error", error.toJson()}};
+        }
     };
+
+    void fromJson(const nlohmann::json &j) override {}
 };
 
 struct Action {

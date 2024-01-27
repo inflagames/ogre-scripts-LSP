@@ -18,6 +18,14 @@ namespace OgreScriptLSP {
         void loadScript(const std::string &scriptFile);
 
         void parse();
+
+        void program();
+
+        void programType();
+
+        void programOpt();
+
+        void
     };
 }
 

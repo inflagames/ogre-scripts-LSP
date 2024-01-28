@@ -12,6 +12,8 @@ namespace OgreScriptLSP {
     public:
         std::ifstream file;
         char ch{};
+        int lineCount = 0;
+        int columnCount = 0;
 
         Scanner();
 

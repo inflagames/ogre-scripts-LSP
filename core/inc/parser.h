@@ -7,6 +7,10 @@
 
 #include "scanner.h"
 #include "ast_tree.h"
+#include "exceptions.h"
+
+#define PROGRAM_NAME_MISSION "Error with program name identifier"
+#define CURLY_BRACKET_MISSING "Missing curly bracket"
 
 namespace OgreScriptLSP {
     class Parser {
@@ -18,11 +22,17 @@ namespace OgreScriptLSP {
 
         MaterialScriptAst *script = nullptr;
 
+        std::vector<BaseException> exceptions;
+
     public:
         Parser();
 
-        MaterialScriptAst * getScript() {
+        MaterialScriptAst *getScript() {
             return script;
+        }
+
+        std::vector<BaseException> getExceptions() {
+            return exceptions;
         }
 
         void loadScript(const std::string &scriptFile);

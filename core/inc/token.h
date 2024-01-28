@@ -68,6 +68,8 @@ namespace OgreScriptLSP {
     struct TokenValue {
         Token tk;
         std::string literal;
+        int line;
+        int column;
     };
 }
 

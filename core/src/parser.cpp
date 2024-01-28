@@ -3,7 +3,6 @@
 //
 
 #include "../inc/parser.h"
-#include "../inc/exceptions.h"
 
 OgreScriptLSP::Parser::Parser() {
     scanner = new Scanner();
@@ -29,7 +28,7 @@ void OgreScriptLSP::Parser::parse() {
                 program(script);
             }
         } catch (ParseException e) {
-            // toDo (gonzalezext)[28.01.24]: save exception
+            exceptions.push_back(e);
             recuperate = true;
         }
         if (recuperate) {
@@ -49,7 +48,7 @@ void OgreScriptLSP::Parser::program(MaterialScriptAst *script) {
     nextToken();
 
     if (getToken().tk != identifier) {
-        throw ParseException("Error with program name identifier");
+        throw ParseException(PROGRAM_NAME_MISSION, getToken().line, getToken().column);
     }
     program->name = getToken();
     nextToken();
@@ -57,7 +56,7 @@ void OgreScriptLSP::Parser::program(MaterialScriptAst *script) {
     programOpt(program);
 
     if (getToken().tk != left_curly_bracket_tk) {
-        // toDo (gonzalezext)[28.01.24]: throw exception
+        throw ParseException(CURLY_BRACKET_MISSING, getToken().line, getToken().column);
     }
     nextTokenAndConsumeEndLines();
 

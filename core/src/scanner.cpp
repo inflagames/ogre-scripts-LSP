@@ -5,6 +5,8 @@ OgreScriptLSP::Scanner::Scanner() = default;
 void OgreScriptLSP::Scanner::loadScript(const std::string &scriptFile) {
     file.open(scriptFile);
     ch = ' ';
+    lineCount = 1;
+    columnCount = 0;
 }
 
 std::vector<OgreScriptLSP::TokenValue> OgreScriptLSP::Scanner::parse() {
@@ -103,12 +105,15 @@ void OgreScriptLSP::Scanner::consumeComment(bool lineComment) {
 }
 
 OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::symbolToken(OgreScriptLSP::Token tk) {
+    TokenValue res = {tk, "", lineCount, columnCount};
     nextCharacter();
-    return {tk};
+    return res;
 }
 
 OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeNumber(bool isFirstPeriod) {
     std::string literal;
+    int line = lineCount;
+    int column = columnCount;
     while (true) {
         literal.push_back(ch);
         if (nextCharacter() && (isdigit(ch) || (ch == '.' && isFirstPeriod))) {
@@ -116,7 +121,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeNumber(bool isFirstPeri
                 isFirstPeriod = false;
             }
         } else {
-            return {number_literal, literal};
+            return {number_literal, literal, line, column};
         }
     }
 }
@@ -124,10 +129,12 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeNumber(bool isFirstPeri
 OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeString(char stringDelimiter) {
     std::string literal;
     nextCharacter();
+    int line = lineCount;
+    int column = columnCount;
     while (true) {
         if (ch == stringDelimiter) {
             nextCharacter();
-            return {string_literal, literal};
+            return {string_literal, literal, line, column};
         } else if (ch == '\\') {
             nextCharacter();
         }
@@ -138,41 +145,43 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeString(char stringDelim
 
 OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
     std::string literal;
+    int line = lineCount;
+    int column = columnCount;
     while (true) {
         literal.push_back(ch);
         if (!nextCharacter() || !validLiteral(ch, false)) {
             if (literal == "abstract") {
-                return {abstract_tk};
+                return {abstract_tk, "", line, column};
             } else if (literal == "default_params") {
-                return {default_params_tk};
+                return {default_params_tk, "", line, column};
             } else if (literal == "delegate") {
-                return {delegate_tk};
+                return {delegate_tk, "", line, column};
             } else if (literal == "entry_point") {
-                return {entry_point_tk};
+                return {entry_point_tk, "", line, column};
             } else if (literal == "fragment_program") {
-                return {fragment_program_tk};
+                return {fragment_program_tk, "", line, column};
             } else if (literal == "material") {
-                return {material_tk};
+                return {material_tk, "", line, column};
             } else if (literal == "pass") {
-                return {pass_tk};
+                return {pass_tk, "", line, column};
             } else if (literal == "profiles") {
-                return {profiles_tk};
+                return {profiles_tk, "", line, column};
             } else if (literal == "set") {
-                return {set_tk};
+                return {set_tk, "", line, column};
             } else if (literal == "source") {
-                return {source_tk};
+                return {source_tk, "", line, column};
             } else if (literal == "technique") {
-                return {technique_tk};
+                return {technique_tk, "", line, column};
             } else if (literal == "texture_unit") {
-                return {texture_unit_tk};
+                return {texture_unit_tk, "", line, column};
             } else if (literal == "unified") {
-                return {unified_tk};
+                return {unified_tk, "", line, column};
             } else if (literal == "vertex_program") {
-                return {vertex_program_tk};
+                return {vertex_program_tk, "", line, column};
             } else if (literal.starts_with('$')) {
-                return {variable, literal};
+                return {variable, literal, line, column};
             }
-            return {identifier, literal};
+            return {identifier, literal, line, column};
         }
     }
 }
@@ -195,5 +204,11 @@ bool OgreScriptLSP::Scanner::consumeEmpty() {
 
 bool OgreScriptLSP::Scanner::nextCharacter() {
     file.get(ch);
+    if (ch == '\n') {
+        lineCount++;
+        columnCount = 0;
+    } else {
+        columnCount++;
+    }
     return !file.eof();
 }

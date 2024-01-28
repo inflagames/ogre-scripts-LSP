@@ -2,6 +2,10 @@ fragment_program {
     source FloorFp.glsl
 }
 
+fragment_program Game/Some glsl
+    source FloorFp.glsl
+}
+
 vertex_program Game/Floor/ShaderVp glsl {
     source FloorVp.glsl
 	default_params

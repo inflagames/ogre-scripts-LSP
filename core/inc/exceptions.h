@@ -8,11 +8,20 @@
 #define OGRE_SCRIPTS_LSP_LIB_EXCEPTIONS_H
 
 namespace OgreScriptLSP {
-    struct ParseException : std::exception {
+    struct BaseException : std::exception {
     public:
         std::string message;
+        int line;
+        int column;
 
-        explicit ParseException(std::string message) : message(std::move(message)) {}
+        BaseException(std::string message, int line, int column)
+                : message(std::move(message)), line(line), column(column) {}
+    };
+
+    struct ParseException : BaseException {
+    public:
+        explicit ParseException(std::string message, int line, int column)
+                : BaseException(std::move(message), line, column) {}
     };
 }
 

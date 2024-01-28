@@ -75,7 +75,7 @@ void OgreScriptLSP::Parser::programOpt(OgreScriptLSP::ProgramAst *program) {
     if (getToken().tk != identifier) {
         throw ParseException(PROGRAM_HIGH_LEVEL_MISSING, getToken().line, getToken().column);
     }
-    while (getToken().tk == identifier) {
+    while (!isEof() && getToken().tk == identifier && !isMainStructure()) {
         program->highLevelProgramsType.push_back(getToken());
         nextToken();
     }
@@ -83,7 +83,7 @@ void OgreScriptLSP::Parser::programOpt(OgreScriptLSP::ProgramAst *program) {
 }
 
 void OgreScriptLSP::Parser::programBody(OgreScriptLSP::ProgramAst *program) {
-    while (getToken().tk != right_curly_bracket_tk && !isMainStructure() ) {
+    while (!isEof() && getToken().tk != right_curly_bracket_tk && !isMainStructure() ) {
         TokenValue tk = getToken();
         if (tk.tk == default_params_tk) {
             programDefaults(program);
@@ -107,12 +107,17 @@ void OgreScriptLSP::Parser::programDefaults(OgreScriptLSP::ProgramAst *program) 
     nextTokenAndConsumeEndLines();
 
     if (getToken().tk != left_curly_bracket_tk) {
-        // toDo (gonzalezext)[28.01.24]: throw exception
+        throw ParseException(CURLY_BRACKET_START_MISSING, getToken().line, getToken().column);
     }
     nextTokenAndConsumeEndLines();
 
-    while (getToken().tk != right_curly_bracket_tk) {
-        // toDo (gonzalezext)[28.01.24]: recuperate if error
+    while (!isEof() && getToken().tk != right_curly_bracket_tk && !isMainStructure()) {
+        auto tk = getToken();
+        if (tk.tk != identifier) {
+            exceptions.push_back(ParseException(NOT_VALID_PARAM, tk.line, tk.column));
+            recuperateLine();
+            continue;
+        }
         auto *param = new ParamProgramDefaultAst();
         paramsLine(param);
         program->defaults.push_back(param);
@@ -121,10 +126,12 @@ void OgreScriptLSP::Parser::programDefaults(OgreScriptLSP::ProgramAst *program) 
 }
 
 void OgreScriptLSP::Parser::paramsLine(ParamAst *params) {
-    while (getToken().tk != endl_tk) {
+    while (!isEof() && getToken().tk != endl_tk && !isMainStructure()) {
         TokenValue tk = getToken();
         if (tk.tk != identifier && tk.tk != string_literal && tk.tk != number_literal && tk.tk != variable) {
-            // toDo (gonzalezext)[28.01.24]: throw exception
+            exceptions.push_back(ParseException(NOT_VALID_PARAM, tk.line, tk.column));
+            recuperateLine();
+            return;
         }
         params->items.push_back(tk);
         nextToken();

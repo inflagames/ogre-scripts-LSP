@@ -14,6 +14,7 @@
 #define CURLY_BRACKET_END_MISSING "Missing curly bracket"
 #define PROGRAM_HIGH_LEVEL_MISSING "Missing high level program definition"
 #define NOT_VALID_PROGRAM_PARAM "Not valid program param"
+#define NOT_VALID_PARAM "Not valid program default param"
 
 namespace OgreScriptLSP {
     class Parser {

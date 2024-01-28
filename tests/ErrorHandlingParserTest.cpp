@@ -34,4 +34,14 @@ TEST (ErrorHandlingParserTest, parse_ShouldFailWithErrorsAnsRecuperate) {
     ASSERT_EQ(PROGRAM_HIGH_LEVEL_MISSING, e.message);
     ASSERT_EQ(16, e.line);
     ASSERT_EQ(28, e.column);
+
+    e = exceptions[4];
+    ASSERT_EQ(NOT_VALID_PARAM, e.message);
+    ASSERT_EQ(27, e.line);
+    ASSERT_EQ(3, e.column);
+
+    e = exceptions[5];
+    ASSERT_EQ(NOT_VALID_PARAM, e.message);
+    ASSERT_EQ(29, e.line);
+    ASSERT_EQ(15, e.column);
 }

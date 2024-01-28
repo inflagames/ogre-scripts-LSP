@@ -17,11 +17,15 @@ fragment_program Game/Some {
    source FloorFp.glsl
 }
 
+// error with default params
 vertex_program Game/Floor/ShaderVp glsl {
     source FloorVp.glsl
 	default_params
 	{
 		// assign samplers as required by GLSL
 		param_named normalMap int 0
+		0 0 0 somewron
+		param_named some
+		param_named default_params
 	}
 }

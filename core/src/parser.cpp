@@ -19,7 +19,7 @@ void OgreScriptLSP::Parser::parse() {
     script = new MaterialScriptAst();
 
     bool recuperate = false;
-    while (currentToken < tokens.size()) {
+    while (!isEof()) {
         consumeEndLines();
         TokenValue tk = getToken();
         try {
@@ -30,6 +30,7 @@ void OgreScriptLSP::Parser::parse() {
         } catch (ParseException e) {
             exceptions.push_back(e);
             recuperate = true;
+            continue;
         }
         if (recuperate) {
             nextTokenAndConsumeEndLines();
@@ -56,14 +57,14 @@ void OgreScriptLSP::Parser::program(MaterialScriptAst *script) {
     programOpt(program);
 
     if (getToken().tk != left_curly_bracket_tk) {
-        throw ParseException(CURLY_BRACKET_MISSING, getToken().line, getToken().column);
+        throw ParseException(CURLY_BRACKET_START_MISSING, getToken().line, getToken().column);
     }
     nextTokenAndConsumeEndLines();
 
     programBody(program);
 
     if (getToken().tk != right_curly_bracket_tk) {
-        // toDo (gonzalezext)[28.01.24]: throw exception
+        throw ParseException(CURLY_BRACKET_END_MISSING, getToken().line, getToken().column);
     }
     nextTokenAndConsumeEndLines();
 
@@ -72,28 +73,32 @@ void OgreScriptLSP::Parser::program(MaterialScriptAst *script) {
 
 void OgreScriptLSP::Parser::programOpt(OgreScriptLSP::ProgramAst *program) {
     if (getToken().tk != identifier) {
-        // toDo (gonzalezext)[28.01.24]: throw exception
+        throw ParseException(PROGRAM_HIGH_LEVEL_MISSING, getToken().line, getToken().column);
     }
     while (getToken().tk == identifier) {
         program->highLevelProgramsType.push_back(getToken());
         nextToken();
     }
-    if (getToken().tk == endl_tk) {
-        nextTokenAndConsumeEndLines();
-    }
+    consumeEndLines();
 }
 
 void OgreScriptLSP::Parser::programBody(OgreScriptLSP::ProgramAst *program) {
-    while (getToken().tk != right_curly_bracket_tk) {
+    while (getToken().tk != right_curly_bracket_tk && !isMainStructure() ) {
         TokenValue tk = getToken();
         if (tk.tk == default_params_tk) {
             programDefaults(program);
             continue;
         }
-        // toDo (gonzalezext)[28.01.24]: recuperate if error
-        auto *param = new ParamProgramAst();
-        paramsLine(param);
-        program->params.push_back(param);
+        if (tk.tk == identifier) {
+            auto *param = new ParamProgramAst();
+            paramsLine(param);
+            program->params.push_back(param);
+            continue;
+        }
+
+        // recuperate line
+        exceptions.push_back(ParseException(NOT_VALID_PROGRAM_PARAM, tk.line, tk.column));
+        recuperateLine();
     }
     consumeEndLines();
 }
@@ -127,8 +132,9 @@ void OgreScriptLSP::Parser::paramsLine(ParamAst *params) {
     nextTokenAndConsumeEndLines();
 }
 
-OgreScriptLSP::TokenValue OgreScriptLSP::Parser::getToken() {
-    return tokens[currentToken];
+void OgreScriptLSP::Parser::recuperateLine() {
+    while (!isEof() && getToken().tk != endl_tk) nextToken();
+    consumeEndLines();
 }
 
 void OgreScriptLSP::Parser::nextTokenAndConsumeEndLines() {
@@ -137,14 +143,26 @@ void OgreScriptLSP::Parser::nextTokenAndConsumeEndLines() {
 }
 
 void OgreScriptLSP::Parser::consumeEndLines() {
-    while (getToken().tk == endl_tk) {
+    while (!isEof() && getToken().tk == endl_tk) {
         nextToken();
     }
 }
 
+OgreScriptLSP::TokenValue OgreScriptLSP::Parser::getToken() {
+    return tokens[currentToken];
+}
+
 void OgreScriptLSP::Parser::nextToken() {
-    currentToken++;
-    if (currentToken >= tokens.size()) {
-        // toDo (gonzalezext)[28.01.24]: throw exception when finish
+    if (!isEof()) {
+        currentToken++;
     }
+}
+
+bool OgreScriptLSP::Parser::isEof() {
+    return currentToken >= tokens.size();
+}
+
+bool OgreScriptLSP::Parser::isMainStructure() {
+    auto tk = getToken().tk;
+    return tk == vertex_program_tk || tk == fragment_program_tk || tk == material_tk;
 }

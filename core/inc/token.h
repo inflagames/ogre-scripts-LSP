@@ -18,11 +18,8 @@ namespace OgreScriptLSP {
         material_tk,
         pass_tk,
         profiles_tk,
-        set_tk,
-        source_tk,
         technique_tk,
         texture_unit_tk,
-        unified_tk,
         vertex_program_tk,
         vertex_program_ref_tk,
 

@@ -166,16 +166,10 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
                 return {pass_tk, "", line, column};
             } else if (literal == "profiles") {
                 return {profiles_tk, "", line, column};
-            } else if (literal == "set") {
-                return {set_tk, "", line, column};
-            } else if (literal == "source") {
-                return {source_tk, "", line, column};
             } else if (literal == "technique") {
                 return {technique_tk, "", line, column};
             } else if (literal == "texture_unit") {
                 return {texture_unit_tk, "", line, column};
-            } else if (literal == "unified") {
-                return {unified_tk, "", line, column};
             } else if (literal == "vertex_program") {
                 return {vertex_program_tk, "", line, column};
             } else if (literal.starts_with('$')) {

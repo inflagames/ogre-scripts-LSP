@@ -1,9 +1,20 @@
+// missing program name
 fragment_program {
     source FloorFp.glsl
 }
 
+// start curly bracket missing
 fragment_program Game/Some glsl
     source FloorFp.glsl
+}
+
+// last curly bracket missing
+fragment_program Game/Some glsl {
+   source FloorFp.glsl
+
+// high level missing
+fragment_program Game/Some {
+   source FloorFp.glsl
 }
 
 vertex_program Game/Floor/ShaderVp glsl {

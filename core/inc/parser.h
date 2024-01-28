@@ -10,7 +10,10 @@
 #include "exceptions.h"
 
 #define PROGRAM_NAME_MISSION "Error with program name identifier"
-#define CURLY_BRACKET_MISSING "Missing curly bracket"
+#define CURLY_BRACKET_START_MISSING "Missing start curly bracket"
+#define CURLY_BRACKET_END_MISSING "Missing curly bracket"
+#define PROGRAM_HIGH_LEVEL_MISSING "Missing high level program definition"
+#define NOT_VALID_PROGRAM_PARAM "Not valid program param"
 
 namespace OgreScriptLSP {
     class Parser {
@@ -54,11 +57,17 @@ namespace OgreScriptLSP {
          */
         TokenValue getToken();
 
+        void recuperateLine();
+
         void nextTokenAndConsumeEndLines();
 
         void nextToken();
 
         void consumeEndLines();
+
+        bool isEof();
+
+        bool isMainStructure();
     };
 }
 

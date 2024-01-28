@@ -23,14 +23,14 @@ TEST (SimpleScannerTest, scanner_ShouldReadCorrectlyTheTokensFromFragments) {
             OgreScriptLSP::fragment_program_tk, OgreScriptLSP::identifier, OgreScriptLSP::identifier,
             OgreScriptLSP::identifier, OgreScriptLSP::left_curly_bracket_tk, OgreScriptLSP::endl_tk,
             // line
-            OgreScriptLSP::source_tk, OgreScriptLSP::identifier, OgreScriptLSP::endl_tk,
+            OgreScriptLSP::identifier, OgreScriptLSP::identifier, OgreScriptLSP::endl_tk,
             // line
             OgreScriptLSP::right_curly_bracket_tk, OgreScriptLSP::endl_tk, OgreScriptLSP::endl_tk,
             // line
             OgreScriptLSP::vertex_program_tk, OgreScriptLSP::identifier, OgreScriptLSP::identifier,
             OgreScriptLSP::left_curly_bracket_tk, OgreScriptLSP::endl_tk,
             // line
-            OgreScriptLSP::source_tk, OgreScriptLSP::identifier, OgreScriptLSP::endl_tk,
+            OgreScriptLSP::identifier, OgreScriptLSP::identifier, OgreScriptLSP::endl_tk,
             // line
             OgreScriptLSP::default_params_tk, OgreScriptLSP::endl_tk,
             // line
@@ -72,7 +72,7 @@ TEST (SimpleScannerTest, scanner_ShouldReadCorrectlyTheTokensFromMaterial) {
             OgreScriptLSP::pass_tk, OgreScriptLSP::colon_tk, OgreScriptLSP::identifier,
             OgreScriptLSP::left_curly_bracket_tk, OgreScriptLSP::endl_tk,
             // line
-            OgreScriptLSP::set_tk, OgreScriptLSP::variable, OgreScriptLSP::string_literal, OgreScriptLSP::endl_tk,
+            OgreScriptLSP::identifier, OgreScriptLSP::variable, OgreScriptLSP::string_literal, OgreScriptLSP::endl_tk,
             // line
             OgreScriptLSP::right_curly_bracket_tk, OgreScriptLSP::endl_tk,
             // line

@@ -43,7 +43,7 @@ namespace OgreScriptLSP {
 
         /**
          * Consume next character from the script file
-         * @return false if file reach eof or true otherwise
+         * @return false if file reach isEof or true otherwise
          */
         bool nextCharacter();
 

@@ -1,10 +1,10 @@
 // start LSP
 
-#include "core/inc/LspServer.h"
+#include "core/inc/lsp_server.h"
 
 int main() {
 
-    auto *lcp = new LspServer();
+    auto *lcp = new lsp_server();
     lcp->runServer();
 
     return 0;

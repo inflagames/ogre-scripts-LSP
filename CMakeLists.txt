@@ -16,9 +16,9 @@ add_library(ogre_scripts_LSP_lib STATIC
         core/inc/scanner.h
         core/src/parser.cpp
         core/inc/parser.h
-        core/src/LspServer.cpp
-        core/inc/LspServer.h
-        core/inc/LspProtocol.h
+        core/src/lsp_server.cpp
+        core/inc/lsp_server.h
+        core/inc/lsp_protocol.h
         core/inc/ast_tree.h
 )
 

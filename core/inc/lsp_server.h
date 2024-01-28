@@ -2,24 +2,24 @@
 // Created by gonzalezext on 25.01.24.
 //
 
-#ifndef OGRE_SCRIPTS_LSP_LIB_LSPSERVER_H
-#define OGRE_SCRIPTS_LSP_LIB_LSPSERVER_H
+#ifndef OGRE_SCRIPTS_LSP_LIB_LSP_SERVER_H
+#define OGRE_SCRIPTS_LSP_LIB_LSP_SERVER_H
 
 #include <iostream>
 #include <string>
 
-#include "LspProtocol.h"
+#include "lsp_protocol.h"
 
 #define HEADER_CONTENT_LENGTH "Content-Length"
 #define HEADER_CONTENT_TYPE "Content-Type"
 
-class LspServer {
+class lsp_server {
 private:
     bool running = false;
     char ch;
 
 public:
-    LspServer() = default;
+    lsp_server() = default;
 
     void runServer(std::ostream &oos = std::cout, std::istream &ios = std::cin);
 
@@ -41,4 +41,4 @@ public:
 };
 
 
-#endif //OGRE_SCRIPTS_LSP_LIB_LSPSERVER_H
+#endif //OGRE_SCRIPTS_LSP_LIB_LSP_SERVER_H

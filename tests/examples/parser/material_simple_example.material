@@ -1,0 +1,37 @@
+material Parent {
+    technique {
+        pass some {
+            diffuse_color 1 0 0 1
+
+            // Vertex program reference
+            vertex_program_ref vertex_example
+            {
+                param_named_auto lightPosition light_position_object_space 0
+                param_named_auto worldViewProj worldviewproj_matrix
+            }
+
+            // Fragment program
+            fragment_program_ref fragment_example
+            {
+                param_named_auto lightDiffuse light_diffuse_colour 0
+            }
+
+            texture_unit normal {
+                texture normal_map.jpg
+            }
+        }
+    }
+}
+
+material Child : Parent {
+    receive_shadows on
+    technique {
+        pass some {
+            diffuse_color 1 1 0 1
+
+            texture_unit normal {
+                texture normal_map2.jpg
+            }
+        }
+    }
+}

@@ -8,7 +8,7 @@
 
 TEST (ErrorHandlingParserTest, parse_ShouldFailWithErrorsAnsRecuperate) {
     auto *parser = new OgreScriptLSP::Parser();
-    std::string scriptFile = "./examples/parse/frag_vert_declarations_with_errors.material";
+    std::string scriptFile = "./examples/parser/frag_vert_declarations_with_errors.material";
     parser->loadScript(scriptFile);
 
     parser->parse();

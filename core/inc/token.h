@@ -35,12 +35,12 @@ namespace OgreScriptLSP {
         // symbols
         colon_tk, // : X
         semicolon_tk, // ; X todo: probably not needed
-        left_parenthesis_tk, // ( X
-        right_parenthesis_tk, // ) X
+//        left_parenthesis_tk, // ( X
+//        right_parenthesis_tk, // ) X
         left_curly_bracket_tk, // { X
         right_curly_bracket_tk, // } X
-        left_square_bracket_tk, // [ X
-        right_square_bracket_tk, // ] X
+//        left_square_bracket_tk, // [ X
+//        right_square_bracket_tk, // ] X
 
         // math
         equals_tk, // = X todo: probably not needed

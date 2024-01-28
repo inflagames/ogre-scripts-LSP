@@ -57,6 +57,8 @@ namespace OgreScriptLSP {
 
     class MaterialProgramAst {
     public:
+        TokenValue name;
+        TokenValue type;
         std::vector<MaterialProgramParamAst *> params;
 
         ~MaterialProgramAst() {
@@ -73,6 +75,7 @@ namespace OgreScriptLSP {
 
     class TextureUnitAst {
     public:
+        TokenValue name;
         std::vector<TextureUnitParamAst *> params;
 
         ~TextureUnitAst() {
@@ -89,7 +92,11 @@ namespace OgreScriptLSP {
 
     class PassAst {
     public:
+        TokenValue name;
+        TokenValue parent;
         std::vector<PassParamAst *> params;
+        std::vector<TextureUnitAst *> textures;
+        std::vector<MaterialProgramAst *> programsReferences;
 
         ~PassAst() {
             for (auto ele: params) {
@@ -117,6 +124,8 @@ namespace OgreScriptLSP {
 
     class MaterialAst {
     public:
+        TokenValue name;
+        TokenValue parent;
         std::vector<MaterialParamAst *> params;
         std::vector<TechniqueAst *> techniques;
 

@@ -6,6 +6,7 @@
 #include <string>
 
 #include "token.h"
+#include "exceptions.h"
 
 namespace OgreScriptLSP {
     class Scanner {

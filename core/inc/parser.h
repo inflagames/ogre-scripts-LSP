@@ -9,12 +9,6 @@
 #include "ast_tree.h"
 #include "exceptions.h"
 
-#define PROGRAM_NAME_MISSION "Error with program name identifier"
-#define CURLY_BRACKET_START_MISSING "Missing start curly bracket"
-#define CURLY_BRACKET_END_MISSING "Missing curly bracket"
-#define PROGRAM_HIGH_LEVEL_MISSING "Missing high level program definition"
-#define NOT_VALID_PROGRAM_PARAM "Not valid program param"
-#define NOT_VALID_PARAM "Not valid program default param"
 
 namespace OgreScriptLSP {
     class Parser {
@@ -43,6 +37,7 @@ namespace OgreScriptLSP {
 
         void parse();
 
+        // PROGRAM STATEMENT
         void program(MaterialScriptAst *script);
 
         void programOpt(ProgramAst *program);
@@ -51,6 +46,30 @@ namespace OgreScriptLSP {
 
         void programDefaults(ProgramAst *program);
 
+        // MATERIAL STATEMENT
+        void material(MaterialScriptAst *script);
+
+        void materialBody(MaterialAst *material);
+
+        void materialTechnique(MaterialAst *material);
+
+        void materialTechniqueBody(TechniqueAst *technique);
+
+        void materialPass(TechniqueAst *technique);
+
+        void materialPassName(PassAst *pass);
+
+        void materialPassBody(PassAst *pass);
+
+        void materialTexture(PassAst *pass);
+
+        void materialTextureBody(TextureUnitAst *texture);
+
+        void materialProgramRef(PassAst *pass);
+
+        void materialProgramRefBody(MaterialProgramAst *programRef);
+
+        // THIS IS COMMON SECTION
         void paramsLine(ParamAst *params);
 
         /**
@@ -62,6 +81,10 @@ namespace OgreScriptLSP {
 
         void nextTokenAndConsumeEndLines();
 
+        void consumeOpenCurlyBracket();
+
+        void consumeCloseCurlyBracket();
+
         void nextToken();
 
         void consumeEndLines();
@@ -69,6 +92,8 @@ namespace OgreScriptLSP {
         bool isEof();
 
         bool isMainStructure();
+
+        std::vector<TokenValue> objectDefinition(std::string error1, std::string error2);
     };
 }
 

@@ -37,8 +37,8 @@ material_technique = <technique_tk> <left_curly_bracket_tk> <material_technique_
 material_technique_body = <material_technique_body_opt> | <material_technique_body_opt> <material_technique_body>
 material_technique_body_opt = <material_pass>
 
-material_pass = <pass_tk> <left_curly_bracket_tk> <material_pass_body> <right_curly_bracket_tk>
-material_pass_name = <colon_tk> <identifier> | <string_literal> | <identifier>
+material_pass = <pass_tk> <material_pass_name> <left_curly_bracket_tk> <material_pass_body> <right_curly_bracket_tk>
+material_pass_name = empty | <identifier> <colon_tk> <identifier> | <match_literal> | <identifier>
 material_pass_body = <material_pass_body_opt> | <material_pass_body_opt> <material_pass_body>
 material_pass_body_opt = <param_line> | <material_texture> | <material_program>
 

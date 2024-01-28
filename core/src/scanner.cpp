@@ -4,12 +4,19 @@ OgreScriptLSP::Scanner::Scanner() = default;
 
 void OgreScriptLSP::Scanner::loadScript(const std::string &scriptFile) {
     file.open(scriptFile);
+    if (!file.is_open()) {
+        throw FileException(FILE_IS_NOT_OPEN_OR_NOT_EXIST);
+    }
     ch = ' ';
     lineCount = 1;
     columnCount = 0;
 }
 
 std::vector<OgreScriptLSP::TokenValue> OgreScriptLSP::Scanner::parse() {
+    if (!file.is_open()) {
+        throw FileException(FILE_IS_NOT_OPEN_OR_NOT_EXIST);
+    }
+
     std::vector<OgreScriptLSP::TokenValue> list;
     while (true) {
         auto tk = nextToken();
@@ -50,7 +57,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
 //            case '(':
 //                return symbolToken(left_parenthesis_tk);
 //            case ')':
-                return symbolToken(right_parenthesis_tk);
+//                return symbolToken(right_parenthesis_tk);
             case '{':
                 return symbolToken(left_curly_bracket_tk);
             case '}':
@@ -160,6 +167,8 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
                 return {entry_point_tk, "", line, column};
             } else if (literal == "fragment_program") {
                 return {fragment_program_tk, "", line, column};
+            } else if (literal == "fragment_program_ref") {
+                return {fragment_program_ref_tk, "", line, column};
             } else if (literal == "material") {
                 return {material_tk, "", line, column};
             } else if (literal == "pass") {
@@ -172,6 +181,8 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
                 return {texture_unit_tk, "", line, column};
             } else if (literal == "vertex_program") {
                 return {vertex_program_tk, "", line, column};
+            } else if (literal == "vertex_program_ref") {
+                return {vertex_program_ref_tk, "", line, column};
             } else if (literal.starts_with('$')) {
                 return {variable, literal, line, column};
             }

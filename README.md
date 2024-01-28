@@ -10,6 +10,9 @@ This project is mean to create an LSP for ogre script (materials, fonts, particl
 ## Lexer Material
 
 ```
+script = <script_body> | <script_body> <script>
+script_body = <program> | <material>
+
 // program definition
 program = <program_type> <identifier> <program_opt> <left_curly_bracket_tk> <program_body> <right_curly_bracket_tk>
 program_type = <fragment_program_tk> | <vertex_program_tk>
@@ -17,7 +20,7 @@ program_opt = <identifier> | <identifier> <program_opt>
 program_body = <program_body_opt> | <program_body_opt> <program_body>
 program_body_opt = <param_line> | <program_default>
 
-program_default = <default_params> <left_curly_bracket_tk> <program_default_body> <right_curly_bracket_tk>
+program_default = <default_params_tk> <left_curly_bracket_tk> <program_default_body> <right_curly_bracket_tk>
 program_default_body = <param_line> | <param_line> <program_default_body>
 
 // import
@@ -34,10 +37,10 @@ material_technique = <technique_tk> <left_curly_bracket_tk> <material_technique_
 material_technique_body = <material_technique_body_opt> | <material_technique_body_opt> <material_technique_body>
 material_technique_body_opt = <material_pass>
 
-material_pass = <pass_tk>  <left_curly_bracket_tk> <material_pass_body> <right_curly_bracket_tk>
+material_pass = <pass_tk> <left_curly_bracket_tk> <material_pass_body> <right_curly_bracket_tk>
 material_pass_name = <colon_tk> <identifier> | <string_literal> | <identifier>
 material_pass_body = <material_pass_body_opt> | <material_pass_body_opt> <material_pass_body>
-material_pass_body_opt = <param_line> | <material_texture_unit>
+material_pass_body_opt = <param_line> | <material_texture> | <material_program>
 
 material_texture = <texture_unit_tk> <material_texture_name> <left_curly_bracket_tk> <material_texture_body> <right_curly_bracket_tk>
 material_texture_name = empty | <identifier>

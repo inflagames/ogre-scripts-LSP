@@ -1,7 +1,5 @@
 #include "../inc/scanner.h"
 
-#include <utility>
-
 OgreScriptLSP::Scanner::Scanner() = default;
 
 void OgreScriptLSP::Scanner::loadScript(const std::string &scriptFile) {
@@ -24,10 +22,12 @@ std::vector<OgreScriptLSP::TokenValue> OgreScriptLSP::Scanner::parse() {
 OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
     std::string tkStr;
 
-    while (consumeEmpty()) {
+    while (!file.eof() && consumeEmpty()) {
         switch (ch) {
+            case '\n':
+                return symbolToken(endl_tk);
             case '/': {
-                auto tkValue = symbolToken(slash_tk);
+                nextCharacter();
                 // check if is a comment to consume it
                 if (ch == '/') {
                     consumeComment();
@@ -53,11 +53,6 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
                 return symbolToken(left_curly_bracket_tk);
             case '}':
                 return symbolToken(right_curly_bracket_tk);
-                // toDo (gonzalezext)[25.01.24]: not sure if square bracket are used
-//            case '[':
-//                return symbolToken(left_square_bracket_tk);
-//            case ']':
-//                return symbolToken(right_square_bracket_tk);
             case '"':
                 return consumeString('"');
             case '*': {
@@ -99,12 +94,12 @@ void OgreScriptLSP::Scanner::consumeComment(bool lineComment) {
     nextCharacter(); // consume second ch in comment
     nextCharacter(); // consume first ch after comment definition
     char pCh = ch;
-    while (nextCharacter()) {
-        if ((lineComment && ch == '\n') || (!lineComment && pCh == '/' && ch == '/')) {
+    do {
+        if ((lineComment && ch == '\n') || (!lineComment && pCh == '*' && ch == '/')) {
             return;
         }
         pCh = ch;
-    }
+    } while (nextCharacter());
 }
 
 OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::symbolToken(OgreScriptLSP::Token tk) {
@@ -158,8 +153,6 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
                 return {fragment_program_tk};
             } else if (literal == "material") {
                 return {material_tk};
-            } else if (literal == "param_named") {
-                return {param_named_tk};
             } else if (literal == "pass") {
                 return {pass_tk};
             } else if (literal == "profiles") {
@@ -192,7 +185,7 @@ bool OgreScriptLSP::Scanner::validLiteral(char c, bool startCharacter) {
 }
 
 bool OgreScriptLSP::Scanner::consumeEmpty() {
-    while (ch == ' ' || ch == '\n' || ch == '\t' || ch == '\v' || ch == '\f' || ch == '\r') {
+    while (ch == ' ' || ch == '\t' || ch == '\v' || ch == '\f' || ch == '\r') {
         if (!nextCharacter()) {
             return false;
         }

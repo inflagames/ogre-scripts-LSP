@@ -1,7 +1,0 @@
-fragment_program Game/Floor/ShaderFp glsl glsles {
-    source FloorFp.glsl
-}
-
-vertex_program Game/Floor/ShaderVp glsl glsles {
-    source FloorVp.glsl
-}

@@ -16,7 +16,6 @@ namespace OgreScriptLSP {
         fragment_program_ref_tk,
         import_tk,
         material_tk,
-        param_named_tk,
         pass_tk,
         profiles_tk,
         set_tk,
@@ -27,7 +26,6 @@ namespace OgreScriptLSP {
         vertex_program_tk,
         vertex_program_ref_tk,
 
-        int_tk,
         false_tk,
         true_tk,
 
@@ -63,7 +61,8 @@ namespace OgreScriptLSP {
         vertical_bar_tk, // | X todo: probably not needed
 
         // system
-        EOF_tk, // todo: probably not needed
+        EOF_tk,
+        endl_tk,
     };
 
     struct TokenValue {

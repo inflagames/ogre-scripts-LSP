@@ -6,26 +6,49 @@
 #define JS_AI_PARSER_H
 
 #include "scanner.h"
+#include "ast_tree.h"
 
 namespace OgreScriptLSP {
     class Parser {
     private:
         Scanner *scanner;
 
+        std::vector<TokenValue> tokens;
+        int currentToken = 0;
+
+        MaterialScriptAst *script = nullptr;
+
     public:
         Parser();
+
+        MaterialScriptAst * getScript() {
+            return script;
+        }
 
         void loadScript(const std::string &scriptFile);
 
         void parse();
 
-        void program();
+        void program(MaterialScriptAst *script);
 
-        void programType();
+        void programOpt(ProgramAst *program);
 
-        void programOpt();
+        void programBody(ProgramAst *program);
 
-        void
+        void programDefaults(ProgramAst *program);
+
+        void paramsLine(ParamAst *params);
+
+        /**
+         * current token
+         */
+        TokenValue getToken();
+
+        void nextTokenAndConsumeEndLines();
+
+        void nextToken();
+
+        void consumeEndLines();
     };
 }
 

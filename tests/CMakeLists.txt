@@ -19,6 +19,7 @@ set_target_properties(test_utils PROPERTIES LINKER_LANGUAGE CXX)
 add_executable(test_run
         Test.cpp
         SimpleScannerTest.cpp
+        SimpleParserTest.cpp
         LSPTest.cpp
         LSPInitializeTest.cpp
 )

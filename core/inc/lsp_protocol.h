@@ -9,6 +9,7 @@
 #include <vector>
 
 #include <nlohmann/json.hpp>
+#include <iostream>
 
 struct Message {
     std::string jsonrpc;
@@ -31,6 +32,46 @@ struct WorkDoneProgressParams : ParamsBase {
 
 struct ResultBase {
     virtual nlohmann::json toJson() {};
+};
+
+struct ResultArray : ResultBase {
+    std::vector<ResultBase *> elements;
+
+    nlohmann::json toJson() override {
+        nlohmann::json array = nlohmann::json::array();
+        for (auto ele: elements) {
+            std::cout << ele->toJson() << std::endl;
+            array.push_back(ele->toJson());
+        }
+        return array;
+    }
+};
+
+struct Position {
+    int line;
+    int character;
+};
+
+struct Range {
+    Position start;
+    Position end;
+};
+
+struct TextEdit : ResultBase {
+    Range range;
+    std::string nexText;
+
+    TextEdit(Position start, Position end, std::string nexText) : range({start, end}), nexText(std::move(nexText)) {}
+
+    nlohmann::json toJson() override {
+        return nlohmann::json{
+                {"range", {
+                        {"start", {{"line", range.start.line}, {"character", range.start.character}}},
+                        {"end", {{"line", range.end.line}, {"character", range.end.character}}}
+                }},
+                {"nexText", nexText}
+        };
+    }
 };
 
 /**
@@ -164,6 +205,9 @@ struct RequestMessage : Message {
         if (j.contains("params")) {
             if ("initialize" == method) {
                 params = new InitializeParams();
+                params->fromJson(j.at("params"));
+            } else if ("textDocument/formatting" == method) {
+                params = new DocumentFormattingParams();
                 params->fromJson(j.at("params"));
             }
         }

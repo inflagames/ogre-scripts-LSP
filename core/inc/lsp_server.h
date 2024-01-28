@@ -9,6 +9,7 @@
 #include <string>
 
 #include "lsp_protocol.h"
+#include "parser.h"
 
 #define HEADER_CONTENT_LENGTH "Content-Length"
 #define HEADER_CONTENT_TYPE "Content-Type"
@@ -32,6 +33,8 @@ public:
     std::string readHeaderValue(std::istream &os = std::cin);
 
     Action readContent(Action action, std::istream &os = std::cin);
+
+    void formatting(DocumentFormattingParams *params, std::ostream &oos = std::cout);
 
     void shutdown();
 

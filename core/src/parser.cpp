@@ -11,13 +11,21 @@ OgreScriptLSP::Parser::Parser() {
 }
 
 void OgreScriptLSP::Parser::loadScript(const std::string &scriptFile) {
-    scanner->loadScript(scriptFile);
+    scanner->loadScript(uriToPath(scriptFile));
     tokens = scanner->parse();
     currentToken = 0;
     script = nullptr;
 }
 
+std::string OgreScriptLSP::Parser::uriToPath(const std::string &uri) {
+    if (uri.starts_with("file://")) {
+        return uri.substr(7);
+    }
+    return uri;
+}
+
 void OgreScriptLSP::Parser::parse() {
+    currentToken = 0;
     script = new MaterialScriptAst();
 
     bool recuperate = false;
@@ -44,6 +52,71 @@ void OgreScriptLSP::Parser::parse() {
             nextTokenAndConsumeEndLines();
         }
     }
+}
+
+ResultArray OgreScriptLSP::Parser::formatting() {
+    ResultArray res;
+
+    // initial values
+    currentToken = 0;
+    int level = 0;
+
+    // line
+    int previousTokenPosition = 0;
+    bool firstInLine = true;
+    while (!isEof()) {
+        auto tk = getToken();
+
+        if (tk.tk == endl_tk) {
+            previousTokenPosition = 0;
+            firstInLine = true;
+            nextToken();
+            continue;
+        }
+
+        if (tk.tk == left_curly_bracket_tk) {
+            level++;
+            previousTokenPosition = tk.column + tk.size;
+            nextToken();
+            continue;
+        }
+        if (tk.tk == right_curly_bracket_tk) {
+            level--;
+            previousTokenPosition = tk.column + tk.size;
+            nextToken();
+            continue;
+        }
+
+        int position;
+
+        if (firstInLine) {
+            // toDo (gonzalezext)[28.01.24]: update 2 for the corresponding number of spaces
+            position = level * 2;
+            firstInLine = false;
+        } else {
+            // toDo (gonzalezext)[28.01.24]: calculate separation base on the tokens
+            position = previousTokenPosition + 2;
+        }
+
+        if (tk.column > position) {
+            res.elements.push_back(new TextEdit({tk.line, previousTokenPosition + 1},
+                                            {tk.line, tk.column - position - 1},
+                                            ""));
+        } else if (tk.column < position) {
+            std::string nexText = "";
+            for (int i = 0; i < position - tk.column; i++) {
+                nexText.push_back(' ');
+            }
+            res.elements.push_back(new TextEdit({tk.line, previousTokenPosition + 1},
+                                            {tk.line, previousTokenPosition + 1},
+                                            nexText));
+        }
+
+        previousTokenPosition = tk.column + tk.size;
+        nextToken();
+    }
+
+    return res;
 }
 
 // PROGRAM STATEMENT

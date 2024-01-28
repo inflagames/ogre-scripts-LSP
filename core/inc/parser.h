@@ -8,6 +8,7 @@
 #include "scanner.h"
 #include "ast_tree.h"
 #include "exceptions.h"
+#include "lsp_protocol.h"
 
 
 namespace OgreScriptLSP {
@@ -35,7 +36,11 @@ namespace OgreScriptLSP {
 
         void loadScript(const std::string &scriptFile);
 
+        static std::string uriToPath(const std::string &uri);
+
         void parse();
+
+        ResultArray formatting();
 
         // PROGRAM STATEMENT
         void program(MaterialScriptAst *script);

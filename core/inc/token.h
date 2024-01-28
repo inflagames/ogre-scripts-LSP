@@ -67,6 +67,7 @@ namespace OgreScriptLSP {
         std::string literal;
         int line;
         int column;
+        int size = 1;
     };
 }
 

@@ -6,7 +6,7 @@
 #include <nlohmann/json.hpp>
 
 #include "../core/inc/lsp_server.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 TEST (LSPInitializeTest, readHeadBody_ShouldReadCorrectlyTheHeadAndBody) {
     auto *lsp = new lsp_server();

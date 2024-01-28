@@ -12,7 +12,8 @@ FetchContent_MakeAvailable(googletest)
 file(COPY examples DESTINATION ${CMAKE_BINARY_DIR}/tests)
 
 add_library(test_utils STATIC
-        utils.h
+        utils/utils.h
+        utils/utils.cpp
 )
 set_target_properties(test_utils PROPERTIES LINKER_LANGUAGE CXX)
 
@@ -23,6 +24,7 @@ add_executable(test_run
         LSPTest.cpp
         LSPInitializeTest.cpp
         ErrorHandlingParserTest.cpp
+        LSPFormattingTest.cpp
 )
 
 target_link_libraries(test_run gtest gtest_main nlohmann_json::nlohmann_json ogre_scripts_LSP_lib test_utils)

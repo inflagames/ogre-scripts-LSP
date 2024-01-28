@@ -112,7 +112,7 @@ void OgreScriptLSP::Scanner::consumeComment(bool lineComment) {
 }
 
 OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::symbolToken(OgreScriptLSP::Token tk) {
-    TokenValue res = {tk, "", lineCount, columnCount};
+    TokenValue res = {tk, ".", lineCount, columnCount};
     nextCharacter();
     return res;
 }
@@ -128,7 +128,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeNumber(bool isFirstPeri
                 isFirstPeriod = false;
             }
         } else {
-            return {number_literal, literal, line, column};
+            return {number_literal, literal, line, column, (int) literal.size()};
         }
     }
 }
@@ -141,7 +141,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeString(char stringDelim
     while (true) {
         if (ch == stringDelimiter) {
             nextCharacter();
-            return {string_literal, literal, line, column};
+            return {string_literal, literal, line, column, (int) literal.size() + 2};
         } else if (ch == '\\') {
             nextCharacter();
         }
@@ -158,35 +158,35 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
         literal.push_back(ch);
         if (!nextCharacter() || !validLiteral(ch, false)) {
             if (literal == "abstract") {
-                return {abstract_tk, "", line, column};
+                return {abstract_tk, "abstract", line, column, (int) literal.size()};
             } else if (literal == "default_params") {
-                return {default_params_tk, "", line, column};
+                return {default_params_tk, "default_params", line, column, (int) literal.size()};
             } else if (literal == "delegate") {
-                return {delegate_tk, "", line, column};
+                return {delegate_tk, "delegate", line, column, (int) literal.size()};
             } else if (literal == "entry_point") {
-                return {entry_point_tk, "", line, column};
+                return {entry_point_tk, "entry_point", line, column, (int) literal.size()};
             } else if (literal == "fragment_program") {
-                return {fragment_program_tk, "", line, column};
+                return {fragment_program_tk, "fragment_program", line, column, (int) literal.size()};
             } else if (literal == "fragment_program_ref") {
-                return {fragment_program_ref_tk, "", line, column};
+                return {fragment_program_ref_tk, "fragment_program_ref", line, column, (int) literal.size()};
             } else if (literal == "material") {
-                return {material_tk, "", line, column};
+                return {material_tk, "material", line, column, (int) literal.size()};
             } else if (literal == "pass") {
-                return {pass_tk, "", line, column};
+                return {pass_tk, "pass", line, column, (int) literal.size()};
             } else if (literal == "profiles") {
-                return {profiles_tk, "", line, column};
+                return {profiles_tk, "profiles", line, column, (int) literal.size()};
             } else if (literal == "technique") {
-                return {technique_tk, "", line, column};
+                return {technique_tk, "technique", line, column, (int) literal.size()};
             } else if (literal == "texture_unit") {
-                return {texture_unit_tk, "", line, column};
+                return {texture_unit_tk, "texture_unit", line, column, (int) literal.size()};
             } else if (literal == "vertex_program") {
-                return {vertex_program_tk, "", line, column};
+                return {vertex_program_tk, "vertex_program", line, column, (int) literal.size()};
             } else if (literal == "vertex_program_ref") {
-                return {vertex_program_ref_tk, "", line, column};
+                return {vertex_program_ref_tk, "vertex_program_ref", line, column, (int) literal.size()};
             } else if (literal.starts_with('$')) {
-                return {variable, literal, line, column};
+                return {variable, literal, line, column, (int) literal.size()};
             }
-            return {identifier, literal, line, column};
+            return {identifier, literal, line, column, (int) literal.size()};
         }
     }
 }

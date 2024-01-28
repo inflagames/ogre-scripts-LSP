@@ -30,11 +30,22 @@ void lsp_server::runServer(std::ostream &oos, std::istream &ios) {
             break;
         } else if (running) {
             if ("textDocument/formatting" == rm->method) {
-                // toDo (gonzalezext)[26.01.24]:
+                formatting((DocumentFormattingParams *) rm->params, oos);
             }
         } else {
             shutdown();
         }
+    }
+}
+
+void lsp_server::formatting(DocumentFormattingParams *params, std::ostream &oos) {
+    auto *parser = new OgreScriptLSP::Parser();
+    try {
+        parser->loadScript(params->textDocument.uri);
+        auto res = parser->formatting();
+        sendResponse(nlohmann::to_string(res.toJson()), oos);
+    } catch (OgreScriptLSP::BaseException e) {
+        std::cout << "ERROR: " << e.message << std::endl;
     }
 }
 

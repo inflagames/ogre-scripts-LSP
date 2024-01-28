@@ -3,6 +3,7 @@
 //
 
 #include "../inc/parser.h"
+#include "../inc/exceptions.h"
 
 OgreScriptLSP::Parser::Parser() {
     scanner = new Scanner();
@@ -18,11 +19,21 @@ void OgreScriptLSP::Parser::loadScript(const std::string &scriptFile) {
 void OgreScriptLSP::Parser::parse() {
     script = new MaterialScriptAst();
 
+    bool recuperate = false;
     while (currentToken < tokens.size()) {
         consumeEndLines();
         TokenValue tk = getToken();
-        if (tk.tk == fragment_program_tk || tk.tk == vertex_program_tk) {
-            program(script);
+        try {
+            if (tk.tk == fragment_program_tk || tk.tk == vertex_program_tk) {
+                recuperate = false;
+                program(script);
+            }
+        } catch (ParseException e) {
+            // toDo (gonzalezext)[28.01.24]: save exception
+            recuperate = true;
+        }
+        if (recuperate) {
+            nextTokenAndConsumeEndLines();
         }
     }
 }
@@ -38,7 +49,7 @@ void OgreScriptLSP::Parser::program(MaterialScriptAst *script) {
     nextToken();
 
     if (getToken().tk != identifier) {
-        // toDo (gonzalezext)[28.01.24]: throw exception
+        throw ParseException("Error with program name identifier");
     }
     program->name = getToken();
     nextToken();

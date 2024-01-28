@@ -22,6 +22,7 @@ add_executable(test_run
         SimpleParserTest.cpp
         LSPTest.cpp
         LSPInitializeTest.cpp
+        ErrorHandlingParserTest.cpp
 )
 
 target_link_libraries(test_run gtest gtest_main nlohmann_json::nlohmann_json ogre_scripts_LSP_lib test_utils)

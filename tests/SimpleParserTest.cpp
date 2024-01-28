@@ -7,7 +7,7 @@
 #include "../core/inc/parser.h"
 
 TEST (SimpleParserTest, scanner_ShouldOpenScriptFile) {
-    OgreScriptLSP::Parser *parser = new OgreScriptLSP::Parser();
+    auto *parser = new OgreScriptLSP::Parser();
     std::string scriptFile = "./examples/scanner/frag_vert_declarations.material";
     parser->loadScript(scriptFile);
 

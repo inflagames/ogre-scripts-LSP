@@ -20,6 +20,7 @@ add_library(ogre_scripts_LSP_lib STATIC
         core/inc/lsp_server.h
         core/inc/lsp_protocol.h
         core/inc/ast_tree.h
+        core/inc/exceptions.h
 )
 
 add_executable(ogre_scripts_LSP main.cpp)

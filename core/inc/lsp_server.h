@@ -14,14 +14,14 @@
 #define HEADER_CONTENT_LENGTH "Content-Length"
 #define HEADER_CONTENT_TYPE "Content-Type"
 
-class lsp_server {
+class LspServer {
 private:
     bool running = false;
-    char ch;
+    char ch = ' ';
     std::string message;
 
 public:
-    lsp_server() = default;
+    LspServer() = default;
 
     void runServer(std::ostream &oos = std::cout, std::istream &ios = std::cin);
 
@@ -35,9 +35,9 @@ public:
 
     Action readContent(Action action, std::istream &os = std::cin);
 
-    void formatting(RequestMessage *rm, std::ostream &oos = std::cout);
+    void formatting(RequestMessage *rm, bool withRange, std::ostream &oos = std::cout);
 
-    void rangeFormatting(RequestMessage *rm, std::ostream &oos = std::cout);
+    void goToDefinition(RequestMessage *rm, std::ostream &oos = std::cout);
 
     void shutdown();
 

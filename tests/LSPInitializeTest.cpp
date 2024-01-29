@@ -9,7 +9,7 @@
 #include "utils/utils.h"
 
 TEST (LSPInitializeTest, readHeadBody_ShouldReadCorrectlyTheHeadAndBody) {
-    auto *lsp = new lsp_server();
+    auto *lsp = new LspServer();
     std::istringstream osMock(
             "Content-Length: 193\r\nContent-Type: application/vscode; charset=utf-8\r\n\r\n{\"jsonrpc\": \"2.0\", \"id\": 1234, \"method\": \"initialize\", \"params\": {\"processId\": 31, \"clientInfo\": {\"name\": \"client-name\"}, \"rootUri\": \"/some/that\", \"capabilities\": {}}}");
 
@@ -32,7 +32,7 @@ TEST (LSPInitializeTest, readHeadBody_ShouldReadCorrectlyTheHeadAndBody) {
 }
 
 TEST (LSPInitializeTest, readHeadBody_ShouldInitializeConnectionWithClient) {
-    auto *lsp = new lsp_server();
+    auto *lsp = new LspServer();
     // initialize request
     std::string inputData = "Content-Length: 167\r\nContent-Type: application/vscode; charset=utf-8\r\n\r\n{\"jsonrpc\": \"2.0\", \"id\": 1234, \"method\": \"initialize\", \"params\": {\"processId\": 31, \"clientInfo\": {\"name\": \"client-name\"}, \"rootUri\": \"/some/that\", \"capabilities\": {}}}";
     // initialized notification

@@ -22,30 +22,8 @@ struct Message {
     virtual nlohmann::json toJson() = 0;
 };
 
-
-struct ParamsBase {
-    virtual void fromJson(const nlohmann::json &j) {};
-};
-
-struct WorkDoneProgressParams : ParamsBase {
-    std::string workDoneToken;
-};
-
-struct ResultBase {
-    virtual nlohmann::json toJson() {};
-};
-
-struct ResultArray : ResultBase {
-    std::vector<ResultBase *> elements;
-
-    nlohmann::json toJson() override {
-        nlohmann::json array = nlohmann::json::array();
-        for (auto ele: elements) {
-            std::cout << ele->toJson() << std::endl;
-            array.push_back(ele->toJson());
-        }
-        return array;
-    }
+struct TextDocumentIdentifier {
+    std::string uri;
 };
 
 struct Position {
@@ -65,18 +43,50 @@ struct Range {
     Position start;
     Position end;
 
-    bool inRange(const Range &a) {
+    [[nodiscard]] bool inRange(const Range &a) const {
         return !(a.start < start || a.end < start || a.start > end || a.end > end);
     }
 };
 
-struct TextDocumentIdentifier {
-    std::string uri;
+struct ParamsBase {
+    virtual void fromJson(const nlohmann::json &j) {};
+};
+
+struct WorkDoneProgressParams : ParamsBase {
+    std::string workDoneToken;
+};
+
+struct TextDocumentPositionParams {
+    Position position{};
+    TextDocumentIdentifier textDocument{};
+};
+
+struct PartialResultParams {
+    std::string partialResultToken;
+};
+
+struct ResultBase {
+    virtual nlohmann::json toJson() {
+        return {};
+    };
+};
+
+struct ResultArray : ResultBase {
+    std::vector<ResultBase *> elements;
+
+    nlohmann::json toJson() override {
+        nlohmann::json array = nlohmann::json::array();
+        for (auto ele: elements) {
+            std::cout << ele->toJson() << std::endl;
+            array.push_back(ele->toJson());
+        }
+        return array;
+    }
 };
 
 struct FormattingOptions {
-    uint32_t tabSize;
-    bool insertSpaces;
+    uint32_t tabSize = 2;
+    bool insertSpaces = true;
     bool trimTrailingWhitespace = true;
     bool insertFinalNewline = false;
     bool trimFinalNewLines = false;
@@ -110,7 +120,7 @@ struct CancelParams : ParamsBase {
  * 'initialize'
  */
 struct InitializeParams : WorkDoneProgressParams {
-    int processId;
+    int processId{};
     std::string rootPath; // probably not used
     std::string rootUri; // probably not used
     struct ClientCapabilities {
@@ -121,7 +131,7 @@ struct InitializeParams : WorkDoneProgressParams {
         struct Window {
             // toDo (gonzalezext)[26.01.24]:
         } window;
-    } capabilities;
+    } capabilities{};
     struct WorkspaceFolder {
         std::string uri;
         std::string name;
@@ -172,6 +182,9 @@ struct DocumentFormattingParams : WorkDoneProgressParams {
     }
 };
 
+/**
+ * 'textDocument/rangeFormatting' request
+ */
 struct DocumentRangeFormattingParams : DocumentFormattingParams {
     Range range{};
 
@@ -182,6 +195,48 @@ struct DocumentRangeFormattingParams : DocumentFormattingParams {
             j.at("range").at("start").at("character").get_to(range.start.character);
             j.at("range").at("end").at("line").get_to(range.end.line);
             j.at("range").at("end").at("character").get_to(range.end.character);
+        }
+    }
+};
+
+/**
+ * 'textDocument/definition' request
+ */
+struct DefinitionParams : WorkDoneProgressParams, TextDocumentPositionParams, PartialResultParams {
+    void fromJson(const nlohmann::json &j) override {
+        if (j.contains("textDocument")) {
+            j.at("textDocument").at("uri").get_to(textDocument.uri);
+        }
+        if (j.contains("position")) {
+            j.at("position").at("line").get_to(position.line);
+            j.at("position").at("character").get_to(position.character);
+        }
+        if (j.contains("workDoneToken")) {
+            j.at("workDoneToken").get_to(workDoneToken);
+        }
+        if (j.contains("partialResultToken")) {
+            j.at("partialResultToken").get_to(partialResultToken);
+        }
+    }
+};
+
+/**
+ * 'textDocument/declaration' request
+ */
+struct DeclarationParams : WorkDoneProgressParams, TextDocumentPositionParams, PartialResultParams {
+    void fromJson(const nlohmann::json &j) override {
+        if (j.contains("textDocument")) {
+            j.at("textDocument").at("uri").get_to(textDocument.uri);
+        }
+        if (j.contains("position")) {
+            j.at("position").at("line").get_to(position.line);
+            j.at("position").at("character").get_to(position.character);
+        }
+        if (j.contains("workDoneToken")) {
+            j.at("workDoneToken").get_to(workDoneToken);
+        }
+        if (j.contains("partialResultToken")) {
+            j.at("partialResultToken").get_to(partialResultToken);
         }
     }
 };
@@ -251,11 +306,19 @@ struct RequestMessage : Message {
             } else if ("textDocument/rangeFormatting" == method) {
                 params = new DocumentRangeFormattingParams();
                 params->fromJson(j.at("params"));
+            } else if ("textDocument/definition" == method) {
+                params = new DefinitionParams();
+                params->fromJson(j.at("params"));
+            } else if ("textDocument/declaration" == method) {
+                params = new DeclarationParams();
+                params->fromJson(j.at("params"));
             }
         }
     }
 
-    nlohmann::json toJson() override {}
+    nlohmann::json toJson() override {
+        return {};
+    }
 };
 
 enum ErrorCode {
@@ -274,7 +337,7 @@ struct ResponseMessage : Message {
     ResultBase *result;
 
     struct ResponseError {
-        ErrorCode code;
+        ErrorCode code{};
         std::string message;
         std::string data;
 

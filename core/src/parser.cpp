@@ -54,8 +54,8 @@ void OgreScriptLSP::Parser::parse() {
     }
 }
 
-ResultArray OgreScriptLSP::Parser::formatting(Range range) {
-    ResultArray res;
+ResultArray *OgreScriptLSP::Parser::formatting(Range range) {
+    auto *res = new ResultArray();
 
     // initial values
     currentToken = 0;
@@ -99,7 +99,7 @@ ResultArray OgreScriptLSP::Parser::formatting(Range range) {
         }
 
         if (tk.column > position) {
-            res.elements.push_back(new TextEdit({tk.line, previousTokenPosition + 1},
+            res->elements.push_back(new TextEdit({tk.line, previousTokenPosition + 1},
                                                 {tk.line, tk.column - position - 1},
                                                 ""));
         } else if (tk.column < position) {
@@ -107,7 +107,7 @@ ResultArray OgreScriptLSP::Parser::formatting(Range range) {
             for (int i = 0; i < position - tk.column; i++) {
                 nexText.push_back(' ');
             }
-            res.elements.push_back(new TextEdit({tk.line, previousTokenPosition + 1},
+            res->elements.push_back(new TextEdit({tk.line, previousTokenPosition + 1},
                                                 {tk.line, previousTokenPosition + 1},
                                                 nexText));
         }
@@ -116,10 +116,10 @@ ResultArray OgreScriptLSP::Parser::formatting(Range range) {
         nextToken();
     }
 
-    for (auto it = res.elements.begin(); it != res.elements.end(); it++) {
+    for (auto it = res->elements.begin(); it != res->elements.end(); it++) {
         auto e = (TextEdit *) *it;
         if (!range.inRange(e->range)) {
-            res.elements.erase(it);
+            res->elements.erase(it);
         }
     }
 

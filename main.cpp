@@ -4,7 +4,7 @@
 
 int main() {
 
-    auto *lcp = new lsp_server();
+    auto *lcp = new LspServer();
     lcp->runServer();
 
     return 0;

@@ -7,7 +7,7 @@
 #include "../core/inc/lsp_server.h"
 
 TEST (LSPTest, readHeader_ShouldReadCorrectlyTheHeader) {
-    auto *lsp = new lsp_server();
+    auto *lsp = new LspServer();
     std::istringstream osMock(
             "Content-Length: 18\r\nS1: naa\r\nS2:hah  ahah\r\nContent-Type: application/vscode; charset=utf-8\r\n\r\n");
 
@@ -18,7 +18,7 @@ TEST (LSPTest, readHeader_ShouldReadCorrectlyTheHeader) {
 }
 
 TEST (LSPTest, readBody_ShouldReadCorrectlyTheBody_Shutdown) {
-    auto *lsp = new lsp_server();
+    auto *lsp = new LspServer();
     std::istringstream osMock("{\"id\": 1234,\"method\": \"shutdown\"}");
 
     Action msg = lsp->readContent({39, "", new RequestMessage()}, osMock);
@@ -29,7 +29,7 @@ TEST (LSPTest, readBody_ShouldReadCorrectlyTheBody_Shutdown) {
 }
 
 TEST (LSPTest, readBody_ShouldReadCorrectlyTheBody_Exit) {
-    auto *lsp = new lsp_server();
+    auto *lsp = new LspServer();
     std::istringstream osMock("{\"id\": 1234,\"method\": \"exit\"}");
 
     Action msg = lsp->readContent({35, "", new RequestMessage()}, osMock);
@@ -40,7 +40,7 @@ TEST (LSPTest, readBody_ShouldReadCorrectlyTheBody_Exit) {
 }
 
 TEST (LSPTest, readHeadBody_ShouldReadCorrectlyTheHeadAndBody) {
-    auto *lsp = new lsp_server();
+    auto *lsp = new LspServer();
     std::istringstream osMock(
             "Content-Length: 59\r\nContent-Type: application/vscode; charset=utf-8\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\": 1234,\"method\": \"shutdown\"}");
 

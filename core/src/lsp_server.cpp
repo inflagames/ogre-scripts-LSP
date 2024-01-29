@@ -4,7 +4,7 @@
 
 #include "../inc/lsp_server.h"
 
-void lsp_server::runServer(std::ostream &oos, std::istream &ios) {
+void LspServer::runServer(std::ostream &oos, std::istream &ios) {
     while (true) {
         message = "";
         Action act = readHeaders(ios);
@@ -32,9 +32,13 @@ void lsp_server::runServer(std::ostream &oos, std::istream &ios) {
             break;
         } else if (running) {
             if ("textDocument/formatting" == rm->method) {
-                formatting(rm, oos);
+                formatting(rm, false, oos);
             } else if ("textDocument/rangeFormatting" == rm->method) {
-                rangeFormatting(rm, oos);
+                formatting(rm, true, oos);
+            } else if ("textDocument/definition" == rm->method) {
+                // toDo (gonzalezext)[29.01.24]:
+            } else if ("textDocument/declaration" == rm->method) {
+                // toDo (gonzalezext)[29.01.24]:
             }
         } else {
             shutdown();
@@ -42,16 +46,24 @@ void lsp_server::runServer(std::ostream &oos, std::istream &ios) {
     }
 }
 
-void lsp_server::formatting(RequestMessage *rm, std::ostream &oos) {
-    auto *params = (DocumentFormattingParams *) rm->params;
+void LspServer::goToDefinition(RequestMessage *rm, std::ostream &oos) {
+
+}
+
+void LspServer::formatting(RequestMessage *rm, bool withRange, std::ostream &oos) {
     auto *parser = new OgreScriptLSP::Parser();
     try {
-        parser->loadScript(params->textDocument.uri);
-        auto res = parser->formatting();
+        parser->loadScript(((DocumentFormattingParams *) rm->params)->textDocument.uri);
+        ResultBase *res;
+        if (withRange) {
+            res = parser->formatting(((DocumentRangeFormattingParams *) rm->params)->range);
+        } else {
+            res = parser->formatting();
+        }
 
         ResponseMessage re;
         re.id = rm->id;
-        re.result = &res;
+        re.result = res;
 
         sendResponse(nlohmann::to_string(re.toJson()), oos);
     } catch (OgreScriptLSP::BaseException e) {
@@ -59,34 +71,16 @@ void lsp_server::formatting(RequestMessage *rm, std::ostream &oos) {
     }
 }
 
-void lsp_server::rangeFormatting(RequestMessage *rm, std::ostream &oos) {
-    // toDo (gonzalezext)[29.01.24]: this could be merge with the formatting code
-    auto *params = (DocumentRangeFormattingParams *) rm->params;
-    auto *parser = new OgreScriptLSP::Parser();
-    try {
-        parser->loadScript(params->textDocument.uri);
-        auto res = parser->formatting(params->range);
-
-        ResponseMessage re;
-        re.id = rm->id;
-        re.result = &res;
-
-        sendResponse(nlohmann::to_string(re.toJson()), oos);
-    } catch (OgreScriptLSP::BaseException e) {
-        Logs::getInstance().log("ERROR: " + e.message);
-    }
-}
-
-void lsp_server::shutdown() {
+void LspServer::shutdown() {
     // toDo (gonzalezext)[26.01.24]: stop running request and exit
     exit();
 }
 
-void lsp_server::exit() {
+void LspServer::exit() {
     // toDo (gonzalezext)[26.01.24]:
 }
 
-void lsp_server::sendResponse(std::string msg, std::ostream &oos) {
+void LspServer::sendResponse(std::string msg, std::ostream &oos) {
     std::string header = HEADER_CONTENT_LENGTH;
     header += ":";
     header += std::to_string(msg.size());
@@ -97,7 +91,7 @@ void lsp_server::sendResponse(std::string msg, std::ostream &oos) {
     Logs::getInstance().log("Response: " + header + msg);
 }
 
-Action lsp_server::readHeaders(std::istream &os) {
+Action LspServer::readHeaders(std::istream &os) {
     Action msg = {0, "", new RequestMessage()};
     while (true) {
         std::string name = readHeaderName(os);
@@ -117,7 +111,7 @@ Action lsp_server::readHeaders(std::istream &os) {
     return msg;
 }
 
-std::string lsp_server::readHeaderName(std::istream &os) {
+std::string LspServer::readHeaderName(std::istream &os) {
     std::string name;
     while (nextCharacter(os) != EOF) {
         if (ch == '\r') {
@@ -132,7 +126,7 @@ std::string lsp_server::readHeaderName(std::istream &os) {
     return name;
 }
 
-std::string lsp_server::readHeaderValue(std::istream &os) {
+std::string LspServer::readHeaderValue(std::istream &os) {
     std::string name;
     bool firstChar = true;
     while (nextCharacter(os) != EOF) {
@@ -150,7 +144,7 @@ std::string lsp_server::readHeaderValue(std::istream &os) {
     return name;
 }
 
-Action lsp_server::readContent(Action action, std::istream &os) {
+Action LspServer::readContent(Action action, std::istream &os) {
     std::string jsonrpc;
     for (int i = 0; i < action.contentLength; ++i) {
         if (nextCharacter(os) == EOF) {
@@ -170,7 +164,7 @@ Action lsp_server::readContent(Action action, std::istream &os) {
     return action;
 }
 
-char lsp_server::nextCharacter(std::istream &os) {
+char LspServer::nextCharacter(std::istream &os) {
     ch = (char) os.get();
     message.push_back(ch);
     return ch;

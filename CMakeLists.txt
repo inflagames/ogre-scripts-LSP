@@ -21,9 +21,20 @@ add_library(ogre_scripts_LSP_lib STATIC
         core/inc/lsp_protocol.h
         core/inc/ast_tree.h
         core/inc/exceptions.h
+        core/inc/logs.h
+        core/src/logs.cpp
 )
 
 add_executable(ogre_scripts_LSP main.cpp)
+
+if (UNIX)
+    set_target_properties(ogre_scripts_LSP PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY_RELEASE /usr/local/bin
+    )
+endif (UNIX)
+if (WIN32)
+    # todo: install
+endif (WIN32)
 
 target_link_libraries(ogre_scripts_LSP_lib PUBLIC nlohmann_json::nlohmann_json)
 target_link_libraries(ogre_scripts_LSP ogre_scripts_LSP_lib)

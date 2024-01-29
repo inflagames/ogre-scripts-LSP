@@ -18,13 +18,14 @@ class lsp_server {
 private:
     bool running = false;
     char ch;
+    std::string message;
 
 public:
     lsp_server() = default;
 
     void runServer(std::ostream &oos = std::cout, std::istream &ios = std::cin);
 
-    void sendResponse(std::string msj, std::ostream &oos = std::cout);
+    void sendResponse(std::string msg, std::ostream &oos = std::cout);
 
     Action readHeaders(std::istream &os = std::cin);
 
@@ -34,7 +35,9 @@ public:
 
     Action readContent(Action action, std::istream &os = std::cin);
 
-    void formatting(DocumentFormattingParams *params, std::ostream &oos = std::cout);
+    void formatting(RequestMessage *rm, std::ostream &oos = std::cout);
+
+    void rangeFormatting(RequestMessage *rm, std::ostream &oos = std::cout);
 
     void shutdown();
 

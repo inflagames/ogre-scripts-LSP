@@ -6,8 +6,10 @@
 
 void lsp_server::runServer(std::ostream &oos, std::istream &ios) {
     while (true) {
+        message = "";
         Action act = readHeaders(ios);
         act = readContent(act, ios);
+        Logs::getInstance().log("Request: " + message);
 
         auto *rm = (RequestMessage *) act.message;
         if ("initialize" == rm->method) {
@@ -30,7 +32,9 @@ void lsp_server::runServer(std::ostream &oos, std::istream &ios) {
             break;
         } else if (running) {
             if ("textDocument/formatting" == rm->method) {
-                formatting((DocumentFormattingParams *) rm->params, oos);
+                formatting(rm, oos);
+            } else if ("textDocument/rangeFormatting" == rm->method) {
+                rangeFormatting(rm, oos);
             }
         } else {
             shutdown();
@@ -38,14 +42,38 @@ void lsp_server::runServer(std::ostream &oos, std::istream &ios) {
     }
 }
 
-void lsp_server::formatting(DocumentFormattingParams *params, std::ostream &oos) {
+void lsp_server::formatting(RequestMessage *rm, std::ostream &oos) {
+    auto *params = (DocumentFormattingParams *) rm->params;
     auto *parser = new OgreScriptLSP::Parser();
     try {
         parser->loadScript(params->textDocument.uri);
         auto res = parser->formatting();
-        sendResponse(nlohmann::to_string(res.toJson()), oos);
+
+        ResponseMessage re;
+        re.id = rm->id;
+        re.result = &res;
+
+        sendResponse(nlohmann::to_string(re.toJson()), oos);
     } catch (OgreScriptLSP::BaseException e) {
-        std::cout << "ERROR: " << e.message << std::endl;
+        Logs::getInstance().log("ERROR: " + e.message);
+    }
+}
+
+void lsp_server::rangeFormatting(RequestMessage *rm, std::ostream &oos) {
+    // toDo (gonzalezext)[29.01.24]: this could be merge with the formatting code
+    auto *params = (DocumentRangeFormattingParams *) rm->params;
+    auto *parser = new OgreScriptLSP::Parser();
+    try {
+        parser->loadScript(params->textDocument.uri);
+        auto res = parser->formatting(params->range);
+
+        ResponseMessage re;
+        re.id = rm->id;
+        re.result = &res;
+
+        sendResponse(nlohmann::to_string(re.toJson()), oos);
+    } catch (OgreScriptLSP::BaseException e) {
+        Logs::getInstance().log("ERROR: " + e.message);
     }
 }
 
@@ -58,14 +86,15 @@ void lsp_server::exit() {
     // toDo (gonzalezext)[26.01.24]:
 }
 
-void lsp_server::sendResponse(std::string msj, std::ostream &oos) {
+void lsp_server::sendResponse(std::string msg, std::ostream &oos) {
     std::string header = HEADER_CONTENT_LENGTH;
     header += ":";
-    header += std::to_string(msj.size());
+    header += std::to_string(msg.size());
     header += "\r\n";
     header += HEADER_CONTENT_TYPE;
     header += ": application/vscode; charset=utf-8\r\n\r\n";
-    oos << header << msj;
+    oos << header << msg;
+    Logs::getInstance().log("Response: " + header + msg);
 }
 
 Action lsp_server::readHeaders(std::istream &os) {
@@ -143,5 +172,6 @@ Action lsp_server::readContent(Action action, std::istream &os) {
 
 char lsp_server::nextCharacter(std::istream &os) {
     ch = (char) os.get();
+    message.push_back(ch);
     return ch;
 }

@@ -40,7 +40,8 @@ namespace OgreScriptLSP {
 
         void parse();
 
-        ResultArray formatting();
+        ResultArray formatting(Range range = {{0, 0},
+                                              {INT32_MAX, INT32_MAX}});
 
         // PROGRAM STATEMENT
         void program(MaterialScriptAst *script);

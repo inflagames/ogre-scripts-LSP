@@ -54,7 +54,7 @@ void OgreScriptLSP::Parser::parse() {
     }
 }
 
-ResultArray OgreScriptLSP::Parser::formatting() {
+ResultArray OgreScriptLSP::Parser::formatting(Range range) {
     ResultArray res;
 
     // initial values
@@ -100,20 +100,27 @@ ResultArray OgreScriptLSP::Parser::formatting() {
 
         if (tk.column > position) {
             res.elements.push_back(new TextEdit({tk.line, previousTokenPosition + 1},
-                                            {tk.line, tk.column - position - 1},
-                                            ""));
+                                                {tk.line, tk.column - position - 1},
+                                                ""));
         } else if (tk.column < position) {
             std::string nexText = "";
             for (int i = 0; i < position - tk.column; i++) {
                 nexText.push_back(' ');
             }
             res.elements.push_back(new TextEdit({tk.line, previousTokenPosition + 1},
-                                            {tk.line, previousTokenPosition + 1},
-                                            nexText));
+                                                {tk.line, previousTokenPosition + 1},
+                                                nexText));
         }
 
         previousTokenPosition = tk.column + tk.size;
         nextToken();
+    }
+
+    for (auto it = res.elements.begin(); it != res.elements.end(); it++) {
+        auto e = (TextEdit *) *it;
+        if (!range.inRange(e->range)) {
+            res.elements.erase(it);
+        }
     }
 
     return res;

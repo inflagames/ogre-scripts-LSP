@@ -10,6 +10,7 @@
 
 #include <nlohmann/json.hpp>
 #include <iostream>
+#include "logs.h"
 
 struct Message {
     std::string jsonrpc;
@@ -50,11 +51,35 @@ struct ResultArray : ResultBase {
 struct Position {
     int line;
     int character;
+
+    bool operator<(const Position &a) const {
+        return std::tie(line, character) < std::tie(a.line, a.character);
+    }
+
+    bool operator>(const Position &a) const {
+        return std::tie(line, character) > std::tie(a.line, a.character);
+    }
 };
 
 struct Range {
     Position start;
     Position end;
+
+    bool inRange(const Range &a) {
+        return !(a.start < start || a.end < start || a.start > end || a.end > end);
+    }
+};
+
+struct TextDocumentIdentifier {
+    std::string uri;
+};
+
+struct FormattingOptions {
+    uint32_t tabSize;
+    bool insertSpaces;
+    bool trimTrailingWhitespace = true;
+    bool insertFinalNewline = false;
+    bool trimFinalNewLines = false;
 };
 
 struct TextEdit : ResultBase {
@@ -65,10 +90,10 @@ struct TextEdit : ResultBase {
 
     nlohmann::json toJson() override {
         return nlohmann::json{
-                {"range", {
-                        {"start", {{"line", range.start.line}, {"character", range.start.character}}},
-                        {"end", {{"line", range.end.line}, {"character", range.end.character}}}
-                }},
+                {"range",   {
+                                    {"start", {{"line", range.start.line}, {"character", range.start.character}}},
+                                    {"end", {{"line", range.end.line}, {"character", range.end.character}}}
+                            }},
                 {"nexText", nexText}
         };
     }
@@ -120,17 +145,8 @@ struct InitializeParams : WorkDoneProgressParams {
  * 'textDocument/formatting' request
  */
 struct DocumentFormattingParams : WorkDoneProgressParams {
-    struct TextDocumentIdentifier {
-        std::string uri;
-    } textDocument;
-
-    struct FormattingOptions {
-        uint32_t tabSize;
-        bool insertSpaces;
-        bool trimTrailingWhitespace = true;
-        bool insertFinalNewline = false;
-        bool trimFinalNewLines = false;
-    } options;
+    TextDocumentIdentifier textDocument;
+    FormattingOptions options;
 
     void fromJson(const nlohmann::json &j) override {
         if (j.contains("textDocument") && j.at("textDocument").contains("uri")) {
@@ -156,12 +172,28 @@ struct DocumentFormattingParams : WorkDoneProgressParams {
     }
 };
 
+struct DocumentRangeFormattingParams : DocumentFormattingParams {
+    Range range{};
+
+    void fromJson(const nlohmann::json &j) override {
+        DocumentFormattingParams::fromJson(j);
+        if (j.contains("range")) {
+            j.at("range").at("start").at("line").get_to(range.start.line);
+            j.at("range").at("start").at("character").get_to(range.start.character);
+            j.at("range").at("end").at("line").get_to(range.end.line);
+            j.at("range").at("end").at("character").get_to(range.end.character);
+        }
+    }
+};
+
 /**
  * 'initialize' response
  */
 struct InitializeResult : ResultBase {
     struct ServerCapabilities {
+        int textDocumentSync = 1; // full sync
         bool documentFormattingProvider = true;
+        bool documentRangeFormattingProvider = true;
     } capabilities;
 
     struct ServerInfo {
@@ -172,8 +204,15 @@ struct InitializeResult : ResultBase {
 
     nlohmann::json toJson() override {
         return nlohmann::json{
-                {"capabilities", {{"documentFormattingProvider", capabilities.documentFormattingProvider}}},
-                {"serverInfo",   {{"name",                       serverInfo.name}, {"version", serverInfo.version}}}
+                {"capabilities", {
+                                         {"textDocumentSync", capabilities.textDocumentSync},
+                                         {"documentRangeFormattingProvider", capabilities.documentRangeFormattingProvider},
+                                         {"documentFormattingProvider", capabilities.documentFormattingProvider}}
+                },
+                {"serverInfo",   {
+                                         {"name",             serverInfo.name},
+                                         {"version",                         serverInfo.version}}
+                }
         };
     };
 };
@@ -208,6 +247,9 @@ struct RequestMessage : Message {
                 params->fromJson(j.at("params"));
             } else if ("textDocument/formatting" == method) {
                 params = new DocumentFormattingParams();
+                params->fromJson(j.at("params"));
+            } else if ("textDocument/rangeFormatting" == method) {
+                params = new DocumentRangeFormattingParams();
                 params->fromJson(j.at("params"));
             }
         }

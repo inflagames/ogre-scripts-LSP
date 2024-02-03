@@ -46,6 +46,10 @@ struct Range {
     [[nodiscard]] bool inRange(const Range &a) const {
         return !(a.start < start || a.end < start || a.start > end || a.end > end);
     }
+
+    [[nodiscard]] bool inRange(const Position &a) const {
+        return !(start > a || end < a);
+    }
 };
 
 struct ParamsBase {
@@ -90,6 +94,23 @@ struct FormattingOptions {
     bool trimTrailingWhitespace = true;
     bool insertFinalNewline = false;
     bool trimFinalNewLines = false;
+};
+
+struct Location : ResultBase {
+    std::string uri;
+    Range range;
+
+    Location(std::string uri, Range range) : uri(std::move(uri)), range(range) {}
+
+    nlohmann::json toJson() override {
+        return nlohmann::json{
+                {"uri",   uri},
+                {"range", {
+                                  {"start", {{"line", range.start.line}, {"character", range.start.character}}},
+                                  {"end", {{"line", range.end.line}, {"character", range.end.character}}}
+                          }}
+        };
+    }
 };
 
 struct TextEdit : ResultBase {
@@ -247,6 +268,8 @@ struct DeclarationParams : WorkDoneProgressParams, TextDocumentPositionParams, P
 struct InitializeResult : ResultBase {
     struct ServerCapabilities {
         int textDocumentSync = 1; // full sync
+        bool definitionProvider = true;
+        bool implementationProvider = true;
         bool documentFormattingProvider = true;
         bool documentRangeFormattingProvider = true;
     } capabilities;
@@ -261,12 +284,14 @@ struct InitializeResult : ResultBase {
         return nlohmann::json{
                 {"capabilities", {
                                          {"textDocumentSync", capabilities.textDocumentSync},
+                                         {"definitionProvider", capabilities.definitionProvider},
+                                         {"implementationProvider", capabilities.implementationProvider},
                                          {"documentRangeFormattingProvider", capabilities.documentRangeFormattingProvider},
                                          {"documentFormattingProvider", capabilities.documentFormattingProvider}}
                 },
                 {"serverInfo",   {
                                          {"name",             serverInfo.name},
-                                         {"version",                         serverInfo.version}}
+                                         {"version",            serverInfo.version}}
                 }
         };
     };

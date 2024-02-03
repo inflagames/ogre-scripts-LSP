@@ -5,6 +5,7 @@
 #ifndef OGRE_SCRIPTS_LSP_LIB_AST_TREE_H
 #define OGRE_SCRIPTS_LSP_LIB_AST_TREE_H
 
+#include <utility>
 #include <vector>
 
 namespace OgreScriptLSP {
@@ -143,8 +144,13 @@ namespace OgreScriptLSP {
 
     class MaterialScriptAst {
     public:
+        std::string uri;
         std::vector<MaterialAst *> materials;
         std::vector<ProgramAst *> programs;
+
+        explicit MaterialScriptAst(std::string uri) {
+            this->uri = std::move(uri);
+        }
 
         ~MaterialScriptAst() {
             for (auto ele: materials) {

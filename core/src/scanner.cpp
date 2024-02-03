@@ -10,8 +10,8 @@ void OgreScriptLSP::Scanner::loadScript(const std::string &scriptFile) {
         throw FileException(FILE_IS_NOT_OPEN_OR_NOT_EXIST);
     }
     ch = ' ';
-    lineCount = 1;
-    columnCount = 0;
+    lineCount = 0;
+    columnCount = -1;
 }
 
 std::vector<OgreScriptLSP::TokenValue> OgreScriptLSP::Scanner::parse() {
@@ -27,6 +27,9 @@ std::vector<OgreScriptLSP::TokenValue> OgreScriptLSP::Scanner::parse() {
         }
         list.push_back(tk);
     }
+
+    file.close();
+
     return list;
 }
 
@@ -272,7 +275,7 @@ bool OgreScriptLSP::Scanner::nextCharacter() {
     file.get(ch);
     if (ch == '\n') {
         lineCount++;
-        columnCount = 0;
+        columnCount = -1;
     } else {
         columnCount++;
     }

@@ -1,0 +1,44 @@
+fragment_program Game/Floor/ShaderFp glsl glsles {
+    source FloorFp.glsl
+	default_params
+	{
+		// assign samplers as required by GLSL
+		param_named shadowMap int 0
+		param_named normalMap int 1
+	}
+}
+
+vertex_program Game/Floor/ShaderVp glsl glsles {
+    source FloorVp.glsl
+}
+
+material level_floor {
+    receive_shadows on
+    technique {
+        pass perlight {
+            //scene_blend add
+            diffuse .87 .99 1.0 1.0
+
+            vertex_program_ref Game/Floor/ShaderVp {
+				param_named_auto lightPosition light_position_object_space 0
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named_auto worldMatrix world_matrix
+				param_named_auto texViewProj texture_viewproj_matrix
+            }
+            fragment_program_ref Game/Floor/ShaderFp {
+                param_named_auto lightDiffuse light_diffuse_colour 0
+            }
+
+			texture_unit shadowmap
+			{
+				content_type shadow
+			}
+
+			texture_unit diffusemap {
+                //texture male.texture.jpeg
+                //tex_address_mode wrap
+                //colour_op modulate
+			}
+        }
+    }
+}

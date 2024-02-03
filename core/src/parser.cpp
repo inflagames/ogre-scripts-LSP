@@ -10,11 +10,16 @@ OgreScriptLSP::Parser::Parser() {
     scanner = new Scanner();
 }
 
+OgreScriptLSP::Parser::~Parser() {
+    delete scanner;
+    delete script;
+}
+
 void OgreScriptLSP::Parser::loadScript(const std::string &scriptFile) {
     scanner->loadScript(uriToPath(scriptFile));
     tokens = scanner->parse();
     currentToken = 0;
-    script = nullptr;
+    script = new MaterialScriptAst(scriptFile);
 }
 
 std::string OgreScriptLSP::Parser::uriToPath(const std::string &uri) {
@@ -24,34 +29,72 @@ std::string OgreScriptLSP::Parser::uriToPath(const std::string &uri) {
     return uri;
 }
 
-void OgreScriptLSP::Parser::parse() {
-    currentToken = 0;
-    script = new MaterialScriptAst();
-
-    bool recuperate = false;
-    while (!isEof()) {
-        consumeEndLines();
-        TokenValue tk = getToken();
-        try {
-            if (tk.tk == fragment_program_tk || tk.tk == vertex_program_tk) {
-                recuperate = false;
-                program(script);
-            } else if (tk.tk == material_tk) {
-                recuperate = false;
-                material(script);
-            } else if (!recuperate) {
-                exceptions.push_back(ParseException(INVALID_TOKEN, tk.line, tk.column));
-                recuperate = true;
-            }
-        } catch (ParseException e) {
-            exceptions.push_back(e);
-            recuperate = true;
-            continue;
+ResultBase *OgreScriptLSP::Parser::goToDefinition(Position position) {
+    // toDo (gonzalezext)[03.02.24]: this should be extende to more than one script AST when importing be supported
+    // material
+    for (auto mat: script->materials) {
+        TokenValue parent = mat->parent;
+        TokenValue name = mat->name;
+        Range rangeParent = {{parent.line, parent.column},
+                             {parent.line, parent.column + parent.size - 1}};
+        Range rangeName = {{name.line, name.column},
+                           {name.line, name.column + name.size - 1}};
+        if (name.tk == identifier && rangeName.inRange(position)) {
+            // go to definition from same class
+            return new Location(script->uri, rangeName);
         }
-        if (recuperate) {
-            nextTokenAndConsumeEndLines();
+        if (parent.tk == identifier && rangeParent.inRange(position)) {
+            // go to definition from parent
+            for (auto mat2: script->materials) {
+                if (mat2->name.literal == parent.literal) {
+                    TokenValue ftk = mat2->name;
+                    Range rangeLocation = {{ftk.line, ftk.column},
+                                           {ftk.line, ftk.column + ftk.size - 1}};
+                    return new Location(script->uri, rangeLocation);
+                }
+            }
+            return new Location(script->uri, rangeParent);
         }
     }
+
+    // variables todo
+
+    // programs
+    for (auto prog: script->programs) {
+        Range rangeProg = {{prog->name.line, prog->name.column},
+                           {prog->name.line, prog->name.column + prog->name.size - 1}};
+        if (rangeProg.inRange(position)) {
+            // return same identifier position
+            return new Location(script->uri, rangeProg);
+        }
+    }
+    for (auto mat: script->materials) {
+        for (auto tech: mat->techniques) {
+            for (auto pass: tech->passes) {
+                for (auto progRef: pass->programsReferences) {
+                    Range rangeProgRef = {{progRef->name.line, progRef->name.column},
+                                          {progRef->name.line, progRef->name.column + progRef->name.size - 1}};
+                    if (rangeProgRef.inRange(position)) {
+                        for (auto prog: script->programs) {
+                            if (prog->name.literal == progRef->name.literal) {
+                                Range rangeProg = {{prog->name.line, prog->name.column},
+                                                   {prog->name.line, prog->name.column + prog->name.size - 1}};
+                                return new Location(script->uri, rangeProg);
+                            }
+                        }
+
+                        // same position in case of not definition found
+                        return new Location(script->uri, rangeProgRef);
+                    }
+                }
+            }
+        }
+    }
+
+    // by default return same position range
+    Range range = {{position.line, position.character},
+                   {position.line, position.character}};
+    return new Location(script->uri, range);
 }
 
 ResultArray *OgreScriptLSP::Parser::formatting(Range range) {
@@ -100,16 +143,16 @@ ResultArray *OgreScriptLSP::Parser::formatting(Range range) {
 
         if (tk.column > position) {
             res->elements.push_back(new TextEdit({tk.line, previousTokenPosition + 1},
-                                                {tk.line, tk.column - position - 1},
-                                                ""));
+                                                 {tk.line, tk.column - position - 1},
+                                                 ""));
         } else if (tk.column < position) {
-            std::string nexText = "";
+            std::string nexText;
             for (int i = 0; i < position - tk.column; i++) {
                 nexText.push_back(' ');
             }
             res->elements.push_back(new TextEdit({tk.line, previousTokenPosition + 1},
-                                                {tk.line, previousTokenPosition + 1},
-                                                nexText));
+                                                 {tk.line, previousTokenPosition + 1},
+                                                 nexText));
         }
 
         previousTokenPosition = tk.column + tk.size;
@@ -126,8 +169,37 @@ ResultArray *OgreScriptLSP::Parser::formatting(Range range) {
     return res;
 }
 
+void OgreScriptLSP::Parser::parse() {
+    currentToken = 0;
+
+    bool recuperate = false;
+    while (!isEof()) {
+        consumeEndLines();
+        TokenValue tk = getToken();
+        try {
+            if (tk.tk == fragment_program_tk || tk.tk == vertex_program_tk) {
+                recuperate = false;
+                program(script);
+            } else if (tk.tk == material_tk) {
+                recuperate = false;
+                material(script);
+            } else if (!recuperate) {
+                exceptions.push_back(ParseException(INVALID_TOKEN, tk.line, tk.column));
+                recuperate = true;
+            }
+        } catch (ParseException e) {
+            exceptions.push_back(e);
+            recuperate = true;
+            continue;
+        }
+        if (recuperate) {
+            nextTokenAndConsumeEndLines();
+        }
+    }
+}
+
 // PROGRAM STATEMENT
-void OgreScriptLSP::Parser::program(MaterialScriptAst *script) {
+void OgreScriptLSP::Parser::program(MaterialScriptAst *scriptAst) {
     auto *program = new ProgramAst();
 
     if (getToken().tk == fragment_program_tk) {
@@ -151,7 +223,7 @@ void OgreScriptLSP::Parser::program(MaterialScriptAst *script) {
 
     consumeCloseCurlyBracket();
 
-    script->programs.push_back(program);
+    scriptAst->programs.push_back(program);
 }
 
 void OgreScriptLSP::Parser::programOpt(OgreScriptLSP::ProgramAst *program) {
@@ -207,8 +279,9 @@ void OgreScriptLSP::Parser::programDefaults(OgreScriptLSP::ProgramAst *program) 
 }
 
 // MATERIAL STATEMENT
-void OgreScriptLSP::Parser::material(OgreScriptLSP::MaterialScriptAst *script) {
+void OgreScriptLSP::Parser::material(OgreScriptLSP::MaterialScriptAst *scriptAst) {
     auto *material = new MaterialAst();
+    material->parent = {EOF_tk, ""};
 
     // consume material_tk token
     nextToken();
@@ -225,7 +298,7 @@ void OgreScriptLSP::Parser::material(OgreScriptLSP::MaterialScriptAst *script) {
 
     consumeCloseCurlyBracket();
 
-    script->materials.push_back(material);
+    scriptAst->materials.push_back(material);
 }
 
 void OgreScriptLSP::Parser::materialBody(OgreScriptLSP::MaterialAst *material) {

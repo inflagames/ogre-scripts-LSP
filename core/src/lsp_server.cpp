@@ -5,6 +5,7 @@
 #include "../inc/lsp_server.h"
 
 void LspServer::runServer(std::ostream &oos, std::istream &ios) {
+    // run server until exit or crash
     while (true) {
         message = "";
         Action act = readHeaders(ios);
@@ -36,7 +37,7 @@ void LspServer::runServer(std::ostream &oos, std::istream &ios) {
             } else if ("textDocument/rangeFormatting" == rm->method) {
                 formatting(rm, true, oos);
             } else if ("textDocument/definition" == rm->method) {
-                // toDo (gonzalezext)[29.01.24]:
+                goToDefinition(rm, oos);
             } else if ("textDocument/declaration" == rm->method) {
                 // toDo (gonzalezext)[29.01.24]:
             }
@@ -47,7 +48,23 @@ void LspServer::runServer(std::ostream &oos, std::istream &ios) {
 }
 
 void LspServer::goToDefinition(RequestMessage *rm, std::ostream &oos) {
+    auto *parser = new OgreScriptLSP::Parser();
+    try {
+        DefinitionParams *definitionParams = ((DefinitionParams *) rm->params);
+        parser->loadScript(definitionParams->textDocument.uri);
+        parser->parse();
+        auto *res = parser->goToDefinition(definitionParams->position);
 
+        ResponseMessage re;
+        re.id = rm->id;
+        re.result = res;
+
+        sendResponse(nlohmann::to_string(re.toJson()), oos);
+    } catch (...) {
+        // toDo (gonzalezext)[03.02.24]: send fail to client
+        Logs::getInstance().log("ERROR: goToDefinition");
+    }
+    delete parser;
 }
 
 void LspServer::formatting(RequestMessage *rm, bool withRange, std::ostream &oos) {
@@ -67,8 +84,10 @@ void LspServer::formatting(RequestMessage *rm, bool withRange, std::ostream &oos
 
         sendResponse(nlohmann::to_string(re.toJson()), oos);
     } catch (OgreScriptLSP::BaseException e) {
+        // toDo (gonzalezext)[03.02.24]: send fail message to client
         Logs::getInstance().log("ERROR: " + e.message);
     }
+    delete parser;
 }
 
 void LspServer::shutdown() {

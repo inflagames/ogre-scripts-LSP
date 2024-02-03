@@ -26,6 +26,8 @@ namespace OgreScriptLSP {
     public:
         Parser();
 
+        ~Parser();
+
         MaterialScriptAst *getScript() {
             return script;
         }
@@ -43,8 +45,10 @@ namespace OgreScriptLSP {
         ResultArray *formatting(Range range = {{0, 0},
                                                {INT32_MAX, INT32_MAX}});
 
+        ResultBase *goToDefinition(Position position);
+
         // PROGRAM STATEMENT
-        void program(MaterialScriptAst *script);
+        void program(MaterialScriptAst *scriptAst);
 
         void programOpt(ProgramAst *program);
 
@@ -53,7 +57,7 @@ namespace OgreScriptLSP {
         void programDefaults(ProgramAst *program);
 
         // MATERIAL STATEMENT
-        void material(MaterialScriptAst *script);
+        void material(MaterialScriptAst *scriptAst);
 
         void materialBody(MaterialAst *material);
 

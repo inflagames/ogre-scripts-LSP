@@ -16,6 +16,8 @@ namespace OgreScriptLSP {
         int lineCount = 0;
         int columnCount = 0;
 
+        std::vector<BaseException> exceptions;
+
         Scanner();
 
         /**
@@ -34,6 +36,8 @@ namespace OgreScriptLSP {
 
         TokenValue consumeString(char stringDelimiter);
 
+        TokenValue consumeMatch();
+
         TokenValue symbolToken(Token tk);
 
         TokenValue consumeNumber(bool isFirstPeriod = true);
@@ -41,6 +45,8 @@ namespace OgreScriptLSP {
         TokenValue nextLiteral();
 
         static bool validLiteral(char c, bool startCharacter = true);
+
+        void recuperateError(std::string error = "");
 
         /**
          * Consume next character from the script file

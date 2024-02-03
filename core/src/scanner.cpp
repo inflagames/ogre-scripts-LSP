@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "../inc/scanner.h"
 
 OgreScriptLSP::Scanner::Scanner() = default;
@@ -37,62 +39,81 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
                 return symbolToken(endl_tk);
             case '/': {
                 nextCharacter();
-                // check if is a comment to consume it
                 if (ch == '/') {
+                    // consume comment
                     consumeComment();
                     continue;
                 }
-                // toDo (gonzalezext)[25.01.24]: check if multiline comments are permitted
-//                if (ch == '*') {
-//                    consumeComment(false);
-//                    continue;
-//                }
-                // todo: exception if not comment
+                recuperateError(SCANNER_INVALID_CHARACTER);
+                continue;
             }
             case ':':
                 return symbolToken(colon_tk);
-            case ';':
-                return symbolToken(semicolon_tk);
-                // toDo (gonzalezext)[25.01.24]: not sure if parenthesis are used
-//            case '(':
-//                return symbolToken(left_parenthesis_tk);
-//            case ')':
-//                return symbolToken(right_parenthesis_tk);
             case '{':
                 return symbolToken(left_curly_bracket_tk);
             case '}':
                 return symbolToken(right_curly_bracket_tk);
             case '"':
-                return consumeString('"');
+                try {
+                    return consumeString('"');
+                } catch (const ScannerException &e) {
+                    exceptions.push_back(e);
+                    continue;
+                }
             case '*': {
-                // toDo (gonzalezext)[25.01.24]: validate if the * as empty character after in that case return asterisk_tk
-                auto res = consumeString('*');
+                auto res = consumeMatch();
                 return {match_literal, res.literal};
             }
-                // toDo (gonzalezext)[25.01.24]: check if string literals can be defined with simple_quote_tk
-//            case '\'':
-//                return consumeString('\'');
             case '-':
             case '.': {
-                // toDo (gonzalezext)[25.01.24]: handle number that start with minus
-                // handle number literal that start with period
-                if (isdigit(ch)) {
-                    auto tkValue = consumeNumber(false);
-                    tkValue.literal.insert(0, 1, '.');
-                } else {
-                    // toDo (gonzalezext)[25.01.24]: throw error here
+                if (ch == '-') {
+                    nextCharacter();
+                    if (!isdigit(ch)) {
+                        recuperateError(SCANNER_INVALID_CHARACTER);
+                        continue;
+                    }
                 }
-                return {EOF_tk};
+                bool isFirstPeriod = true;
+                if (ch == '.') {
+                    nextCharacter();
+                    if (!isdigit(ch)) {
+                        recuperateError(SCANNER_INVALID_CHARACTER);
+                        continue;
+                    }
+                    isFirstPeriod = false;
+                }
+                try {
+                    auto tkValue = consumeNumber(isFirstPeriod);
+                    tkValue.literal.insert(0, 1, isFirstPeriod ? '.' : '-');
+                    return tkValue;
+                } catch (const ScannerException &e) {
+                    exceptions.push_back(e);
+                    recuperateError();
+                    continue;
+                }
             }
             default:
                 if (isdigit(ch)) {
-                    return consumeNumber();
+                    try {
+                        return consumeNumber();
+                    } catch (const ScannerException &e) {
+                        exceptions.push_back(e);
+                        recuperateError();
+                        continue;
+                    }
                 }
                 // read literals
                 if (validLiteral(ch)) {
-                    return nextLiteral();
+                    try {
+                        auto tk = nextLiteral();
+                        return tk;
+                    } catch (const ScannerException &e) {
+                        exceptions.push_back(e);
+                        continue;
+                    }
                 }
-                // toDo (gonzalezext)[21.01.24]: throw error here
+                recuperateError(SCANNER_INVALID_CHARACTER);
+                continue;
         }
     }
 
@@ -121,16 +142,19 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeNumber(bool isFirstPeri
     std::string literal;
     int line = lineCount;
     int column = columnCount;
-    while (true) {
+    while (!file.eof()) {
         literal.push_back(ch);
         if (nextCharacter() && (isdigit(ch) || (ch == '.' && isFirstPeriod))) {
             if (ch == '.') {
                 isFirstPeriod = false;
             }
-        } else {
+        } else if (ch == '\n' || ch == ' ' || ch == '\t' || ch == '\v' || ch == '\f' || ch == '\r') {
             return {number_literal, literal, line, column, (int) literal.size()};
+        } else {
+            throw ScannerException(SCANNER_INVALID_NUMBER, line, column);
         }
     }
+    throw ScannerException(SCANNER_EOF_ERROR, line, column);
 }
 
 OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeString(char stringDelimiter) {
@@ -138,8 +162,10 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeString(char stringDelim
     nextCharacter();
     int line = lineCount;
     int column = columnCount;
-    while (true) {
-        if (ch == stringDelimiter) {
+    while (!file.eof()) {
+        if (ch == '\n') {
+            throw ScannerException(SCANNER_INVALID_STRING_LITERAL, line, column);
+        } else if (ch == stringDelimiter) {
             nextCharacter();
             return {string_literal, literal, line, column, (int) literal.size() + 2};
         } else if (ch == '\\') {
@@ -148,13 +174,35 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeString(char stringDelim
         literal.push_back(ch);
         nextCharacter();
     }
+    throw ScannerException(SCANNER_EOF_ERROR, line, column);
+}
+
+OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeMatch() {
+    std::string literal = "*";
+    nextCharacter();
+    int line = lineCount;
+    int column = columnCount;
+    while (!file.eof()) {
+        if (ch == '\n' || ch == '\t' || ch == ' ' || ch == '\v' || ch == '\r' || ch == '\f') {
+            throw ScannerException(SCANNER_INVALID_MATCH_LITERAL, line, column);
+        } else if (ch == '*') {
+            literal.push_back(ch);
+            nextCharacter();
+            return {string_literal, literal, line, column, (int) literal.size()};
+        } else if (ch == '\\') {
+            nextCharacter();
+        }
+        literal.push_back(ch);
+        nextCharacter();
+    }
+    throw ScannerException(SCANNER_EOF_ERROR, line, column);
 }
 
 OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
     std::string literal;
     int line = lineCount;
     int column = columnCount;
-    while (true) {
+    while (!file.eof()) {
         literal.push_back(ch);
         if (!nextCharacter() || !validLiteral(ch, false)) {
             if (literal == "abstract") {
@@ -189,13 +237,26 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
             return {identifier, literal, line, column, (int) literal.size()};
         }
     }
+    throw ScannerException(SCANNER_EOF_ERROR, line, column);
 }
 
 bool OgreScriptLSP::Scanner::validLiteral(char c, bool startCharacter) {
     if (startCharacter) {
         return isalpha(c) || c == '_' || c == '$' || c == '/' || c == '.';
     }
-    return isalnum(c) || c == '_' || c == '$' || c == '/' || c == '.';
+    return isalnum(c) || c == '_' || c == '/' || c == '.';
+}
+
+void OgreScriptLSP::Scanner::recuperateError(std::string error) {
+    if (error.empty()) {
+        exceptions.push_back(ScannerException(std::move(error), lineCount, columnCount));
+    }
+    while (ch != ' ' || ch != '\t' || ch != '\n' || ch != '\f' || ch != '\v' || ch != '\r') {
+        if (!nextCharacter()) {
+            return;
+        }
+    }
+    consumeEmpty();
 }
 
 bool OgreScriptLSP::Scanner::consumeEmpty() {

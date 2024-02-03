@@ -2,6 +2,9 @@
 #define TEST_UTILS_LIBRARY_H
 
 #include <string>
+#include "iostream"
+
+//#include "../../core/inc/lsp_protocol.h"
 
 /**
  * Only for testing support
@@ -14,6 +17,8 @@ namespace test_utils {
      * @return return the sub-string with the json object
      */
     std::string extractJson(std::string text, int jsonIt = 1);
+
+//    std::string applyModifications(std::string text, std::vector<Range> ranges);
 };
 
 #endif //TEST_UTILS_LIBRARY_H

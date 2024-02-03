@@ -3,7 +3,6 @@
 //
 
 #include "utils.h"
-#include "iostream"
 
 std::string test_utils::extractJson(std::string text, int jsonIt) {
     std::string res;
@@ -27,3 +26,7 @@ std::string test_utils::extractJson(std::string text, int jsonIt) {
     }
     return res;
 }
+
+//std::string test_utils::applyModifications(std::string text, std::vector<Range> ranges) {
+//
+//}

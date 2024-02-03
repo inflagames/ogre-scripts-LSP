@@ -1,11 +1,8 @@
-#include <utility>
-
-//
-// Created by gonzalezext on 28.01.24.
-//
-
 #ifndef OGRE_SCRIPTS_LSP_LIB_EXCEPTIONS_H
 #define OGRE_SCRIPTS_LSP_LIB_EXCEPTIONS_H
+
+// toDo (gonzalezext)[29.01.24]: check if it can be removed
+//#include <utility>
 
 // Error messages
 #define INVALID_TOKEN "Invalid main token"
@@ -27,6 +24,14 @@
 #define NOT_VALID_MATERIAL_TECHNIQUE_BODY "Not valid material technique body"
 #define NOT_VALID_PARAM "Not valid program default param"
 
+// Scanner error messages
+#define SCANNER_INVALID_CHARACTER "Invalid character"
+#define SCANNER_INVALID_NUMBER "Invalid number"
+#define SCANNER_INVALID_STRING_LITERAL "Invalid string literal"
+#define SCANNER_INVALID_MATCH_LITERAL "Invalid match literal"
+#define SCANNER_EOF_ERROR "EOF error"
+
+// General error messages
 #define FILE_IS_NOT_OPEN_OR_NOT_EXIST "File is not open or not exist"
 
 namespace OgreScriptLSP {
@@ -50,6 +55,12 @@ namespace OgreScriptLSP {
     public:
         explicit FileException(std::string message)
                 : BaseException(std::move(message), 0, 0) {}
+    };
+
+    struct ScannerException : public BaseException {
+    public:
+        explicit ScannerException(std::string message, int line, int column)
+                : BaseException(std::move(message), line, column) {}
     };
 }
 

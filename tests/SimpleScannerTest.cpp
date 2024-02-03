@@ -6,7 +6,7 @@
 
 #include "../core/inc/scanner.h"
 
-TEST (SimpleScannerTest, scanner_ShouldOpenScriptFile) {
+TEST (ScannerTest, scanner_ShouldOpenScriptFile) {
     auto *scanner = new OgreScriptLSP::Scanner();
     std::string scriptFile = "./examples/scanner/frag_vert_declarations.material";
     scanner->loadScript(scriptFile);
@@ -14,7 +14,7 @@ TEST (SimpleScannerTest, scanner_ShouldOpenScriptFile) {
     ASSERT_TRUE(scanner->file.is_open());
 }
 
-TEST (SimpleScannerTest, scanner_ShouldReadCorrectlyTheListOfTokens) {
+TEST (ScannerTest, scanner_ShouldReadCorrectlyTheListOfTokens) {
     auto *scanner = new OgreScriptLSP::Scanner();
     scanner->loadScript("./examples/scanner/simple_token_validation.material");
 
@@ -38,7 +38,7 @@ TEST (SimpleScannerTest, scanner_ShouldReadCorrectlyTheListOfTokens) {
     }
 }
 
-TEST (SimpleScannerTest, scanner_ShouldReadCorrectlyTheTokensFromFragments) {
+TEST (ScannerTest, scanner_ShouldReadCorrectlyTheTokensFromFragments) {
     auto *scanner = new OgreScriptLSP::Scanner();
     scanner->loadScript("./examples/scanner/frag_vert_declarations.material");
 
@@ -75,7 +75,7 @@ TEST (SimpleScannerTest, scanner_ShouldReadCorrectlyTheTokensFromFragments) {
     }
 }
 
-TEST (SimpleScannerTest, scanner_ShouldReadCorrectlyTheTokensFromMaterial) {
+TEST (ScannerTest, scanner_ShouldReadCorrectlyTheTokensFromMaterial) {
     auto *scanner = new OgreScriptLSP::Scanner();
     scanner->loadScript("./examples/scanner/simple_material.material");
 
@@ -112,7 +112,7 @@ TEST (SimpleScannerTest, scanner_ShouldReadCorrectlyTheTokensFromMaterial) {
     }
 }
 
-TEST (SimpleScannerTest, scanner_ShouldReadCorrectlyTheTokensFromPass) {
+TEST (ScannerTest, scanner_ShouldReadCorrectlyTheTokensFromPass) {
     auto *scanner = new OgreScriptLSP::Scanner();
     scanner->loadScript("./examples/scanner/matching_names.material");
 

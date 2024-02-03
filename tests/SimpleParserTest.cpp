@@ -6,7 +6,7 @@
 
 #include "../core/inc/parser.h"
 
-TEST (SimpleParserTest, parse_ShouldCreateAstForFragmentDeclaration) {
+TEST (ParserTest, parse_ShouldCreateAstForFragmentDeclaration) {
     auto *parser = new OgreScriptLSP::Parser();
     std::string scriptFile = "./examples/scanner/frag_vert_declarations.material";
     parser->loadScript(scriptFile);
@@ -28,7 +28,7 @@ TEST (SimpleParserTest, parse_ShouldCreateAstForFragmentDeclaration) {
     ASSERT_EQ(1, p->defaults.size());
 }
 
-TEST (SimpleParserTest, parse_ShouldCreateAstForMaterialDeclaration) {
+TEST (ParserTest, parse_ShouldCreateAstForMaterialDeclaration) {
     auto *parser = new OgreScriptLSP::Parser();
     std::string scriptFile = "./examples/parser/material_simple_example.material";
     parser->loadScript(scriptFile);

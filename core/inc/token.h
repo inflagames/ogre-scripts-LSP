@@ -10,7 +10,6 @@ namespace OgreScriptLSP {
         // language keys
         abstract_tk,
         default_params_tk,
-        delegate_tk,
         entry_point_tk,
         fragment_program_tk,
         fragment_program_ref_tk,

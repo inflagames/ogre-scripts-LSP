@@ -212,8 +212,6 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
                 return {abstract_tk, "abstract", line, column, (int) literal.size()};
             } else if (literal == "default_params") {
                 return {default_params_tk, "default_params", line, column, (int) literal.size()};
-            } else if (literal == "delegate") {
-                return {delegate_tk, "delegate", line, column, (int) literal.size()};
             } else if (literal == "entry_point") {
                 return {entry_point_tk, "entry_point", line, column, (int) literal.size()};
             } else if (literal == "fragment_program") {

@@ -14,6 +14,16 @@ TEST (ScannerTest, scanner_ShouldOpenScriptFile) {
     ASSERT_TRUE(scanner->file.is_open());
 }
 
+TEST (ScannerTest, scanner_ShouldOpenScriptFileAndLoadTokens) {
+    auto *scanner = new OgreScriptLSP::Scanner();
+    std::string scriptFile = "./examples/full_test_material.material";
+    scanner->loadScript(scriptFile);
+
+    ASSERT_TRUE(scanner->file.is_open());
+
+    scanner->parse();
+}
+
 TEST (ScannerTest, scanner_ShouldReadCorrectlyTheListOfTokens) {
     auto *scanner = new OgreScriptLSP::Scanner();
     scanner->loadScript("./examples/scanner/simple_token_validation.material");

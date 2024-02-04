@@ -326,7 +326,7 @@ void OgreScriptLSP::Parser::materialTechnique(OgreScriptLSP::MaterialAst *materi
     auto *technique = new TechniqueAst();
 
     // consume technique_tk token
-    nextToken();
+    nextTokenAndConsumeEndLines();
 
     consumeOpenCurlyBracket();
 
@@ -356,7 +356,7 @@ void OgreScriptLSP::Parser::materialPass(OgreScriptLSP::TechniqueAst *technique)
     auto *pass = new PassAst();
 
     // consume pass_tk token
-    nextToken();
+    nextTokenAndConsumeEndLines();
 
     materialPassName(pass);
 
@@ -555,6 +555,7 @@ OgreScriptLSP::Parser::objectDefinition(std::string error1, std::string error2) 
         res.push_back(getToken());
         nextToken();
     }
+    consumeEndLines();
     return res;
 }
 

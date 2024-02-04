@@ -6,6 +6,18 @@
 
 #include "../core/inc/parser.h"
 
+TEST (ParserTest, parse_ShouldParseFileCorrectly) {
+    auto *parser = new OgreScriptLSP::Parser();
+    std::string scriptFile = "./examples/full_test_material.material";
+    parser->loadScript(scriptFile);
+
+    parser->parse();
+
+    ASSERT_EQ(0, parser->getExceptions().size());
+    ASSERT_EQ(6, parser->getScript()->programs.size());
+    ASSERT_EQ(5, parser->getScript()->materials.size());
+}
+
 TEST (ParserTest, parse_ShouldCreateAstForFragmentDeclaration) {
     auto *parser = new OgreScriptLSP::Parser();
     std::string scriptFile = "./examples/scanner/frag_vert_declarations.material";

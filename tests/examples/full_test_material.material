@@ -1,0 +1,161 @@
+// Bump map vertex program shadow receiver
+vertex_program Examples/BumpMapVPShadowRcvGLSL glsl glsles
+{
+	source Example_BumpMappingShadowRcvVp.glsl
+}
+
+vertex_program Examples/BumpMapVPShadowRcv unified
+{
+	delegate Examples/BumpMapVPShadowRcvGLSL
+}
+
+// Bump map fragment program shadow receiver, support for this is optional
+fragment_program Examples/BumpMapFPShadowRcvGLSL glsl glsles
+{
+	source Example_BumpMappingShadowRcvFp.glsl
+	default_params
+	{
+		// assign samplers as required by GLSL
+		param_named shadowMap int 0
+		param_named normalMap int 1
+	}
+}
+
+fragment_program Examples/BumpMapFPShadowRcv unified
+{
+	delegate Examples/BumpMapFPShadowRcvGLSL
+}
+
+material Game/BumpMapping/MultiLight/Rcv
+{
+	technique
+	{
+		pass
+		{
+			scene_blend add
+
+			// texture shadow receiver program
+			vertex_program_ref Examples/BumpMapVPShadowRcv
+			{
+				param_named_auto lightPosition light_position_object_space 0
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named_auto worldMatrix world_matrix
+				param_named_auto texViewProj texture_viewproj_matrix
+			}
+			// Additive texture shadow receiver program
+			fragment_program_ref Examples/BumpMapFPShadowRcv
+			{
+				param_named_auto lightDiffuse light_diffuse_colour 0
+			}
+
+			texture_unit shadowmap
+			{
+				content_type shadow
+			}
+
+			texture_unit normalmap
+			{
+                texture normal_map.jpg
+			}
+		}
+	}
+}
+
+fragment_program Game/Floor/ShaderFp glsl glsles {
+    source FloorFp.glsl
+	default_params
+	{
+		// assign samplers as required by GLSL
+		param_named shadowMap int 0
+		param_named normalMap int 1
+	}
+}
+
+vertex_program Game/Floor/ShaderVp glsl glsles {
+    source FloorVp.glsl
+}
+
+material level_floor {
+    receive_shadows on
+    technique {
+        pass perlight {
+            //scene_blend add
+            diffuse .87 .99 1.0 1.0
+
+            vertex_program_ref Game/Floor/ShaderVp {
+				param_named_auto lightPosition light_position_object_space 0
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named_auto worldMatrix world_matrix
+				param_named_auto texViewProj texture_viewproj_matrix
+            }
+            fragment_program_ref Game/Floor/ShaderFp {
+                param_named_auto lightDiffuse light_diffuse_colour 0
+            }
+
+			texture_unit shadowmap
+			{
+				content_type shadow
+			}
+
+			texture_unit diffusemap {
+                //texture male.texture.jpeg
+                //tex_address_mode wrap
+                //colour_op modulate
+			}
+        }
+    }
+}
+
+material level_floor1 : Game/BumpMapping/MultiLight/Rcv {
+    receive_shadows on
+}
+
+material male.texture : Game/BumpMapping/MultiLight/Rcv {
+    receive_shadows on
+
+    technique {
+        pass perlight {
+            texture_unit normalMap {
+                texture male.texture.jpeg
+            }
+        }
+
+        pass decal {
+            diffuse 1.0 1.0 1.0 1.0
+            specular 0.4 0.4 0.4 0.5
+            scene_blend dest_colour zero
+
+            // - base_color_texture
+            texture_unit decalmap {
+                texture male.texture.jpeg
+                tex_address_mode wrap
+                colour_op modulate
+            }
+        }
+    }
+}
+
+material female.texture : Game/BumpMapping/MultiLight/Rcv {
+    receive_shadows on
+
+    technique {
+        pass perlight {
+            texture_unit normalMap {
+                texture male.texture.jpeg
+            }
+        }
+
+        pass decal {
+            diffuse 1.0 1.0 1.0 1.0
+            specular 0.4 0.4 0.4 0.5
+            scene_blend dest_colour zero
+
+            // - base_color_texture
+            texture_unit decalmap {
+                texture male.texture.jpeg
+                tex_address_mode wrap
+                colour_op modulate
+            }
+        }
+    }
+}

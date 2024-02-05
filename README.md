@@ -5,7 +5,8 @@ This project is mean to create an LSP for ogre script (materials, fonts, particl
 ## Build
 
 ```
-
+# build project directly to /usr/local/bin/
+./integration/build.sh
 ```
 
 ## Lexer Material

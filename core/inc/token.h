@@ -32,7 +32,6 @@ namespace OgreScriptLSP {
         colon_tk, // : X
         left_curly_bracket_tk, // { X
         right_curly_bracket_tk, // } X
-        asterisk_tk, // *
 
         // system
         endl_tk,

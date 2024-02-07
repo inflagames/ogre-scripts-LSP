@@ -1,3 +1,5 @@
+#include <utility>
+
 #ifndef OGRE_SCRIPTS_LSP_LIB_EXCEPTIONS_H
 #define OGRE_SCRIPTS_LSP_LIB_EXCEPTIONS_H
 
@@ -61,6 +63,11 @@ namespace OgreScriptLSP {
     public:
         explicit ScannerException(std::string message, int line, int column)
                 : BaseException(std::move(message), line, column) {}
+    };
+
+    struct ServerEOFException : public BaseException {
+    public:
+        explicit ServerEOFException(std::string message) : BaseException(std::move(message), 0, 0) {}
     };
 }
 

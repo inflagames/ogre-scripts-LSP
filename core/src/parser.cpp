@@ -97,7 +97,8 @@ ResultBase *OgreScriptLSP::Parser::goToDefinition(Position position) {
     return new Location(script->uri, range);
 }
 
-ResultArray *OgreScriptLSP::Parser::formatting(Range range) {
+// toDo (gonzalezext)[07.02.24]: support for trimFinalNewLines is not done
+ResultArray *OgreScriptLSP::Parser::formatting(FormattingOptions options, Range range) {
     auto *res = new ResultArray();
 
     // initial values
@@ -107,58 +108,90 @@ ResultArray *OgreScriptLSP::Parser::formatting(Range range) {
     // line
     int previousTokenPosition = 0;
     bool firstInLine = true;
+    TokenValue lastToken;
     while (!isEof()) {
         auto tk = getToken();
 
-        if (tk.tk == endl_tk) {
+        lastToken = tk;
+
+        if (tk.tk == endl_tk && !options.trimTrailingWhitespace) {
+            // remove trailing whitespaces
             previousTokenPosition = 0;
             firstInLine = true;
             nextToken();
             continue;
         }
 
-        if (tk.tk == left_curly_bracket_tk) {
-            level++;
-            previousTokenPosition = tk.column + tk.size;
-            nextToken();
-            continue;
-        }
         if (tk.tk == right_curly_bracket_tk) {
             level--;
-            previousTokenPosition = tk.column + tk.size;
-            nextToken();
-            continue;
         }
 
         int position;
 
+        if (!firstInLine) {
+            // toDo (gonzalezext)[28.01.24]: calculate separation base on the tokens
+            if (tk.tk == endl_tk) {
+                position = previousTokenPosition;
+            } else {
+                position = previousTokenPosition + 1;
+            }
+        }
+
         if (firstInLine) {
-            // toDo (gonzalezext)[28.01.24]: update 2 for the corresponding number of spaces
-            position = level * 2;
+            if (tk.tk != endl_tk) {
+                std::string nexText;
+                if (options.insertSpaces) {
+                    // toDo (gonzalezext)[07.02.24]: make a function
+                    for (int i = 0; i < level * options.tabSize; i++) {
+                        nexText.push_back(' ');
+                    }
+                } else {
+                    for (int i = 0; i < level; i++) {
+                        nexText.push_back('\t');
+                    }
+                }
+                res->elements.push_back(new TextEdit({tk.line, previousTokenPosition},
+                                                     {tk.line, tk.column},
+                                                     nexText));
+            }
+        } else {
+            if (tk.column > position) {
+                res->elements.push_back(new TextEdit({tk.line, position},
+                                                     {tk.line, tk.column},
+                                                     ""));
+            } else if (tk.column < position) {
+                std::string nexText;
+                for (int i = 0; i < position - tk.column; i++) {
+                    nexText.push_back(' ');
+                }
+                res->elements.push_back(new TextEdit({tk.line, previousTokenPosition},
+                                                     {tk.line, previousTokenPosition},
+                                                     nexText));
+            }
+        }
+
+        nextToken();
+        if (tk.tk != endl_tk) {
+            previousTokenPosition = tk.column + tk.size;
             firstInLine = false;
         } else {
-            // toDo (gonzalezext)[28.01.24]: calculate separation base on the tokens
-            position = previousTokenPosition + 2;
+            previousTokenPosition = 0;
+            firstInLine = true;
         }
 
-        if (tk.column > position) {
-            res->elements.push_back(new TextEdit({tk.line, previousTokenPosition + 1},
-                                                 {tk.line, tk.column - position - 1},
-                                                 ""));
-        } else if (tk.column < position) {
-            std::string nexText;
-            for (int i = 0; i < position - tk.column; i++) {
-                nexText.push_back(' ');
-            }
-            res->elements.push_back(new TextEdit({tk.line, previousTokenPosition + 1},
-                                                 {tk.line, previousTokenPosition + 1},
-                                                 nexText));
+        if (tk.tk == left_curly_bracket_tk) {
+            level++;
         }
-
-        previousTokenPosition = tk.column + tk.size;
-        nextToken();
     }
 
+    // add end line
+    if (options.insertFinalNewline && lastToken.tk != endl_tk) {
+        res->elements.push_back(new TextEdit({lastToken.line, lastToken.column + lastToken.size},
+                                             {lastToken.line, lastToken.column + lastToken.size},
+                                             "\n"));
+    }
+
+    // mainly for range formatting
     for (auto it = res->elements.begin(); it != res->elements.end(); it++) {
         auto e = (TextEdit *) *it;
         if (!range.inRange(e->range)) {

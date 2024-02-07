@@ -7,42 +7,54 @@
 void LspServer::runServer(std::ostream &oos, std::istream &ios) {
     // run server until exit or crash
     while (true) {
-        message = "";
-        Action act = readHeaders(ios);
-        act = readContent(act, ios);
-        Logs::getInstance().log("Request: " + message);
+        try {
+            message = "";
+            Action act = readHeaders(ios);
+            act = readContent(act, ios);
+            Logs::getInstance().log("Request: " + message);
 
-        auto *rm = (RequestMessage *) act.message;
-        if ("initialize" == rm->method) {
-            // this action is sync
-            ResponseMessage re;
-            re.id = rm->id;
-            re.result = new InitializeResult();
-
-            nlohmann::json resJson = re.toJson();
-            running = true;
-            sendResponse(nlohmann::to_string(resJson), oos);
-        } else if ("initialized" == rm->method) {
-            // toDo (gonzalezext)[26.01.24]: check if something need to be done
-            // client confirmation that received the InitializeResponse
-        } else if ("shutdown" == rm->method) {
-            shutdown();
-            break;
-        } else if ("exit" == rm->method) {
-            exit();
-            break;
-        } else if (running) {
-            if ("textDocument/formatting" == rm->method) {
-                formatting(rm, false, oos);
-            } else if ("textDocument/rangeFormatting" == rm->method) {
-                formatting(rm, true, oos);
-            } else if ("textDocument/definition" == rm->method) {
-                goToDefinition(rm, oos);
-            } else if ("textDocument/declaration" == rm->method) {
-                // toDo (gonzalezext)[29.01.24]:
+            if (ios.eof()) {
+                throw OgreScriptLSP::ServerEOFException("Client EOF");
             }
-        } else {
-            shutdown();
+
+            auto *rm = (RequestMessage *) act.message;
+            if ("initialize" == rm->method) {
+                // this action is sync
+                ResponseMessage re;
+                re.id = rm->id;
+                re.result = new InitializeResult();
+
+                nlohmann::json resJson = re.toJson();
+                running = true;
+                sendResponse(nlohmann::to_string(resJson), oos);
+            } else if ("initialized" == rm->method) {
+                // toDo (gonzalezext)[26.01.24]: check if something need to be done
+                // client confirmation that received the InitializeResponse
+            } else if ("shutdown" == rm->method) {
+                shutdown();
+                break;
+            } else if ("exit" == rm->method) {
+                exit();
+                break;
+            } else if (running) {
+                if ("textDocument/formatting" == rm->method) {
+                    formatting(rm, false, oos);
+                } else if ("textDocument/rangeFormatting" == rm->method) {
+                    formatting(rm, true, oos);
+                } else if ("textDocument/definition" == rm->method) {
+                    goToDefinition(rm, oos);
+                } else if ("textDocument/declaration" == rm->method) {
+                    // toDo (gonzalezext)[29.01.24]:
+                }
+            } else {
+                shutdown();
+            }
+        } catch (OgreScriptLSP::ServerEOFException e) {
+            Logs::getInstance().log("Error: " + e.message);
+            break;
+        } catch (...) {
+            Logs::getInstance().log("Error: The server crash");
+            break;
         }
     }
 }
@@ -71,11 +83,12 @@ void LspServer::formatting(RequestMessage *rm, bool withRange, std::ostream &oos
     auto *parser = new OgreScriptLSP::Parser();
     try {
         parser->loadScript(((DocumentFormattingParams *) rm->params)->textDocument.uri);
+        FormattingOptions options = ((DocumentFormattingParams *) rm->params)->options;
         ResultBase *res;
         if (withRange) {
-            res = parser->formatting(((DocumentRangeFormattingParams *) rm->params)->range);
+            res = parser->formatting(options, ((DocumentRangeFormattingParams *) rm->params)->range);
         } else {
-            res = parser->formatting();
+            res = parser->formatting(options);
         }
 
         ResponseMessage re;
@@ -184,6 +197,10 @@ Action LspServer::readContent(Action action, std::istream &os) {
 }
 
 char LspServer::nextCharacter(std::istream &os) {
+    if (os.eof()) {
+        throw OgreScriptLSP::ServerEOFException("Client EOF error");
+    }
+
     ch = (char) os.get();
     message.push_back(ch);
     return ch;

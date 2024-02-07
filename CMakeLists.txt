@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.27)
+cmake_minimum_required(VERSION 3.26)
 project(ogre_scripts_LSP_lib)
 
 include(FetchContent)

@@ -15,6 +15,7 @@ namespace OgreScriptLSP {
         char ch{};
         int lineCount = 0;
         int columnCount = 0;
+        bool isNewLine = false;
 
         std::vector<BaseException> exceptions;
 

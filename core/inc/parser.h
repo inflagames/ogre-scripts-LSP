@@ -42,7 +42,7 @@ namespace OgreScriptLSP {
 
         void parse();
 
-        ResultArray *formatting(Range range = {{0, 0},
+        ResultArray *formatting(FormattingOptions options, Range range = {{0, 0},
                                                {INT32_MAX, INT32_MAX}});
 
         ResultBase *goToDefinition(Position position);

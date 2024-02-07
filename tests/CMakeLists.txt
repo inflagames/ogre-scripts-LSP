@@ -27,7 +27,7 @@ add_executable(test_run
         LSPGoToDefinitionTest.cpp
 )
 
-target_link_libraries(test_run gtest gtest_main nlohmann_json::nlohmann_json ogre_scripts_LSP_lib test_utils)
+target_link_libraries(test_run PUBLIC gtest gtest_main nlohmann_json::nlohmann_json ogre_scripts_LSP_lib test_utils)
 
 include(GoogleTest)
 gtest_discover_tests(test_run)

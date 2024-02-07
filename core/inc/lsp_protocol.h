@@ -5,11 +5,11 @@
 #ifndef OGRE_SCRIPTS_LSP_LIB_LSP_PROTOCOL_H
 #define OGRE_SCRIPTS_LSP_LIB_LSP_PROTOCOL_H
 
+#include <iostream>
 #include <utility>
 #include <vector>
 
-#include <nlohmann/json.hpp>
-#include <iostream>
+#include "nlohmann/json.hpp"
 #include "logs.h"
 
 struct Message {
@@ -115,9 +115,9 @@ struct Location : ResultBase {
 
 struct TextEdit : ResultBase {
     Range range;
-    std::string nexText;
+    std::string newText;
 
-    TextEdit(Position start, Position end, std::string nexText) : range({start, end}), nexText(std::move(nexText)) {}
+    TextEdit(Position start, Position end, std::string newText) : range({start, end}), newText(std::move(newText)) {}
 
     nlohmann::json toJson() override {
         return nlohmann::json{
@@ -125,7 +125,7 @@ struct TextEdit : ResultBase {
                                     {"start", {{"line", range.start.line}, {"character", range.start.character}}},
                                     {"end", {{"line", range.end.line}, {"character", range.end.character}}}
                             }},
-                {"nexText", nexText}
+                {"newText", newText}
         };
     }
 };

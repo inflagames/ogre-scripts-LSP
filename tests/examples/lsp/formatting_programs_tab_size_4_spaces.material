@@ -1,0 +1,13 @@
+fragment_program Game/Floor/ShaderFp glsl glsles {
+    source FloorFp.glsl
+}
+
+vertex_program Game/Floor/ShaderVp glsl {
+    source FloorVp.glsl
+
+    default_params
+    {
+    // assign samplers as required by GLSL
+        param_named normalMap int 0
+    }
+}

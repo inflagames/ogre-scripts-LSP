@@ -30,7 +30,7 @@ std::string OgreScriptLSP::Parser::uriToPath(const std::string &uri) {
 }
 
 ResultBase *OgreScriptLSP::Parser::goToDefinition(Position position) {
-    // toDo (gonzalezext)[03.02.24]: this should be extende to more than one script AST when importing be supported
+    // toDo (gonzalezext)[03.02.24]: this should be extended to more than one script AST when importing be supported
     // material
     for (auto mat: script->materials) {
         TokenValue parent = mat->parent;
@@ -57,7 +57,7 @@ ResultBase *OgreScriptLSP::Parser::goToDefinition(Position position) {
         }
     }
 
-    // variables todo
+    // variables todo: support for goto in variables not implemented
 
     // programs
     for (auto prog: script->programs) {
@@ -97,7 +97,7 @@ ResultBase *OgreScriptLSP::Parser::goToDefinition(Position position) {
     return new Location(script->uri, range);
 }
 
-// toDo (gonzalezext)[07.02.24]: support for trimFinalNewLines is not done
+// toDo (gonzalezext)[07.02.24]: support for trimFinalNewLines is not implemented
 ResultArray *OgreScriptLSP::Parser::formatting(FormattingOptions options, Range range) {
     auto *res = new ResultArray();
 
@@ -141,14 +141,9 @@ ResultArray *OgreScriptLSP::Parser::formatting(FormattingOptions options, Range 
             if (tk.tk != endl_tk) {
                 std::string nexText;
                 if (options.insertSpaces) {
-                    // toDo (gonzalezext)[07.02.24]: make a function
-                    for (int i = 0; i < level * options.tabSize; i++) {
-                        nexText.push_back(' ');
-                    }
+                    nexText = repeatCharacter(' ', level * options.tabSize);
                 } else {
-                    for (int i = 0; i < level; i++) {
-                        nexText.push_back('\t');
-                    }
+                    nexText = repeatCharacter('\t', level);
                 }
                 res->elements.push_back(new TextEdit({tk.line, previousTokenPosition},
                                                      {tk.line, tk.column},
@@ -160,10 +155,7 @@ ResultArray *OgreScriptLSP::Parser::formatting(FormattingOptions options, Range 
                                                      {tk.line, tk.column},
                                                      ""));
             } else if (tk.column < position) {
-                std::string nexText;
-                for (int i = 0; i < position - tk.column; i++) {
-                    nexText.push_back(' ');
-                }
+                std::string nexText = repeatCharacter(' ', position - tk.column);
                 res->elements.push_back(new TextEdit({tk.line, previousTokenPosition},
                                                      {tk.line, previousTokenPosition},
                                                      nexText));
@@ -200,6 +192,14 @@ ResultArray *OgreScriptLSP::Parser::formatting(FormattingOptions options, Range 
     }
 
     return res;
+}
+
+std::string OgreScriptLSP::Parser::repeatCharacter(char c, int times) {
+    std::string text;
+    for (int i = 0; i < times; i++) {
+        text.push_back(c);
+    }
+    return text;
 }
 
 void OgreScriptLSP::Parser::parse() {

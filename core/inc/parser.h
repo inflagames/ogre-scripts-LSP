@@ -45,6 +45,8 @@ namespace OgreScriptLSP {
         ResultArray *formatting(FormattingOptions options, Range range = {{0, 0},
                                                {INT32_MAX, INT32_MAX}});
 
+        static std::string repeatCharacter(char c, int times);
+
         ResultBase *goToDefinition(Position position);
 
         // PROGRAM STATEMENT

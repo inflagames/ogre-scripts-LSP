@@ -2,6 +2,8 @@
 
 This project is mean to create an LSP for ogre script (materials, fonts, particles, etc)
 
+Base on the LSP specifications from microsoft: https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/
+
 ## Build
 
 ```
@@ -58,3 +60,9 @@ param = <identifier> | <string_literal> | <number_literal> | <variable>
 
 object_definition = <identifier> | <identifier> <colon_tk> <identifier>
 ```
+
+## ToDo
+
+- [ ] code diagnostic support
+- [ ] create class for handle formatting (take logic out of the parser)
+- [ ] handle `textDocument/didOpen`, `textDocument/didClose`, `textDocument/didChange`, `textDocument/didSave` [link](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_synchronization)

@@ -5,6 +5,10 @@
 OgreScriptLSP::Scanner::Scanner() = default;
 
 void OgreScriptLSP::Scanner::loadScript(const std::string &scriptFile) {
+    // close if needed
+    if (file.is_open()) {
+        file.close();
+    }
     file.open(scriptFile);
     if (!file.is_open()) {
         throw FileException(FILE_IS_NOT_OPEN_OR_NOT_EXIST);
@@ -274,7 +278,7 @@ bool OgreScriptLSP::Scanner::nextCharacter() {
     file.get(ch);
     if (isNewLine) {
         lineCount++;
-        columnCount=0;
+        columnCount = 0;
     } else {
         columnCount++;
     }

@@ -31,7 +31,6 @@ import_opt = <asterisk_tk> <identifier>
 
 // .material scripts
 material = material_tk <object_definition> <left_curly_bracket_tk> <material_body> <right_curly_bracket_tk> 
-
 material_body = <material_body_opt> | <material_body_opt> <material_body>
 material_body_opt = <material_technique> | <param_line>
 

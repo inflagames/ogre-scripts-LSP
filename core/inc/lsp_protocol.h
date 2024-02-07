@@ -50,6 +50,13 @@ struct Range {
     [[nodiscard]] bool inRange(const Position &a) const {
         return !(start > a || end < a);
     }
+
+    nlohmann::json toJson() {
+        return nlohmann::json{
+                {"start", {{"line", start.line}, {"character", start.character}}},
+                {"end",   {{"line", end.line},   {"character", end.character}}}
+        };
+    }
 };
 
 struct ParamsBase {
@@ -105,10 +112,7 @@ struct Location : ResultBase {
     nlohmann::json toJson() override {
         return nlohmann::json{
                 {"uri",   uri},
-                {"range", {
-                                  {"start", {{"line", range.start.line}, {"character", range.start.character}}},
-                                  {"end", {{"line", range.end.line}, {"character", range.end.character}}}
-                          }}
+                {"range", range.toJson()}
         };
     }
 };
@@ -121,10 +125,7 @@ struct TextEdit : ResultBase {
 
     nlohmann::json toJson() override {
         return nlohmann::json{
-                {"range",   {
-                                    {"start", {{"line", range.start.line}, {"character", range.start.character}}},
-                                    {"end", {{"line", range.end.line}, {"character", range.end.character}}}
-                            }},
+                {"range",   range.toJson()},
                 {"newText", newText}
         };
     }
@@ -137,6 +138,49 @@ struct CancelParams : ParamsBase {
     std::string id;
 };
 
+struct PublishDiagnosticsClientCapabilities {
+    /**
+	 * Client supports the tag property to provide meta data about a diagnostic.
+	 * Clients supporting tags have to handle unknown tags gracefully.
+	 *
+	 * @since 3.15.0
+	 */
+    struct TagSupport {
+        /**
+         * 1 --> for unnecessary/unused code<br>
+         * 2 --> for deprecated or obsolete code
+         */
+        std::vector<uint8_t> valueSet;
+    } tagSupport;
+
+    /**
+	 * Whether the client interprets the version property of the
+	 * `textDocument/publishDiagnostics` notification's parameter.
+	 *
+	 * @since 3.15.0
+	 */
+    bool versionSupport = false;
+};
+
+struct CompletionClientCapabilities {
+    // toDo (gonzalezext)[07.02.24]:
+};
+
+struct TextDocumentClientCapabilities {
+    PublishDiagnosticsClientCapabilities publishDiagnostics;
+    CompletionClientCapabilities completion;
+};
+
+struct WorkspaceFolder {
+    std::string uri;
+    std::string name;
+};
+
+struct ClientCapabilities {
+    bool workspaceFolders;
+    TextDocumentClientCapabilities textDocument;
+};
+
 /**
  * 'initialize'
  */
@@ -144,19 +188,7 @@ struct InitializeParams : WorkDoneProgressParams {
     int processId{};
     std::string rootPath; // probably not used
     std::string rootUri; // probably not used
-    struct ClientCapabilities {
-        bool workspaceFolders;
-        struct TextDocumentClientCapabilities {
-            // toDo (gonzalezext)[26.01.24]:
-        } textDocument;
-        struct Window {
-            // toDo (gonzalezext)[26.01.24]:
-        } window;
-    } capabilities{};
-    struct WorkspaceFolder {
-        std::string uri;
-        std::string name;
-    };
+    ClientCapabilities capabilities;
     std::vector<WorkspaceFolder> workspaceFolders;
 
     void fromJson(const nlohmann::json &j) override {
@@ -168,6 +200,23 @@ struct InitializeParams : WorkDoneProgressParams {
         }
         if (j.contains("rootUri")) {
             j.at("rootUri").get_to(rootUri);
+        }
+        if (j.contains("capabilities")) {
+            if (j.at("capabilities").contains("textDocument")) {
+                if (j.at("capabilities").at("textDocument").contains("publishDiagnostics")) {
+                    if (j.at("capabilities").at("textDocument").at("publishDiagnostics").contains("versionSupport")) {
+                        j.at("capabilities").at("textDocument").at("publishDiagnostics").at("versionSupport")
+                                .get_to(capabilities.textDocument.publishDiagnostics.versionSupport);
+                    }
+                    if (j.at("capabilities").at("textDocument").at("publishDiagnostics").contains("tagSupport")) {
+                        for (const auto &t: j.at("capabilities").at("textDocument").at("publishDiagnostics").at(
+                                "tagSupport").at("valueSet")) {
+                            capabilities.textDocument.publishDiagnostics.tagSupport.valueSet.push_back(
+                                    t.template get<uint8_t>());
+                        }
+                    }
+                }
+            }
         }
     };
 };
@@ -295,6 +344,38 @@ struct InitializeResult : ResultBase {
                 }
         };
     };
+};
+
+struct Diagnostic {
+    /**
+     * 1: Error<br>
+     * 2: Warning<br>
+     * 3: Information<br>
+     * 4: Hint
+     */
+    uint8_t severity;
+    Range range;
+    std::string message;
+};
+
+struct PublishDiagnosticsParams : ResultBase {
+    std::string uri;
+    std::vector<Diagnostic> diagnostics;
+
+    nlohmann::json toJson() override {
+        nlohmann::json diagnosticsArray = nlohmann::json::array();
+        for (auto diag: diagnostics) {
+            diagnosticsArray.push_back(nlohmann::json{
+                    {"severity", diag.severity},
+                    {"range",    diag.range.toJson()},
+                    {"message",  diag.message}
+            });
+        }
+        return nlohmann::json{
+                {"uri",         uri},
+                {"diagnostics", diagnosticsArray}
+        };
+    }
 };
 
 struct RequestMessage : Message {

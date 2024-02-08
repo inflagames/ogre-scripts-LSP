@@ -1,7 +1,3 @@
-//
-// Created by gonzalezext on 27.01.24.
-//
-
 #ifndef OGRE_SCRIPTS_LSP_LIB_AST_TREE_H
 #define OGRE_SCRIPTS_LSP_LIB_AST_TREE_H
 

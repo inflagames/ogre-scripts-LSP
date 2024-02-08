@@ -1,5 +1,3 @@
-#include <utility>
-
 #ifndef OGRE_SCRIPTS_LSP_LIB_EXCEPTIONS_H
 #define OGRE_SCRIPTS_LSP_LIB_EXCEPTIONS_H
 

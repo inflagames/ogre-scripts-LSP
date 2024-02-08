@@ -1,7 +1,3 @@
-//
-// Created by gonzalezext on 21.01.24.
-//
-
 #ifndef JS_AI_TOKEN_H
 #define JS_AI_TOKEN_H
 

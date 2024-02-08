@@ -1,9 +1,4 @@
-//
-// Created by gonzalezext on 25.01.24.
-//
-
 #include "../inc/lsp_server.h"
-#include "../inc/formatter.h"
 
 void LspServer::runServer(std::ostream &oos, std::istream &ios) {
     // run server until exit or crash

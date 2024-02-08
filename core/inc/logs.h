@@ -1,7 +1,3 @@
-//
-// Created by gonzalezext on 29.01.24.
-//
-
 #ifndef OGRE_SCRIPTS_LSP_LIB_LOGS_H
 #define OGRE_SCRIPTS_LSP_LIB_LOGS_H
 
@@ -14,10 +10,16 @@ class Logs {
 private:
     std::ofstream file;
 
-    explicit Logs(std::string logFile = "ogre3dscriptlsp.log");;
+    Logs() = default;
+
 public:
+    Logs(Logs &other) = delete;
+
+    void operator=(const Logs &) = delete;
 
     static Logs &getInstance();
+
+    void enableLogs(std::string logFile = "ogre3dscriptlsp.log");
 
     void log(std::string text);
 };

@@ -1,7 +1,3 @@
-//
-// Created by gonzalezext on 08.02.24.
-//
-
 #ifndef OGRE_SCRIPTS_LSP_LIB_FORMATTER_H
 #define OGRE_SCRIPTS_LSP_LIB_FORMATTER_H
 

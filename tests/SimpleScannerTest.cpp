@@ -1,7 +1,3 @@
-//
-// Created by Guillermo on 25.05.23.
-//
-
 #include "gtest/gtest.h"
 
 #include "../core/inc/scanner.h"

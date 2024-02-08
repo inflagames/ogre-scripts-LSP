@@ -1,7 +1,3 @@
-//
-// Created by gonzalezext on 26.01.24.
-//
-
 #ifndef OGRE_SCRIPTS_LSP_LIB_LSP_PROTOCOL_H
 #define OGRE_SCRIPTS_LSP_LIB_LSP_PROTOCOL_H
 

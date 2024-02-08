@@ -103,3 +103,9 @@ std::string test_utils::getMessageStr(const std::string &data) {
     return "Content-Length: " + std::to_string(data.size()) +
            "\r\nContent-Type: application/vscode; charset=utf-8\r\n\r\n" + data;
 }
+
+void test_utils::writeStringToStream(std::istream &ios, const std::string &str) {
+    for (char i: str) {
+        ios.putback(i);
+    }
+}

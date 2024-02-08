@@ -1,7 +1,3 @@
-//
-// Created by guille on 21.01.24.
-//
-
 #include "../inc/parser.h"
 
 OgreScriptLSP::Parser::Parser() {

@@ -38,6 +38,8 @@ namespace test_utils {
     bool inRange(range a, range b);
 
     int positionInText(std::string text, position pos);
+
+    void writeStringToStream(std::istream &ios, const std::string& str);
 };
 
 #endif //TEST_UTILS_LIBRARY_H

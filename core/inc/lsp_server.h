@@ -1,7 +1,3 @@
-//
-// Created by gonzalezext on 25.01.24.
-//
-
 #ifndef OGRE_SCRIPTS_LSP_LIB_LSP_SERVER_H
 #define OGRE_SCRIPTS_LSP_LIB_LSP_SERVER_H
 
@@ -12,6 +8,7 @@
 
 #include "lsp_protocol.h"
 #include "parser.h"
+#include "formatter.h"
 
 #define HEADER_CONTENT_LENGTH "Content-Length"
 #define HEADER_CONTENT_TYPE "Content-Type"

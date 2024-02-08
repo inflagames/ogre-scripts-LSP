@@ -1,7 +1,3 @@
-//
-// Created by gonzalezext on 08.02.24.
-//
-
 #include "../inc/formatter.h"
 
 // toDo (gonzalezext)[07.02.24]: support for trimFinalNewLines is not implemented

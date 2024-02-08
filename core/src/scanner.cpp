@@ -1,5 +1,3 @@
-#include <utility>
-
 #include "../inc/scanner.h"
 
 OgreScriptLSP::Scanner::Scanner() = default;

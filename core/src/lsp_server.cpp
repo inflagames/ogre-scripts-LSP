@@ -45,13 +45,14 @@ void LspServer::runServer(std::ostream &oos, std::istream &ios) {
                 } else if ("textDocument/definition" == rm->method) {
                     goToDefinition(rm, oos);
                 } else if ("textDocument/didOpen" == rm->method) {
-                    // toDo (gonzalezext)[08.02.24]:
+                    didOpen(rm);
                 } else if ("textDocument/didClose" == rm->method) {
-                    // toDo (gonzalezext)[08.02.24]:
+                    didClose(rm);
                 } else if ("textDocument/didSave" == rm->method) {
-                    // toDo (gonzalezext)[08.02.24]:
-                } else if ("textDocument/didChange" == rm->method) {
                     // not needed at the moment
+                    continue;
+                } else if ("textDocument/didChange" == rm->method) {
+                    didChange(rm);
                 } else if ("textDocument/declaration" == rm->method) {
                     // toDo (gonzalezext)[29.01.24]:
                 }
@@ -113,7 +114,8 @@ void LspServer::formatting(RequestMessage *rm, bool withRange, std::ostream &oos
         FormattingOptions options = ((DocumentFormattingParams *) rm->params)->options;
         ResultBase *res;
         if (withRange) {
-            res = OgreScriptLSP::Formatter::formatting(parser, options, ((DocumentRangeFormattingParams *) rm->params)->range);
+            res = OgreScriptLSP::Formatter::formatting(parser, options,
+                                                       ((DocumentRangeFormattingParams *) rm->params)->range);
         } else {
             res = OgreScriptLSP::Formatter::formatting(parser, options);
         }

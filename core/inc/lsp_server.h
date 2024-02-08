@@ -7,6 +7,8 @@
 
 #include <iostream>
 #include <string>
+#include <map>
+#include <set>
 
 #include "lsp_protocol.h"
 #include "parser.h"
@@ -19,6 +21,9 @@ private:
     bool running = false;
     char ch = ' ';
     std::string message;
+
+    std::map<std::string, OgreScriptLSP::Parser *> parsers;
+    std::set<std::string> parsersMarkedAsUpdated;
 
 public:
     LspServer() = default;
@@ -38,6 +43,14 @@ public:
     void formatting(RequestMessage *rm, bool withRange, std::ostream &oos = std::cout);
 
     void goToDefinition(RequestMessage *rm, std::ostream &oos = std::cout);
+
+    void didOpen(RequestMessage *rm);
+
+    void didClose(RequestMessage *rm);
+
+    void didChange(RequestMessage *rm);
+
+    OgreScriptLSP::Parser *getParserByUri(const std::string &uri);
 
     void shutdown();
 

@@ -95,111 +95,6 @@ ResultBase *OgreScriptLSP::Parser::goToDefinition(Position position) {
     return new Location(script->uri, range);
 }
 
-// toDo (gonzalezext)[07.02.24]: support for trimFinalNewLines is not implemented
-ResultArray *OgreScriptLSP::Parser::formatting(FormattingOptions options, Range range) {
-    auto *res = new ResultArray();
-
-    // initial values
-    currentToken = 0;
-    int level = 0;
-
-    // line
-    int previousTokenPosition = 0;
-    bool firstInLine = true;
-    TokenValue lastToken;
-    while (!isEof()) {
-        auto tk = getToken();
-
-        lastToken = tk;
-
-        if (tk.tk == endl_tk && !options.trimTrailingWhitespace) {
-            // remove trailing whitespaces
-            previousTokenPosition = 0;
-            firstInLine = true;
-            nextToken();
-            continue;
-        }
-
-        if (tk.tk == right_curly_bracket_tk) {
-            level--;
-        }
-
-        int position;
-
-        if (!firstInLine) {
-            // toDo (gonzalezext)[28.01.24]: calculate separation base on the tokens
-            if (tk.tk == endl_tk) {
-                position = previousTokenPosition;
-            } else {
-                position = previousTokenPosition + 1;
-            }
-        }
-
-        if (firstInLine) {
-            if (tk.tk != endl_tk) {
-                std::string nexText;
-                if (options.insertSpaces) {
-                    nexText = repeatCharacter(' ', level * options.tabSize);
-                } else {
-                    nexText = repeatCharacter('\t', level);
-                }
-                res->elements.push_back(new TextEdit({tk.line, previousTokenPosition},
-                                                     {tk.line, tk.column},
-                                                     nexText));
-            }
-        } else {
-            if (tk.column > position) {
-                res->elements.push_back(new TextEdit({tk.line, position},
-                                                     {tk.line, tk.column},
-                                                     ""));
-            } else if (tk.column < position) {
-                std::string nexText = repeatCharacter(' ', position - tk.column);
-                res->elements.push_back(new TextEdit({tk.line, previousTokenPosition},
-                                                     {tk.line, previousTokenPosition},
-                                                     nexText));
-            }
-        }
-
-        nextToken();
-        if (tk.tk != endl_tk) {
-            previousTokenPosition = tk.column + tk.size;
-            firstInLine = false;
-        } else {
-            previousTokenPosition = 0;
-            firstInLine = true;
-        }
-
-        if (tk.tk == left_curly_bracket_tk) {
-            level++;
-        }
-    }
-
-    // add end line
-    if (options.insertFinalNewline && lastToken.tk != endl_tk) {
-        res->elements.push_back(new TextEdit({lastToken.line, lastToken.column + lastToken.size},
-                                             {lastToken.line, lastToken.column + lastToken.size},
-                                             "\n"));
-    }
-
-    // mainly for range formatting
-    for (auto it = res->elements.begin(); it != res->elements.end(); it++) {
-        auto e = (TextEdit *) *it;
-        if (!range.inRange(e->range)) {
-            res->elements.erase(it);
-        }
-    }
-
-    return res;
-}
-
-std::string OgreScriptLSP::Parser::repeatCharacter(char c, int times) {
-    std::string text;
-    for (int i = 0; i < times; i++) {
-        text.push_back(c);
-    }
-    return text;
-}
-
 void OgreScriptLSP::Parser::parse() {
     currentToken = 0;
 
@@ -617,4 +512,8 @@ bool OgreScriptLSP::Parser::isEof() {
 bool OgreScriptLSP::Parser::isMainStructure() {
     auto tk = getToken().tk;
     return tk == vertex_program_tk || tk == fragment_program_tk || tk == material_tk;
+}
+
+void OgreScriptLSP::Parser::initSwap() {
+    currentToken = 0;
 }

@@ -82,6 +82,17 @@ struct ResultBase {
     };
 };
 
+struct TextDocumentItem {
+    std::string uri;
+    std::string languageId;
+    int version;
+    std::string text;
+};
+
+struct TextDocumentContentChangeEvent {
+
+};
+
 struct ResultArray : ResultBase {
     std::vector<ResultBase *> elements;
 
@@ -312,6 +323,58 @@ struct DeclarationParams : WorkDoneProgressParams, TextDocumentPositionParams, P
 };
 
 /**
+ * 'textDocument/didOpen'
+ */
+struct DidOpenTextDocumentParams : ParamsBase {
+    TextDocumentItem textDocument;
+
+    void fromJson(const nlohmann::json &j) override {
+        ParamsBase::fromJson(j);
+    }
+};
+
+/**
+ * 'textDocument/didClose'
+ */
+struct DidCloseTextDocumentParams : ParamsBase {
+    TextDocumentIdentifier textDocument;
+
+    void fromJson(const nlohmann::json &j) override {
+        if (j.contains("textDocument") && j.at("textDocument").contains("uri")) {
+            j.at("textDocument").at("uri").get_to(textDocument.uri);
+        }
+    }
+};
+
+/**
+ * 'textDocument/didSave'
+ */
+struct DidSaveTextDocumentParams : ParamsBase {
+    TextDocumentIdentifier textDocument;
+    std::string text;
+
+    void fromJson(const nlohmann::json &j) override {
+        if (j.contains("textDocument") && j.at("textDocument").contains("uri")) {
+            j.at("textDocument").at("uri").get_to(textDocument.uri);
+        }
+        if (j.contains("text")) {
+            j.at("text").get_to(text);
+        }
+    }
+};
+
+/**
+ * 'textDocument/didChange'
+ */
+ struct DidChangeTextDocumentParams : ParamsBase {
+     TextDocumentItem textDocument;
+
+     void fromJson(const nlohmann::json &j) override {
+         ParamsBase::fromJson(j);
+     }
+ };
+
+/**
  * 'initialize' response
  */
 struct InitializeResult : ResultBase {
@@ -381,7 +444,7 @@ struct PublishDiagnosticsParams : ResultBase {
 struct RequestMessage : Message {
     std::string id;
     std::string method;
-    ParamsBase *params;
+    ParamsBase *params = nullptr;
 
     RequestMessage() : Message("") {
         jsonrpc = method = id = "";
@@ -405,18 +468,24 @@ struct RequestMessage : Message {
         if (j.contains("params")) {
             if ("initialize" == method) {
                 params = new InitializeParams();
-                params->fromJson(j.at("params"));
             } else if ("textDocument/formatting" == method) {
                 params = new DocumentFormattingParams();
-                params->fromJson(j.at("params"));
             } else if ("textDocument/rangeFormatting" == method) {
                 params = new DocumentRangeFormattingParams();
-                params->fromJson(j.at("params"));
             } else if ("textDocument/definition" == method) {
                 params = new DefinitionParams();
-                params->fromJson(j.at("params"));
             } else if ("textDocument/declaration" == method) {
                 params = new DeclarationParams();
+            } else if ("textDocument/didOpen" == method) {
+                params = new DidOpenTextDocumentParams();
+            } else if ("textDocument/didClose" == method) {
+                params = new DidCloseTextDocumentParams();
+            } else if ("textDocument/didSave" == method) {
+                params = new DidSaveTextDocumentParams();
+            } else if ("textDocument/didChange" == method) {
+                params = new DidChangeTextDocumentParams();
+            }
+            if (params != nullptr) {
                 params->fromJson(j.at("params"));
             }
         }

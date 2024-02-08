@@ -23,6 +23,8 @@ add_library(ogre_scripts_LSP_lib STATIC
         core/inc/exceptions.h
         core/inc/logs.h
         core/src/logs.cpp
+        core/src/formatter.cpp
+        core/inc/formatter.h
 )
 
 add_executable(ogre_scripts_LSP main.cpp)

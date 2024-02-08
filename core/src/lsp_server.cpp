@@ -3,6 +3,7 @@
 //
 
 #include "../inc/lsp_server.h"
+#include "../inc/formatter.h"
 
 void LspServer::runServer(std::ostream &oos, std::istream &ios) {
     // run server until exit or crash
@@ -43,6 +44,14 @@ void LspServer::runServer(std::ostream &oos, std::istream &ios) {
                     formatting(rm, true, oos);
                 } else if ("textDocument/definition" == rm->method) {
                     goToDefinition(rm, oos);
+                } else if ("textDocument/didOpen" == rm->method) {
+                    // toDo (gonzalezext)[08.02.24]:
+                } else if ("textDocument/didClose" == rm->method) {
+                    // toDo (gonzalezext)[08.02.24]:
+                } else if ("textDocument/didSave" == rm->method) {
+                    // toDo (gonzalezext)[08.02.24]:
+                } else if ("textDocument/didChange" == rm->method) {
+                    // not needed at the moment
                 } else if ("textDocument/declaration" == rm->method) {
                     // toDo (gonzalezext)[29.01.24]:
                 }
@@ -59,12 +68,32 @@ void LspServer::runServer(std::ostream &oos, std::istream &ios) {
     }
 }
 
+void LspServer::didOpen(RequestMessage *rm) {
+    try {
+        getParserByUri(((DidOpenTextDocumentParams *) rm->params)->textDocument.uri);
+    } catch (...) {
+        // toDo (gonzalezext)[08.02.24]: exception
+    }
+}
+
+void LspServer::didClose(RequestMessage *rm) {
+    std::string uri = ((DidCloseTextDocumentParams *) rm->params)->textDocument.uri;
+    auto it = parsers.find(uri);
+    if (it != parsers.end()) {
+        delete it->second;
+        parsers.erase(it);
+    }
+}
+
+void LspServer::didChange(RequestMessage *rm) {
+    std::string uri = ((DidChangeTextDocumentParams *) rm->params)->textDocument.uri;
+    parsersMarkedAsUpdated.insert(uri);
+}
+
 void LspServer::goToDefinition(RequestMessage *rm, std::ostream &oos) {
-    auto *parser = new OgreScriptLSP::Parser();
     try {
         DefinitionParams *definitionParams = ((DefinitionParams *) rm->params);
-        parser->loadScript(definitionParams->textDocument.uri);
-        parser->parse();
+        auto parser = getParserByUri(definitionParams->textDocument.uri);
         auto *res = parser->goToDefinition(definitionParams->position);
 
         ResponseMessage re;
@@ -76,19 +105,17 @@ void LspServer::goToDefinition(RequestMessage *rm, std::ostream &oos) {
         // toDo (gonzalezext)[03.02.24]: send fail to client
         Logs::getInstance().log("ERROR: goToDefinition");
     }
-    delete parser;
 }
 
 void LspServer::formatting(RequestMessage *rm, bool withRange, std::ostream &oos) {
-    auto *parser = new OgreScriptLSP::Parser();
     try {
-        parser->loadScript(((DocumentFormattingParams *) rm->params)->textDocument.uri);
+        auto parser = getParserByUri(((DocumentFormattingParams *) rm->params)->textDocument.uri);
         FormattingOptions options = ((DocumentFormattingParams *) rm->params)->options;
         ResultBase *res;
         if (withRange) {
-            res = parser->formatting(options, ((DocumentRangeFormattingParams *) rm->params)->range);
+            res = OgreScriptLSP::Formatter::formatting(parser, options, ((DocumentRangeFormattingParams *) rm->params)->range);
         } else {
-            res = parser->formatting(options);
+            res = OgreScriptLSP::Formatter::formatting(parser, options);
         }
 
         ResponseMessage re;
@@ -100,7 +127,6 @@ void LspServer::formatting(RequestMessage *rm, bool withRange, std::ostream &oos
         // toDo (gonzalezext)[03.02.24]: send fail message to client
         Logs::getInstance().log("ERROR: " + e.message);
     }
-    delete parser;
 }
 
 void LspServer::shutdown() {
@@ -204,4 +230,26 @@ char LspServer::nextCharacter(std::istream &os) {
     ch = (char) os.get();
     message.push_back(ch);
     return ch;
+}
+
+OgreScriptLSP::Parser *LspServer::getParserByUri(const std::string &uri) {
+    OgreScriptLSP::Parser *r;
+    bool needUpdate = parsersMarkedAsUpdated.contains(uri);
+
+    if (parsers.contains(uri)) {
+        // get existing parser
+        r = parsers[uri];
+    } else {
+        // need to be created if not exist
+        r = new OgreScriptLSP::Parser();
+        parsers[uri] = r;
+        needUpdate = true;
+    }
+
+    if (needUpdate) {
+        r->loadScript(uri);
+        r->parse();
+    }
+
+    return r;
 }

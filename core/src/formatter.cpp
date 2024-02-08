@@ -1,7 +1,7 @@
 #include "../inc/formatter.h"
 
 // toDo (gonzalezext)[07.02.24]: support for trimFinalNewLines is not implemented
-ResultArray *OgreScriptLSP::Formatter::formatting(Parser *parser, FormattingOptions options, Range range) {
+OgreScriptLSP::ResultArray *OgreScriptLSP::Formatter::formatting(Parser *parser, FormattingOptions options, Range range) {
     auto *res = new ResultArray();
 
     // initial values

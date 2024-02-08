@@ -7,7 +7,7 @@ int main() {
 
     Logs::getInstance().enableLogs();
 
-    auto *lcp = new LspServer();
+    auto *lcp = new OgreScriptLSP::LspServer();
     lcp->runServer();
 
     return 0;

@@ -2,6 +2,8 @@
 
 #include "../core/inc/lsp_server.h"
 
+using namespace OgreScriptLSP;
+
 TEST (LSPTest, readHeader_ShouldReadCorrectlyTheHeader) {
     auto *lsp = new LspServer();
     std::istringstream osMock(

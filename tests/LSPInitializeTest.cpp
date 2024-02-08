@@ -4,6 +4,8 @@
 #include "../core/inc/lsp_server.h"
 #include "utils/utils.h"
 
+using namespace OgreScriptLSP;
+
 TEST (LSPInitializeTest, readHeadBody_ShouldReadCorrectlyTheHeadAndBody) {
     auto *lsp = new LspServer();
     std::istringstream osMock(

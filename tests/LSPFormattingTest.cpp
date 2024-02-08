@@ -4,6 +4,8 @@
 #include "../core/inc/lsp_server.h"
 #include "utils/utils.h"
 
+using namespace OgreScriptLSP;
+
 void validateEdit(nlohmann::json it) {
     ASSERT_TRUE(it.contains("newText"));
     ASSERT_TRUE(it.contains("range"));

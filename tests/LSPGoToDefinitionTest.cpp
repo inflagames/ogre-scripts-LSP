@@ -4,6 +4,8 @@
 #include "../core/inc/lsp_server.h"
 #include "utils/utils.h"
 
+using namespace OgreScriptLSP;
+
 TEST (LSPGoToDefinitionTest, definitionMaterial_ShouldReturnGoToDefinition_validaDefinition) {
     auto *lsp = new LspServer();
     // initialize request

@@ -1,6 +1,6 @@
 #include "../inc/lsp_server.h"
 
-void LspServer::runServer(std::ostream &oos, std::istream &ios) {
+void OgreScriptLSP::LspServer::runServer(std::ostream &oos, std::istream &ios) {
     // run server until exit or crash
     while (true) {
         try {
@@ -64,7 +64,7 @@ void LspServer::runServer(std::ostream &oos, std::istream &ios) {
     }
 }
 
-void LspServer::didOpen(RequestMessage *rm) {
+void OgreScriptLSP::LspServer::didOpen(RequestMessage *rm) {
     try {
         getParserByUri(((DidOpenTextDocumentParams *) rm->params)->textDocument.uri);
     } catch (...) {
@@ -72,7 +72,7 @@ void LspServer::didOpen(RequestMessage *rm) {
     }
 }
 
-void LspServer::didClose(RequestMessage *rm) {
+void OgreScriptLSP::LspServer::didClose(RequestMessage *rm) {
     std::string uri = ((DidCloseTextDocumentParams *) rm->params)->textDocument.uri;
     auto it = parsers.find(uri);
     if (it != parsers.end()) {
@@ -81,12 +81,12 @@ void LspServer::didClose(RequestMessage *rm) {
     }
 }
 
-void LspServer::didChange(RequestMessage *rm) {
+void OgreScriptLSP::LspServer::didChange(RequestMessage *rm) {
     std::string uri = ((DidChangeTextDocumentParams *) rm->params)->textDocument.uri;
     parsersMarkedAsUpdated.insert(uri);
 }
 
-void LspServer::goToDefinition(RequestMessage *rm, std::ostream &oos) {
+void OgreScriptLSP::LspServer::goToDefinition(RequestMessage *rm, std::ostream &oos) {
     try {
         DefinitionParams *definitionParams = ((DefinitionParams *) rm->params);
         auto parser = getParserByUri(definitionParams->textDocument.uri);
@@ -103,7 +103,7 @@ void LspServer::goToDefinition(RequestMessage *rm, std::ostream &oos) {
     }
 }
 
-void LspServer::formatting(RequestMessage *rm, bool withRange, std::ostream &oos) {
+void OgreScriptLSP::LspServer::formatting(RequestMessage *rm, bool withRange, std::ostream &oos) {
     try {
         auto parser = getParserByUri(((DocumentFormattingParams *) rm->params)->textDocument.uri);
         FormattingOptions options = ((DocumentFormattingParams *) rm->params)->options;
@@ -126,16 +126,16 @@ void LspServer::formatting(RequestMessage *rm, bool withRange, std::ostream &oos
     }
 }
 
-void LspServer::shutdown() {
+void OgreScriptLSP::LspServer::shutdown() {
     // toDo (gonzalezext)[26.01.24]: stop running request and exit
     exit();
 }
 
-void LspServer::exit() {
+void OgreScriptLSP::LspServer::exit() {
     // toDo (gonzalezext)[26.01.24]:
 }
 
-void LspServer::sendResponse(std::string msg, std::ostream &oos) {
+void OgreScriptLSP::LspServer::sendResponse(std::string msg, std::ostream &oos) {
     std::string header = HEADER_CONTENT_LENGTH;
     header += ":";
     header += std::to_string(msg.size());
@@ -146,7 +146,7 @@ void LspServer::sendResponse(std::string msg, std::ostream &oos) {
     Logs::getInstance().log("Response: " + header + msg);
 }
 
-Action LspServer::readHeaders(std::istream &os) {
+OgreScriptLSP::Action OgreScriptLSP::LspServer::readHeaders(std::istream &os) {
     Action msg = {0, "", new RequestMessage()};
     while (true) {
         std::string name = readHeaderName(os);
@@ -166,7 +166,7 @@ Action LspServer::readHeaders(std::istream &os) {
     return msg;
 }
 
-std::string LspServer::readHeaderName(std::istream &os) {
+std::string OgreScriptLSP::LspServer::readHeaderName(std::istream &os) {
     std::string name;
     while (nextCharacter(os) != EOF) {
         if (ch == '\r') {
@@ -181,7 +181,7 @@ std::string LspServer::readHeaderName(std::istream &os) {
     return name;
 }
 
-std::string LspServer::readHeaderValue(std::istream &os) {
+std::string OgreScriptLSP::LspServer::readHeaderValue(std::istream &os) {
     std::string name;
     bool firstChar = true;
     while (nextCharacter(os) != EOF) {
@@ -199,7 +199,7 @@ std::string LspServer::readHeaderValue(std::istream &os) {
     return name;
 }
 
-Action LspServer::readContent(Action action, std::istream &os) {
+OgreScriptLSP::Action OgreScriptLSP::LspServer::readContent(Action action, std::istream &os) {
     std::string jsonrpc;
     for (int i = 0; i < action.contentLength; ++i) {
         if (nextCharacter(os) == EOF) {
@@ -219,7 +219,7 @@ Action LspServer::readContent(Action action, std::istream &os) {
     return action;
 }
 
-char LspServer::nextCharacter(std::istream &os) {
+char OgreScriptLSP::LspServer::nextCharacter(std::istream &os) {
     if (os.eof()) {
         throw OgreScriptLSP::ServerEOFException("Client EOF error");
     }
@@ -229,7 +229,7 @@ char LspServer::nextCharacter(std::istream &os) {
     return ch;
 }
 
-OgreScriptLSP::Parser *LspServer::getParserByUri(const std::string &uri) {
+OgreScriptLSP::Parser *OgreScriptLSP::LspServer::getParserByUri(const std::string &uri) {
     OgreScriptLSP::Parser *r;
     bool needUpdate = parsersMarkedAsUpdated.contains(uri);
 

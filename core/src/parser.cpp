@@ -23,7 +23,7 @@ std::string OgreScriptLSP::Parser::uriToPath(const std::string &uri) {
     return uri;
 }
 
-ResultBase *OgreScriptLSP::Parser::goToDefinition(Position position) {
+OgreScriptLSP::ResultBase *OgreScriptLSP::Parser::goToDefinition(Position position) {
     // toDo (gonzalezext)[03.02.24]: this should be extended to more than one script AST when importing be supported
     // material
     for (auto mat: script->materials) {

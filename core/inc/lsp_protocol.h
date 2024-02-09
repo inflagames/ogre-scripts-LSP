@@ -84,6 +84,21 @@ namespace OgreScriptLSP {
         std::string languageId;
         int version;
         std::string text;
+
+        void fromJson(const nlohmann::json &j) {
+            if (j.contains("uri")) {
+                j.at("uri").get_to(uri);
+            }
+            if (j.contains("languageId")) {
+                j.at("languageId").get_to(languageId);
+            }
+            if (j.contains("version")) {
+                j.at("version").get_to(version);
+            }
+            if (j.contains("text")) {
+                j.at("text").get_to(text);
+            }
+        }
     };
 
     struct TextDocumentContentChangeEvent {
@@ -140,9 +155,9 @@ namespace OgreScriptLSP {
         }
     };
 
-/**
- * '$/cancelRequest'
- */
+    /**
+     * '$/cancelRequest'
+     */
     struct CancelParams : ParamsBase {
         std::string id;
     };
@@ -190,9 +205,9 @@ namespace OgreScriptLSP {
         TextDocumentClientCapabilities textDocument;
     };
 
-/**
- * 'initialize'
- */
+    /**
+     * 'initialize'
+     */
     struct InitializeParams : WorkDoneProgressParams {
         int processId{};
         std::string rootPath; // probably not used
@@ -231,9 +246,9 @@ namespace OgreScriptLSP {
         };
     };
 
-/**
- * 'textDocument/formatting' request
- */
+    /**
+     * 'textDocument/formatting' request
+     */
     struct DocumentFormattingParams : WorkDoneProgressParams {
         TextDocumentIdentifier textDocument;
         FormattingOptions options;
@@ -262,9 +277,9 @@ namespace OgreScriptLSP {
         }
     };
 
-/**
- * 'textDocument/rangeFormatting' request
- */
+    /**
+     * 'textDocument/rangeFormatting' request
+     */
     struct DocumentRangeFormattingParams : DocumentFormattingParams {
         Range range{};
 
@@ -279,9 +294,9 @@ namespace OgreScriptLSP {
         }
     };
 
-/**
- * 'textDocument/definition' request
- */
+    /**
+     * 'textDocument/definition' request
+     */
     struct DefinitionParams : WorkDoneProgressParams, TextDocumentPositionParams, PartialResultParams {
         void fromJson(const nlohmann::json &j) override {
             if (j.contains("textDocument")) {
@@ -300,9 +315,9 @@ namespace OgreScriptLSP {
         }
     };
 
-/**
- * 'textDocument/declaration' request
- */
+    /**
+     * 'textDocument/declaration' request
+     */
     struct DeclarationParams : WorkDoneProgressParams, TextDocumentPositionParams, PartialResultParams {
         void fromJson(const nlohmann::json &j) override {
             if (j.contains("textDocument")) {
@@ -321,20 +336,22 @@ namespace OgreScriptLSP {
         }
     };
 
-/**
- * 'textDocument/didOpen'
- */
+    /**
+     * 'textDocument/didOpen'
+     */
     struct DidOpenTextDocumentParams : ParamsBase {
         TextDocumentItem textDocument;
 
         void fromJson(const nlohmann::json &j) override {
-            ParamsBase::fromJson(j);
+            if (j.contains("textDocument")) {
+                textDocument.fromJson(j.at("textDocument"));
+            }
         }
     };
 
-/**
- * 'textDocument/didClose'
- */
+    /**
+     * 'textDocument/didClose'
+     */
     struct DidCloseTextDocumentParams : ParamsBase {
         TextDocumentIdentifier textDocument;
 
@@ -345,9 +362,9 @@ namespace OgreScriptLSP {
         }
     };
 
-/**
- * 'textDocument/didSave'
- */
+    /**
+     * 'textDocument/didSave'
+     */
     struct DidSaveTextDocumentParams : ParamsBase {
         TextDocumentIdentifier textDocument;
         std::string text;
@@ -362,20 +379,22 @@ namespace OgreScriptLSP {
         }
     };
 
-/**
- * 'textDocument/didChange'
- */
+    /**
+     * 'textDocument/didChange'
+     */
     struct DidChangeTextDocumentParams : ParamsBase {
-        TextDocumentItem textDocument;
+        TextDocumentIdentifier textDocument;
 
         void fromJson(const nlohmann::json &j) override {
-            ParamsBase::fromJson(j);
+            if (j.contains("textDocument") && j.at("textDocument").contains("uri")) {
+                j.at("textDocument").at("uri").get_to(textDocument.uri);
+            }
         }
     };
 
-/**
- * 'initialize' response
- */
+    /**
+     * 'initialize' response
+     */
     struct InitializeResult : ResultBase {
         struct ServerCapabilities {
             int textDocumentSync = 1; // full sync

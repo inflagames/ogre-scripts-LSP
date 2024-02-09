@@ -75,6 +75,7 @@ void OgreScriptLSP::LspServer::didOpen(RequestMessage *rm) {
 void OgreScriptLSP::LspServer::didClose(RequestMessage *rm) {
     std::string uri = ((DidCloseTextDocumentParams *) rm->params)->textDocument.uri;
     auto it = parsers.find(uri);
+    parsersMarkedAsUpdated.erase(uri);
     if (it != parsers.end()) {
         delete it->second;
         parsers.erase(it);
@@ -232,6 +233,7 @@ char OgreScriptLSP::LspServer::nextCharacter(std::istream &os) {
 OgreScriptLSP::Parser *OgreScriptLSP::LspServer::getParserByUri(const std::string &uri) {
     OgreScriptLSP::Parser *r;
     bool needUpdate = parsersMarkedAsUpdated.contains(uri);
+    parsersMarkedAsUpdated.erase(uri);
 
     if (parsers.contains(uri)) {
         // get existing parser

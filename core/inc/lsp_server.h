@@ -20,10 +20,11 @@ namespace OgreScriptLSP {
         char ch = ' ';
         std::string message;
 
+
+    public:
         std::map<std::string, OgreScriptLSP::Parser *> parsers;
         std::set<std::string> parsersMarkedAsUpdated;
 
-    public:
         LspServer() = default;
 
         void runServer(std::ostream &oos = std::cout, std::istream &ios = std::cin);

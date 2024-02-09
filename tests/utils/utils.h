@@ -6,6 +6,8 @@
 #include <vector>
 #include <fstream>
 #include <utility>
+#include <queue>
+#include <mutex>
 
 #define position std::pair<int, int>
 #define range std::pair<position, position>
@@ -23,9 +25,9 @@ namespace test_utils {
      */
     std::string extractJson(std::string text, int jsonIt = 1);
 
-    std::string readFile(const std::string& file);
+    std::string readFile(const std::string &file);
 
-    std::string getMessageStr(const std::string& data);
+    std::string getMessageStr(const std::string &data);
 
     /**
      * Apply formatting modification to the text and return the resulting test
@@ -33,13 +35,68 @@ namespace test_utils {
      * @param edits formatting operations
      * @return resulting text
      */
-    std::string applyModifications(std::string text, std::vector<edit> edits);
+    std::string applyModifications(std::string text, std::vector<edit > edits);
 
     bool inRange(range a, range b);
 
     int positionInText(std::string text, position pos);
 
-    void writeStringToStream(std::istream &ios, const std::string& str);
+    void writeStringToStream(std::istream &ios, const std::string &str);
+
+    /**
+     * Simulate an stream to controlling the text provided to the server
+     */
+    class MyBuf : public std::basic_streambuf<char, std::char_traits<char>> {
+    private:
+        std::queue<int> q;
+        std::mutex mut;
+    public:
+        MyBuf(const std::string &initText) {
+            std::lock_guard<std::mutex> lock(mut);
+            for (auto c: initText) {
+                q.push((int) c);
+            }
+        }
+
+        void appendStr(const std::string &next) {
+            std::lock_guard<std::mutex> lock(mut);
+            for (auto c: next) {
+                q.push(c);
+            }
+        }
+
+        void setEof() {
+            std::lock_guard<std::mutex> lock(mut);
+            q.push(EOF);
+        }
+
+    protected:
+        int uflow() override {
+            while (currentChar() == -2) {}
+            int c = nextChar();
+            return c;
+        }
+
+        int currentChar() {
+            std::lock_guard<std::mutex> lock(mut);
+            return getChar();
+        }
+
+        int nextChar() {
+            std::lock_guard<std::mutex> lock(mut);
+            int c = getChar();
+            q.pop();
+            return c;
+        }
+
+    private:
+        int getChar() {
+            if (q.empty()) {
+                return -2;
+            }
+            return (int) q.front();
+        }
+    };
 };
 
 #endif //TEST_UTILS_LIBRARY_H

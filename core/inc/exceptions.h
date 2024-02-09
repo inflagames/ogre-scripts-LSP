@@ -1,10 +1,9 @@
 #ifndef OGRE_SCRIPTS_LSP_LIB_EXCEPTIONS_H
 #define OGRE_SCRIPTS_LSP_LIB_EXCEPTIONS_H
 
-// toDo (gonzalezext)[29.01.24]: check if it can be removed
-//#include <utility>
-
 // Error messages
+#include "lsp_protocol.h"
+
 #define INVALID_TOKEN "Invalid main token"
 #define PROGRAM_NAME_MISSION "Error with program name identifier"
 #define MATERIAL_NAME_MISSION_ERROR "Error with material name identifier"
@@ -38,34 +37,33 @@ namespace OgreScriptLSP {
     struct BaseException : std::exception {
     public:
         std::string message;
-        int line;
-        int column;
+        Range range;
 
-        BaseException(std::string message, int line, int column)
-                : message(std::move(message)), line(line), column(column) {}
+        BaseException(std::string message, Range range)
+                : message(std::move(message)), range(range) {}
     };
 
     struct ParseException : public BaseException {
     public:
-        explicit ParseException(std::string message, int line, int column)
-                : BaseException(std::move(message), line, column) {}
+        explicit ParseException(std::string message, Range range)
+                : BaseException(std::move(message), range) {}
     };
 
     struct FileException : public BaseException {
     public:
         explicit FileException(std::string message)
-                : BaseException(std::move(message), 0, 0) {}
+                : BaseException(std::move(message), {}) {}
     };
 
     struct ScannerException : public BaseException {
     public:
-        explicit ScannerException(std::string message, int line, int column)
-                : BaseException(std::move(message), line, column) {}
+        explicit ScannerException(std::string message, Range range)
+                : BaseException(std::move(message), range) {}
     };
 
     struct ServerEOFException : public BaseException {
     public:
-        explicit ServerEOFException(std::string message) : BaseException(std::move(message), 0, 0) {}
+        explicit ServerEOFException(std::string message) : BaseException(std::move(message), {}) {}
     };
 }
 

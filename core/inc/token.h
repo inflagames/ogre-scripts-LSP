@@ -1,6 +1,8 @@
 #ifndef JS_AI_TOKEN_H
 #define JS_AI_TOKEN_H
 
+#include "lsp_protocol.h"
+
 namespace OgreScriptLSP {
     enum Token {
         // language keys
@@ -40,6 +42,13 @@ namespace OgreScriptLSP {
         int line;
         int column;
         int size = 1;
+
+        Range toRange() {
+            return Range{
+                    {line, column},
+                    {line, column + size}
+            };
+        }
     };
 }
 

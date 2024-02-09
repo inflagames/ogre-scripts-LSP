@@ -234,14 +234,18 @@ OgreScriptLSP::Parser *OgreScriptLSP::LspServer::getParserByUri(const std::strin
 
 void OgreScriptLSP::LspServer::sendDiagnostic(Parser *parser, std::ostream &oos) {
     std::vector<Diagnostic> diagnostics;
-    for (auto err: parser->getExceptions()) {
+    for (const auto &err: parser->getExceptions()) {
+        diagnostics.push_back(Diagnostic{DIAGNOSTIC_SEVERITY_ERROR, err.range, err.message});
     }
 
-    auto *result = new PublishDiagnosticsParams();
-    sendResponse(nlohmann::to_string(newNotificationMessage("", result).toJson()));
+    auto *params = new PublishDiagnosticsParams();
+    params->uri = parser->uri;
+    params->diagnostics = diagnostics;
+    sendResponse(nlohmann::to_string(newNotificationMessage(NOTIFICATION_PUBLISH_DIAGNOSTICS, params).toJson()), oos);
 }
 
-void OgreScriptLSP::LspServer::sendResponse(const std::string& msg, std::ostream &oos) { // NOLINT(*-convert-member-functions-to-static)
+void OgreScriptLSP::LspServer::sendResponse(const std::string &msg, // NOLINT(*-convert-member-functions-to-static)
+                                            std::ostream &oos) {
     std::string header = HEADER_CONTENT_LENGTH;
     header += ":";
     header += std::to_string(msg.size());

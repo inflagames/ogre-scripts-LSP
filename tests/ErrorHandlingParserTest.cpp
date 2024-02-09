@@ -13,31 +13,31 @@ TEST (ParserTest, parse_ShouldFailWithErrorsAndRecuperate) {
     auto exceptions = parser->getExceptions();
     auto e = exceptions[0];
     ASSERT_EQ(PROGRAM_NAME_MISSION, e.message);
-    ASSERT_EQ(1, e.line);
-    ASSERT_EQ(17, e.column);
+    ASSERT_EQ(1, e.range.start.line);
+    ASSERT_EQ(17, e.range.start.character);
 
     e = exceptions[1];
     ASSERT_EQ(CURLY_BRACKET_START_MISSING, e.message);
-    ASSERT_EQ(7, e.line);
-    ASSERT_EQ(4, e.column);
+    ASSERT_EQ(7, e.range.start.line);
+    ASSERT_EQ(4, e.range.start.character);
 
     e = exceptions[2];
     ASSERT_EQ(CURLY_BRACKET_END_MISSING, e.message);
-    ASSERT_EQ(15, e.line);
-    ASSERT_EQ(0, e.column);
+    ASSERT_EQ(15, e.range.start.line);
+    ASSERT_EQ(0, e.range.start.character);
 
     e = exceptions[3];
     ASSERT_EQ(PROGRAM_HIGH_LEVEL_MISSING, e.message);
-    ASSERT_EQ(15, e.line);
-    ASSERT_EQ(27, e.column);
+    ASSERT_EQ(15, e.range.start.line);
+    ASSERT_EQ(27, e.range.start.character);
 
     e = exceptions[4];
     ASSERT_EQ(NOT_VALID_PARAM, e.message);
-    ASSERT_EQ(26, e.line);
-    ASSERT_EQ(2, e.column);
+    ASSERT_EQ(26, e.range.start.line);
+    ASSERT_EQ(2, e.range.start.character);
 
     e = exceptions[5];
     ASSERT_EQ(NOT_VALID_PARAM, e.message);
-    ASSERT_EQ(28, e.line);
-    ASSERT_EQ(14, e.column);
+    ASSERT_EQ(28, e.range.start.line);
+    ASSERT_EQ(14, e.range.start.character);
 }

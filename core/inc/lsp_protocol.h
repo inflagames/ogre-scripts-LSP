@@ -8,6 +8,13 @@
 #include "nlohmann/json.hpp"
 #include "logs.h"
 
+#define DIAGNOSTIC_SEVERITY_ERROR 1
+#define DIAGNOSTIC_SEVERITY_WARNING 2
+#define DIAGNOSTIC_SEVERITY_INFORMATION 3
+#define DIAGNOSTIC_SEVERITY_HINT 4
+
+#define NOTIFICATION_PUBLISH_DIAGNOSTICS "textDocument/publishDiagnostics"
+
 namespace OgreScriptLSP {
     struct Message {
         std::string jsonrpc;
@@ -53,6 +60,11 @@ namespace OgreScriptLSP {
                     {"start", {{"line", start.line}, {"character", start.character}}},
                     {"end",   {{"line", end.line},   {"character", end.character}}}
             };
+        }
+
+        static Range toRange(int line, int character, int size) {
+            return {{line, character},
+                    {line, character + size}};
         }
     };
 
@@ -447,7 +459,7 @@ namespace OgreScriptLSP {
         std::vector<Diagnostic> diagnostics;
 
         nlohmann::json toJson() override {
-            nlohmann::json diagnosticsArray = nlohmann::json::array();
+            auto diagnosticsArray = nlohmann::json::array();
             for (auto diag: diagnostics) {
                 diagnosticsArray.push_back(nlohmann::json{
                         {"severity", diag.severity},
@@ -455,10 +467,7 @@ namespace OgreScriptLSP {
                         {"message",  diag.message}
                 });
             }
-            return nlohmann::json{
-                    {"uri",         uri},
-                    {"diagnostics", diagnosticsArray}
-            };
+            return nlohmann::json{{"uri", uri}, {"diagnostics", diagnosticsArray}};
         }
     };
 
@@ -543,7 +552,7 @@ namespace OgreScriptLSP {
             auto j = nlohmann::json{{"method", method}};
 
             if (params != nullptr) {
-                j += nlohmann::json{"params", params->toJson()};
+                j.emplace("params", params->toJson());
             }
 
             return j;

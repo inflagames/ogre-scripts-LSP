@@ -147,7 +147,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::symbolToken(OgreScriptLSP::Tok
 OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeNumber(bool isFirstPeriod) {
     std::string literal;
     int line = lineCount;
-    int column = columnCount;
+    int column = columnCount, rangeLength = 0;
     while (!file.eof()) {
         literal.push_back(ch);
         if (nextCharacter() && (isdigit(ch) || (ch == '.' && isFirstPeriod))) {
@@ -157,20 +157,21 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeNumber(bool isFirstPeri
         } else if (ch == '\n' || ch == ' ' || ch == '\t' || ch == '\v' || ch == '\f' || ch == '\r') {
             return {number_literal, literal, line, column, (int) literal.size()};
         } else {
-            throw ScannerException(SCANNER_INVALID_NUMBER, line, column);
+            throw ScannerException(SCANNER_INVALID_NUMBER, Range::toRange(line, column, rangeLength));
         }
     }
-    throw ScannerException(SCANNER_EOF_ERROR, line, column);
+    throw ScannerException(SCANNER_EOF_ERROR, Range::toRange(line, column, rangeLength));
 }
 
 OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeString(char stringDelimiter) {
     std::string literal;
     nextCharacter();
     int line = lineCount;
-    int column = columnCount;
+    int column = columnCount, rangeLength = 0;
     while (!file.eof()) {
+        rangeLength++;
         if (ch == '\n') {
-            throw ScannerException(SCANNER_INVALID_STRING_LITERAL, line, column);
+            throw ScannerException(SCANNER_INVALID_STRING_LITERAL, Range::toRange(line, column, rangeLength));
         } else if (ch == stringDelimiter) {
             nextCharacter();
             return {string_literal, literal, line, column, (int) literal.size() + 2};
@@ -180,17 +181,18 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeString(char stringDelim
         literal.push_back(ch);
         nextCharacter();
     }
-    throw ScannerException(SCANNER_EOF_ERROR, line, column);
+    throw ScannerException(SCANNER_EOF_ERROR, Range::toRange(line, column, rangeLength));
 }
 
 OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeMatch() {
     std::string literal = "*";
     nextCharacter();
     int line = lineCount;
-    int column = columnCount;
+    int column = columnCount, rangeLength = 0;
     while (!file.eof()) {
+        rangeLength++;
         if (ch == '\n' || ch == '\t' || ch == ' ' || ch == '\v' || ch == '\r' || ch == '\f') {
-            throw ScannerException(SCANNER_INVALID_MATCH_LITERAL, line, column);
+            throw ScannerException(SCANNER_INVALID_MATCH_LITERAL, Range::toRange(line, column, rangeLength));
         } else if (ch == '*') {
             literal.push_back(ch);
             nextCharacter();
@@ -201,7 +203,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeMatch() {
         literal.push_back(ch);
         nextCharacter();
     }
-    throw ScannerException(SCANNER_EOF_ERROR, line, column);
+    throw ScannerException(SCANNER_EOF_ERROR, Range::toRange(line, column, rangeLength));
 }
 
 OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
@@ -243,7 +245,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
             return {identifier, literal, line, column, (int) literal.size()};
         }
     }
-    throw ScannerException(SCANNER_EOF_ERROR, line, column);
+    throw ScannerException(SCANNER_EOF_ERROR, Range::toRange(line, column, (int) literal.size()));
 }
 
 bool OgreScriptLSP::Scanner::validLiteral(char c, bool startCharacter) {
@@ -253,14 +255,16 @@ bool OgreScriptLSP::Scanner::validLiteral(char c, bool startCharacter) {
     return isalnum(c) || c == '_' || c == '/' || c == '.';
 }
 
-void OgreScriptLSP::Scanner::recuperateError(std::string error) {
-    if (error.empty()) {
-        exceptions.push_back(ScannerException(std::move(error), lineCount, columnCount));
-    }
+void OgreScriptLSP::Scanner::recuperateError(const std::string &error) {
+    int rangeLength = 0;
     while (ch != ' ' || ch != '\t' || ch != '\n' || ch != '\f' || ch != '\v' || ch != '\r') {
+        rangeLength++;
         if (!nextCharacter()) {
-            return;
+            break;
         }
+    }
+    if (!error.empty()) {
+        exceptions.push_back(ScannerException(error, Range::toRange(lineCount, columnCount, rangeLength)));
     }
     consumeEmpty();
 }

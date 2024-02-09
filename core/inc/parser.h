@@ -20,6 +20,8 @@ namespace OgreScriptLSP {
         std::vector<BaseException> exceptions;
 
     public:
+        std::string uri;
+
         Parser();
 
         ~Parser();
@@ -32,11 +34,11 @@ namespace OgreScriptLSP {
             return exceptions;
         }
 
-        void loadScript(const std::string &scriptFile);
+        void loadScript(const std::string &uri);
 
         static std::string uriToPath(const std::string &uri);
 
-        void parse(std::string uri);
+        void parse(const std::string &uri);
 
         void parse();
 

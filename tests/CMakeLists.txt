@@ -26,6 +26,7 @@ add_executable(test_run
         LSPFormattingTest.cpp
         LSPGoToDefinitionTest.cpp
         LSPSyncNotificationsTest.cpp
+        LSPDiagnosticsTest.cpp
 )
 
 target_link_libraries(test_run PUBLIC gtest gtest_main nlohmann_json::nlohmann_json ogre_scripts_LSP_lib test_utils)

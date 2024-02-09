@@ -19,17 +19,16 @@ namespace OgreScriptLSP {
         bool running = false;
         char ch = ' ';
         std::string message;
-
+        ClientCapabilities clientCapabilities;
 
     public:
         std::map<std::string, OgreScriptLSP::Parser *> parsers;
-        std::set<std::string> parsersMarkedAsUpdated;
 
         LspServer() = default;
 
         void runServer(std::ostream &oos = std::cout, std::istream &ios = std::cin);
 
-        void sendResponse(std::string msg, std::ostream &oos = std::cout);
+        void sendResponse(const std::string& msg, std::ostream &oos = std::cout);
 
         Action readHeaders(std::istream &os = std::cin);
 
@@ -39,17 +38,25 @@ namespace OgreScriptLSP {
 
         Action readContent(Action action, std::istream &os = std::cin);
 
+        void initialize(RequestMessage *rm, std::ostream &oos = std::cout);
+
         void formatting(RequestMessage *rm, bool withRange, std::ostream &oos = std::cout);
 
         void goToDefinition(RequestMessage *rm, std::ostream &oos = std::cout);
 
-        void didOpen(RequestMessage *rm);
+        void didOpen(RequestMessage *rm, std::ostream &oos);
 
         void didClose(RequestMessage *rm);
 
-        void didChange(RequestMessage *rm);
+        void didChange(RequestMessage *rm, std::ostream &oos);
+
+        void sendDiagnostic(Parser *parser, std::ostream &oos);
 
         OgreScriptLSP::Parser *getParserByUri(const std::string &uri);
+
+        static ResponseMessage newResponseMessage(std::string id, ResultBase *result);
+
+        static NotificationMessage newNotificationMessage(std::string method, ResultBase *params);
 
         void shutdown();
 

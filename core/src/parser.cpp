@@ -91,6 +91,11 @@ OgreScriptLSP::ResultBase *OgreScriptLSP::Parser::goToDefinition(Position positi
     return new Location(script->uri, range);
 }
 
+void OgreScriptLSP::Parser::parse(std::string uri) {
+    loadScript(uri);
+    parse();
+}
+
 void OgreScriptLSP::Parser::parse() {
     currentToken = 0;
 

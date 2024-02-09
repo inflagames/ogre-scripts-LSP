@@ -36,6 +36,8 @@ namespace OgreScriptLSP {
 
         static std::string uriToPath(const std::string &uri);
 
+        void parse(std::string uri);
+
         void parse();
 
         ResultBase *goToDefinition(Position position);

@@ -439,6 +439,9 @@ namespace OgreScriptLSP {
         std::string message;
     };
 
+    /**
+     * 'textDocument/publishDiagnostics' response
+     */
     struct PublishDiagnosticsParams : ResultBase {
         std::string uri;
         std::vector<Diagnostic> diagnostics;
@@ -523,6 +526,28 @@ namespace OgreScriptLSP {
         server_not_initialized = -32002,
         server_cancelled = -32802,
         request_cancelled = -32800,
+    };
+
+    struct NotificationMessage : Message {
+        std::string method;
+        ResultBase *params;
+
+        explicit NotificationMessage(std::string method) : Message("2.0") {
+            this->method = std::move(method);
+            params = nullptr;
+        }
+
+        void fromJson(const nlohmann::json &j) override {}
+
+        nlohmann::json toJson() override {
+            auto j = nlohmann::json{{"method", method}};
+
+            if (params != nullptr) {
+                j += nlohmann::json{"params", params->toJson()};
+            }
+
+            return j;
+        }
     };
 
     struct ResponseMessage : Message {

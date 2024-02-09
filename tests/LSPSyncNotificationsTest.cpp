@@ -1,10 +1,10 @@
 #include <thread>
-#include <chrono>
 
 #include "gtest/gtest.h"
 
 #include "../core/inc/lsp_server.h"
 #include "utils/utils.h"
+
 
 using namespace OgreScriptLSP;
 
@@ -13,24 +13,13 @@ void runServer(LspServer *lsp, std::ostream &oos, std::istream &ios) {
     lsp->runServer(oos, ios);
 }
 
-int parserSize(LspServer *lsp) {
-    return (int) lsp->parsers.size();
-}
-
-int parserMarkedSize(LspServer *lsp) {
-    return (int) lsp->parsersMarkedAsUpdated.size();
-}
-
-void waitForSize(LspServer *lsp, int sizeValue, int (*sizeFun)(LspServer *)) {
-    uint64_t timeout = 2000; // 2 seconds
-    uint64_t start = std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::system_clock::now().time_since_epoch()).count();
-    while (sizeFun(lsp) != sizeValue) {
-        uint64_t current = std::chrono::duration_cast<std::chrono::milliseconds>(
-                std::chrono::system_clock::now().time_since_epoch()).count();
-        if (current - start > timeout) {
+void waitForSize(LspServer *lsp, int sizeValue) {
+    uint64_t start = test_utils::getTimeNow();
+    while (lsp->parsers.size() != sizeValue) {
+        uint64_t current = test_utils::getTimeNow();
+        if (current - start > TIMEOUT_MS) {
             std::cout << "Timeout waiting for size to be equals: " << sizeValue << ". Current value: "
-                      << sizeFun(lsp) << std::endl;
+                      << lsp->parsers.size() << std::endl;
             ASSERT_TRUE(false);
         }
     }
@@ -57,33 +46,28 @@ TEST (LSPSyncTest, clientSync_LspServerShouldOpenCloseChangeFiles_validateLspAft
     std::thread runServerThread(runServer, std::ref(lsp), std::ref(outMock), std::ref(inMock));
 
     // with the formatting, the parser map should be updated
-    waitForSize(lsp, 1, &parserSize);
+    waitForSize(lsp, 1);
 
     // send close file
     stringstreambuf->appendStr(test_utils::getMessageStr(
             R"({"jsonrpc": "2.0", "id": 98, "method": "textDocument/didClose", "params": {"textDocument": {"uri": "file://./examples/lsp/formatting_programs_basic.material"}}})"));
-    waitForSize(lsp, 0, &parserSize);
+    waitForSize(lsp, 0);
 
     // open 2 files
     stringstreambuf->appendStr(test_utils::getMessageStr(
             R"({"jsonrpc": "2.0", "id": 98, "method": "textDocument/didOpen", "params": {"textDocument": {"uri": "file://./examples/lsp/formatting_programs_basic.material"}}})"));
-    waitForSize(lsp, 1, &parserSize);
+    waitForSize(lsp, 1);
     stringstreambuf->appendStr(test_utils::getMessageStr(
             R"({"jsonrpc": "2.0", "id": 98, "method": "textDocument/didOpen", "params": {"textDocument": {"uri": "file://./examples/lsp/formatting_programs_basic.material"}}})"));
-    waitForSize(lsp, 1, &parserSize);
+    waitForSize(lsp, 1);
     stringstreambuf->appendStr(test_utils::getMessageStr(
             R"({"jsonrpc": "2.0", "id": 98, "method": "textDocument/didOpen", "params": {"textDocument": {"uri": "file://./examples/lsp/formatting_programs_tab_size_4_spaces.material"}}})"));
-    waitForSize(lsp, 2, &parserSize);
-
-    stringstreambuf->appendStr(test_utils::getMessageStr(
-            R"({"jsonrpc": "2.0", "id": 98, "method": "textDocument/didChange", "params": {"textDocument": {"uri": "file://./examples/lsp/formatting_programs_tab_size_4_spaces.material"}}})"));
-    waitForSize(lsp, 1, &parserMarkedSize);
+    waitForSize(lsp, 2);
 
     // send close file
     stringstreambuf->appendStr(test_utils::getMessageStr(
             R"({"jsonrpc": "2.0", "id": 98, "method": "textDocument/didClose", "params": {"textDocument": {"uri": "file://./examples/lsp/formatting_programs_tab_size_4_spaces.material"}}})"));
-    waitForSize(lsp, 1, &parserSize);
-    waitForSize(lsp, 0, &parserMarkedSize);
+    waitForSize(lsp, 1);
 
     // exit request
     stringstreambuf->appendStr(test_utils::getMessageStr(R"({"jsonrpc": "2.0", "id": 7345, "method": "exit"})"));

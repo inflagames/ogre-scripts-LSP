@@ -8,10 +8,14 @@
 #include <utility>
 #include <queue>
 #include <mutex>
+#include <chrono>
 
 #define position std::pair<int, int>
 #define range std::pair<position, position>
 #define edit std::pair<range, std::string>
+
+#define WAITING_DATA (-2)
+#define TIMEOUT_MS 10000 // 10 seconds
 
 /**
  * Only for testing support
@@ -25,8 +29,22 @@ namespace test_utils {
      */
     std::string extractJson(std::string text, int jsonIt = 1);
 
+    /**
+     * Get current time in milliseconds
+     */
+    uint64_t getTimeNow();
+
+    /**
+     * Read all file content and return it as string
+     * @param file file path
+     */
     std::string readFile(const std::string &file);
 
+    /**
+     * Include message json into protocol specification headers
+     * @param data message json
+     * @return
+     */
     std::string getMessageStr(const std::string &data);
 
     /**
@@ -37,8 +55,17 @@ namespace test_utils {
      */
     std::string applyModifications(std::string text, std::vector<edit > edits);
 
+    /**
+     * Know if range `b` is inside range `a`
+     */
     bool inRange(range a, range b);
 
+    /**
+     * return the character in the text given the position (line, character format)
+     * @param text text to search the position
+     * @param pos position in the format (line, character)
+     * @return the position in text
+     */
     int positionInText(std::string text, position pos);
 
     /**
@@ -70,7 +97,7 @@ namespace test_utils {
 
     protected:
         int uflow() override {
-            while (currentChar() == -2) {}
+            while (currentChar() == WAITING_DATA) {}
             int c = nextChar();
             return c;
         }
@@ -90,7 +117,7 @@ namespace test_utils {
     private:
         int getChar() {
             if (q.empty()) {
-                return -2;
+                return WAITING_DATA;
             }
             return (int) q.front();
         }

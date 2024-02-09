@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "../inc/lsp_server.h"
 
 void OgreScriptLSP::LspServer::runServer(std::ostream &oos, std::istream &ios) {
@@ -15,14 +17,7 @@ void OgreScriptLSP::LspServer::runServer(std::ostream &oos, std::istream &ios) {
 
             auto *rm = (RequestMessage *) act.message;
             if ("initialize" == rm->method) {
-                // this action is sync
-                ResponseMessage re;
-                re.id = rm->id;
-                re.result = new InitializeResult();
-
-                nlohmann::json resJson = re.toJson();
-                running = true;
-                sendResponse(nlohmann::to_string(resJson), oos);
+                initialize(rm, oos);
             } else if ("initialized" == rm->method) {
                 // toDo (gonzalezext)[26.01.24]: check if something need to be done
                 // client confirmation that received the InitializeResponse
@@ -40,14 +35,14 @@ void OgreScriptLSP::LspServer::runServer(std::ostream &oos, std::istream &ios) {
                 } else if ("textDocument/definition" == rm->method) {
                     goToDefinition(rm, oos);
                 } else if ("textDocument/didOpen" == rm->method) {
-                    didOpen(rm);
+                    didOpen(rm, oos);
                 } else if ("textDocument/didClose" == rm->method) {
                     didClose(rm);
                 } else if ("textDocument/didSave" == rm->method) {
                     // not needed at the moment
                     continue;
                 } else if ("textDocument/didChange" == rm->method) {
-                    didChange(rm);
+                    didChange(rm, oos);
                 } else if ("textDocument/declaration" == rm->method) {
                     // toDo (gonzalezext)[29.01.24]:
                 }
@@ -64,9 +59,18 @@ void OgreScriptLSP::LspServer::runServer(std::ostream &oos, std::istream &ios) {
     }
 }
 
-void OgreScriptLSP::LspServer::didOpen(RequestMessage *rm) {
+void OgreScriptLSP::LspServer::initialize(OgreScriptLSP::RequestMessage *rm, std::ostream &oos) {
+//    clientCapabilities = ((InitializeParams *) rm)->capabilities;
+    running = true;
+    ResponseMessage re = newResponseMessage(rm->id, new InitializeResult());
+    sendResponse(nlohmann::to_string(re.toJson()), oos);
+}
+
+void OgreScriptLSP::LspServer::didOpen(RequestMessage *rm, std::ostream &oos) {
     try {
-        getParserByUri(((DidOpenTextDocumentParams *) rm->params)->textDocument.uri);
+        auto uri = ((DidOpenTextDocumentParams *) rm->params)->textDocument.uri;
+        auto parser = getParserByUri(uri);
+        sendDiagnostic(parser, oos);
     } catch (...) {
         // toDo (gonzalezext)[08.02.24]: exception
     }
@@ -75,16 +79,18 @@ void OgreScriptLSP::LspServer::didOpen(RequestMessage *rm) {
 void OgreScriptLSP::LspServer::didClose(RequestMessage *rm) {
     std::string uri = ((DidCloseTextDocumentParams *) rm->params)->textDocument.uri;
     auto it = parsers.find(uri);
-    parsersMarkedAsUpdated.erase(uri);
     if (it != parsers.end()) {
         delete it->second;
         parsers.erase(it);
     }
 }
 
-void OgreScriptLSP::LspServer::didChange(RequestMessage *rm) {
-    std::string uri = ((DidChangeTextDocumentParams *) rm->params)->textDocument.uri;
-    parsersMarkedAsUpdated.insert(uri);
+void OgreScriptLSP::LspServer::didChange(RequestMessage *rm, std::ostream &oos) {
+    auto uri = ((DidChangeTextDocumentParams *) rm->params)->textDocument.uri;
+    auto parser = getParserByUri(uri);
+    parser->parse(uri);
+
+    sendDiagnostic(parser, oos);
 }
 
 void OgreScriptLSP::LspServer::goToDefinition(RequestMessage *rm, std::ostream &oos) {
@@ -93,10 +99,7 @@ void OgreScriptLSP::LspServer::goToDefinition(RequestMessage *rm, std::ostream &
         auto parser = getParserByUri(definitionParams->textDocument.uri);
         auto *res = parser->goToDefinition(definitionParams->position);
 
-        ResponseMessage re;
-        re.id = rm->id;
-        re.result = res;
-
+        ResponseMessage re = newResponseMessage(rm->id, res);
         sendResponse(nlohmann::to_string(re.toJson()), oos);
     } catch (...) {
         // toDo (gonzalezext)[03.02.24]: send fail to client
@@ -116,10 +119,7 @@ void OgreScriptLSP::LspServer::formatting(RequestMessage *rm, bool withRange, st
             res = OgreScriptLSP::Formatter::formatting(parser, options);
         }
 
-        ResponseMessage re;
-        re.id = rm->id;
-        re.result = res;
-
+        ResponseMessage re = newResponseMessage(rm->id, res);
         sendResponse(nlohmann::to_string(re.toJson()), oos);
     } catch (OgreScriptLSP::BaseException e) {
         // toDo (gonzalezext)[03.02.24]: send fail message to client
@@ -128,23 +128,10 @@ void OgreScriptLSP::LspServer::formatting(RequestMessage *rm, bool withRange, st
 }
 
 void OgreScriptLSP::LspServer::shutdown() {
-    // toDo (gonzalezext)[26.01.24]: stop running request and exit
     exit();
 }
 
 void OgreScriptLSP::LspServer::exit() {
-    // toDo (gonzalezext)[26.01.24]:
-}
-
-void OgreScriptLSP::LspServer::sendResponse(std::string msg, std::ostream &oos) {
-    std::string header = HEADER_CONTENT_LENGTH;
-    header += ":";
-    header += std::to_string(msg.size());
-    header += "\r\n";
-    header += HEADER_CONTENT_TYPE;
-    header += ": application/vscode; charset=utf-8\r\n\r\n";
-    oos << header << msg;
-    Logs::getInstance().log("Response: " + header + msg);
 }
 
 OgreScriptLSP::Action OgreScriptLSP::LspServer::readHeaders(std::istream &os) {
@@ -231,24 +218,51 @@ char OgreScriptLSP::LspServer::nextCharacter(std::istream &os) {
 }
 
 OgreScriptLSP::Parser *OgreScriptLSP::LspServer::getParserByUri(const std::string &uri) {
-    OgreScriptLSP::Parser *r;
-    bool needUpdate = parsersMarkedAsUpdated.contains(uri);
-    parsersMarkedAsUpdated.erase(uri);
+    OgreScriptLSP::Parser *parser;
 
     if (parsers.contains(uri)) {
         // get existing parser
-        r = parsers[uri];
+        parser = parsers[uri];
     } else {
         // need to be created if not exist
-        r = new OgreScriptLSP::Parser();
-        parsers[uri] = r;
-        needUpdate = true;
+        parser = new OgreScriptLSP::Parser();
+        parsers[uri] = parser;
+        parser->parse(uri);
+    }
+    return parser;
+}
+
+void OgreScriptLSP::LspServer::sendDiagnostic(Parser *parser, std::ostream &oos) {
+    std::vector<Diagnostic> diagnostics;
+    for (auto err: parser->getExceptions()) {
     }
 
-    if (needUpdate) {
-        r->loadScript(uri);
-        r->parse();
-    }
+    auto *result = new PublishDiagnosticsParams();
+    sendResponse(nlohmann::to_string(newNotificationMessage("", result).toJson()));
+}
 
-    return r;
+void OgreScriptLSP::LspServer::sendResponse(const std::string& msg, std::ostream &oos) { // NOLINT(*-convert-member-functions-to-static)
+    std::string header = HEADER_CONTENT_LENGTH;
+    header += ":";
+    header += std::to_string(msg.size());
+    header += "\r\n";
+    header += HEADER_CONTENT_TYPE;
+    header += ": application/vscode; charset=utf-8\r\n\r\n";
+    oos << header << msg;
+    Logs::getInstance().log("Response: " + header + msg);
+}
+
+OgreScriptLSP::ResponseMessage
+OgreScriptLSP::LspServer::newResponseMessage(std::string id, OgreScriptLSP::ResultBase *result) {
+    ResponseMessage res;
+    res.id = std::move(id);
+    res.result = result;
+    return res;
+}
+
+OgreScriptLSP::NotificationMessage
+OgreScriptLSP::LspServer::newNotificationMessage(std::string method, OgreScriptLSP::ResultBase *params) {
+    NotificationMessage notification(std::move(method));
+    notification.params = params;
+    return notification;
 }

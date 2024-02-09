@@ -103,3 +103,8 @@ std::string test_utils::getMessageStr(const std::string &data) {
     return "Content-Length: " + std::to_string(data.size()) +
            "\r\nContent-Type: application/vscode; charset=utf-8\r\n\r\n" + data;
 }
+
+uint64_t test_utils::getTimeNow() {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count();
+}

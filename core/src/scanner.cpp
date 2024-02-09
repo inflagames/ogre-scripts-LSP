@@ -212,29 +212,31 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
         literal.push_back(ch);
         if (!nextCharacter() || !validLiteral(ch, false)) {
             if (literal == "abstract") {
-                return {abstract_tk, "abstract", line, column, (int) literal.size()};
+                return {abstract_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "import") {
+                return {import_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "default_params") {
-                return {default_params_tk, "default_params", line, column, (int) literal.size()};
+                return {default_params_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "entry_point") {
-                return {entry_point_tk, "entry_point", line, column, (int) literal.size()};
+                return {entry_point_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "fragment_program") {
-                return {fragment_program_tk, "fragment_program", line, column, (int) literal.size()};
+                return {fragment_program_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "fragment_program_ref") {
-                return {fragment_program_ref_tk, "fragment_program_ref", line, column, (int) literal.size()};
+                return {fragment_program_ref_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "material") {
-                return {material_tk, "material", line, column, (int) literal.size()};
+                return {material_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "pass") {
-                return {pass_tk, "pass", line, column, (int) literal.size()};
+                return {pass_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "profiles") {
-                return {profiles_tk, "profiles", line, column, (int) literal.size()};
+                return {profiles_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "technique") {
-                return {technique_tk, "technique", line, column, (int) literal.size()};
+                return {technique_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "texture_unit") {
-                return {texture_unit_tk, "texture_unit", line, column, (int) literal.size()};
+                return {texture_unit_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "vertex_program") {
-                return {vertex_program_tk, "vertex_program", line, column, (int) literal.size()};
+                return {vertex_program_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "vertex_program_ref") {
-                return {vertex_program_ref_tk, "vertex_program_ref", line, column, (int) literal.size()};
+                return {vertex_program_ref_tk, literal, line, column, (int) literal.size()};
             } else if (literal.starts_with('$')) {
                 return {variable, literal, line, column, (int) literal.size()};
             }

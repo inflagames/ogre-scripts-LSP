@@ -399,7 +399,7 @@ namespace OgreScriptLSP {
         struct ServerCapabilities {
             int textDocumentSync = 1; // full sync
             bool definitionProvider = true;
-            bool implementationProvider = true;
+            bool implementationProvider = false;
             bool documentFormattingProvider = true;
             bool documentRangeFormattingProvider = true;
         } capabilities;

@@ -4,6 +4,20 @@ This project is mean to create an LSP for ogre script (materials, fonts, particl
 
 Base on the LSP specifications from microsoft: https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/
 
+## Server Capabilities
+
+- [x] textDocument/formatting (formatting requests)
+- [x] textDocument/rangeFormatting (range formatting requests)
+- [x] textDocument/definition (go to definition requests)
+- [ ] textDocument/publishDiagnostics (diagnostic notification)
+- [ ] textDocument/declaration (go to declaration request)
+- [ ] textDocument/hover (hover information requests)
+- [ ] textDocument/completion (code completion requests)
+
+## Communication client-server supported
+
+- stdio
+
 ## Build
 
 ```
@@ -33,7 +47,7 @@ import_opt = <asterisk_tk> <identifier>
 
 // abstract block
 abstract = <abstract_tk> <abstract_opt> <identifier> <left_curly_bracket_tk> <abstract_body> <right_curly_bracket_tk>
-abstract_opt = <pass_tk> | <technique_tk> | 
+abstract_opt = <pass_tk> | <technique_tk> | <texture_unit_tk>
 abstract_body = <param_line> | <param_line> <abstract_body>
 
 // .material scripts
@@ -45,7 +59,7 @@ material_technique = <technique_tk> <object_definition>? <left_curly_bracket_tk>
 material_technique_body = <material_technique_body_opt> | <material_technique_body_opt> <material_technique_body>
 material_technique_body_opt = <material_pass>
 
-material_pass = <pass_tk> <object_definition>? <left_curly_bracket_tk> <material_pass_body> <right_curly_bracket_tk>
+material_pass = <pass_tk> <object_definition>? <left_curly_bracket_tk> <material_pass_body>? <right_curly_bracket_tk>
 material_pass_body = <material_pass_body_opt> | <material_pass_body_opt> <material_pass_body>
 material_pass_body_opt = <param_line> | <material_texture> | <material_program>
 
@@ -73,3 +87,4 @@ object_definition = <identifier> | <string_literal> | <identifier> <colon_tk> <i
   - [ ] object_definition on each internal property
 - [ ] code diagnostic support
 - [ ] competition support
+- [ ] include http client-server communication support

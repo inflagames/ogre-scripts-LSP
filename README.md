@@ -67,5 +67,9 @@ object_definition = <identifier> | <string_literal> | <identifier> <colon_tk> <i
 
 ## ToDo
 
+- [ ] Update parse (language update)
+  - [ ] import block
+  - [ ] abstract block
+  - [ ] object_definition on each internal property
 - [ ] code diagnostic support
-- [ ] handle `textDocument/didOpen`, `textDocument/didClose`, `textDocument/didChange`, `textDocument/didSave` [link](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_synchronization)
+- [ ] competition support

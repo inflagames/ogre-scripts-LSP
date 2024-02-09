@@ -41,17 +41,15 @@ namespace test_utils {
 
     int positionInText(std::string text, position pos);
 
-    void writeStringToStream(std::istream &ios, const std::string &str);
-
     /**
      * Simulate an stream to controlling the text provided to the server
      */
-    class MyBuf : public std::basic_streambuf<char, std::char_traits<char>> {
+    class my_stringstreambuf : public std::basic_streambuf<char, std::char_traits<char>> {
     private:
         std::queue<int> q;
         std::mutex mut;
     public:
-        MyBuf(const std::string &initText) {
+        explicit my_stringstreambuf(const std::string &initText) {
             std::lock_guard<std::mutex> lock(mut);
             for (auto c: initText) {
                 q.push((int) c);
@@ -97,6 +95,6 @@ namespace test_utils {
             return (int) q.front();
         }
     };
-};
+}
 
 #endif //TEST_UTILS_LIBRARY_H

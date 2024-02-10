@@ -28,6 +28,7 @@ void OgreScriptLSP::Scanner::loadScript(const std::string &scriptFile, const std
 }
 
 std::vector<OgreScriptLSP::TokenValue> OgreScriptLSP::Scanner::parse() {
+    exceptions.clear();
     std::vector<OgreScriptLSP::TokenValue> list;
     while (true) {
         auto tk = nextToken();
@@ -172,9 +173,9 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeNumber(bool isFirstPeri
 
 OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeString(char stringDelimiter) {
     std::string literal;
-    nextCharacter();
     int line = lineCount;
     int column = columnCount, rangeLength = 0;
+    nextCharacter();
     while (!codeStream->eof()) {
         rangeLength++;
         if (ch == '\n') {
@@ -193,9 +194,9 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeString(char stringDelim
 
 OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeMatch() {
     std::string literal = "*";
-    nextCharacter();
     int line = lineCount;
     int column = columnCount, rangeLength = 0;
+    nextCharacter();
     while (!codeStream->eof()) {
         rangeLength++;
         if (ch == '\n' || ch == '\t' || ch == ' ' || ch == '\v' || ch == '\r' || ch == '\f') {

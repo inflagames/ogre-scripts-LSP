@@ -10,9 +10,11 @@ OgreScriptLSP::Parser::~Parser() {
 }
 
 void OgreScriptLSP::Parser::loadScript(const std::string &uri, const std::string &code) {
+    exceptions.clear();
     this->uri = uri;
     scanner->loadScript(uriToPath(uri), code);
     tokens = scanner->parse();
+    exceptions.insert(exceptions.end(), scanner->exceptions.begin(), scanner->exceptions.end());
     currentToken = 0;
     delete script;
     script = new MaterialScriptAst(uri);

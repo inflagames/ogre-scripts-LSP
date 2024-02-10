@@ -8,6 +8,6 @@ source FloorVp.glsl
 default_params    
 {
     // assign samplers as required by GLSL
-    param_named   normalMap int 0    
+    param_named   normalMap int 0     "some"
 }    
 }    

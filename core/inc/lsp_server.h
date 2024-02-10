@@ -16,19 +16,19 @@
 namespace OgreScriptLSP {
     class LspServer {
     private:
-        bool running = false;
         char ch = ' ';
         std::string message;
         ClientCapabilities clientCapabilities;
 
     public:
         std::map<std::string, OgreScriptLSP::Parser *> parsers;
+        bool running = false;
 
         LspServer() = default;
 
         void runServer(std::ostream &oos = std::cout, std::istream &ios = std::cin);
 
-        void sendResponse(const std::string& msg, std::ostream &oos = std::cout);
+        void sendResponse(const std::string &msg, std::ostream &oos = std::cout);
 
         Action readHeaders(std::istream &os = std::cin);
 
@@ -53,6 +53,8 @@ namespace OgreScriptLSP {
         void sendDiagnostic(Parser *parser, std::ostream &oos);
 
         OgreScriptLSP::Parser *getParserByUri(const std::string &uri);
+
+        void updateParserByUri(const std::string &uri, OgreScriptLSP::Parser *parser);
 
         static ResponseMessage newResponseMessage(std::string id, ResultBase *result);
 

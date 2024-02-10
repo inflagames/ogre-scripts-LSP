@@ -95,16 +95,16 @@ namespace test_utils {
             q.push(EOF);
         }
 
+        int currentChar() {
+            std::lock_guard<std::mutex> lock(mut);
+            return getChar();
+        }
+
     protected:
         int uflow() override {
             while (currentChar() == WAITING_DATA) {}
             int c = nextChar();
             return c;
-        }
-
-        int currentChar() {
-            std::lock_guard<std::mutex> lock(mut);
-            return getChar();
         }
 
         int nextChar() {

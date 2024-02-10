@@ -57,6 +57,7 @@ void OgreScriptLSP::LspServer::runServer(std::ostream &oos, std::istream &ios) {
             break;
         }
     }
+    running = false;
 }
 
 void OgreScriptLSP::LspServer::initialize(OgreScriptLSP::RequestMessage *rm, std::ostream &oos) {
@@ -92,8 +93,9 @@ void OgreScriptLSP::LspServer::didChange(RequestMessage *rm, std::ostream &oos) 
     parser->loadScript(params->textDocument.uri, params->contentChanges[0].text);
     parser->parse();
 
+    updateParserByUri(params->textDocument.uri, parser);
+
     sendDiagnostic(parser, oos);
-    delete parser;
 }
 
 void OgreScriptLSP::LspServer::goToDefinition(RequestMessage *rm, std::ostream &oos) {
@@ -233,6 +235,16 @@ OgreScriptLSP::Parser *OgreScriptLSP::LspServer::getParserByUri(const std::strin
         parser->parse(uri);
     }
     return parser;
+}
+
+void OgreScriptLSP::LspServer::updateParserByUri(const std::string &uri, OgreScriptLSP::Parser *parser) {
+    // toDo (gonzalezext)[10.02.24]: duplicated code in didClose function
+    auto it = parsers.find(uri);
+    if (it != parsers.end()) {
+        delete it->second;
+        parsers.erase(it);
+    }
+    parsers[uri] = parser;
 }
 
 void OgreScriptLSP::LspServer::sendDiagnostic(Parser *parser, std::ostream &oos) {

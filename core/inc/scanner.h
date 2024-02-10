@@ -1,6 +1,7 @@
 #ifndef JS_SCRIPT_AI_LIBRARY_H
 #define JS_SCRIPT_AI_LIBRARY_H
 
+#include <iostream>
 #include <fstream>
 #include <vector>
 #include <string>
@@ -11,7 +12,7 @@
 namespace OgreScriptLSP {
     class Scanner {
     public:
-        std::ifstream file;
+        std::istream *codeStream = nullptr;
         char ch{};
         int lineCount = 0;
         int columnCount = 0;
@@ -61,7 +62,7 @@ namespace OgreScriptLSP {
          */
         bool consumeEmpty();
 
-        void loadScript(const std::string &scriptFile);
+        void loadScript(const std::string &scriptFile, const std::string& code = "");
     };
 }
 

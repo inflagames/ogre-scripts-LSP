@@ -9,9 +9,9 @@ OgreScriptLSP::Parser::~Parser() {
     delete script;
 }
 
-void OgreScriptLSP::Parser::loadScript(const std::string &uri) {
+void OgreScriptLSP::Parser::loadScript(const std::string &uri, const std::string &code) {
     this->uri = uri;
-    scanner->loadScript(uriToPath(uri));
+    scanner->loadScript(uriToPath(uri), code);
     tokens = scanner->parse();
     currentToken = 0;
     delete script;

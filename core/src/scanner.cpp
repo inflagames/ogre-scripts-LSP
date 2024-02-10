@@ -2,14 +2,24 @@
 
 OgreScriptLSP::Scanner::Scanner() = default;
 
-void OgreScriptLSP::Scanner::loadScript(const std::string &scriptFile) {
-    // close if needed
-    if (file.is_open()) {
-        file.close();
-    }
-    file.open(scriptFile);
-    if (!file.is_open()) {
-        throw FileException(FILE_IS_NOT_OPEN_OR_NOT_EXIST);
+void OgreScriptLSP::Scanner::loadScript(const std::string &scriptFile, const std::string &code) {
+    delete codeStream;
+    if (code.empty()) {
+        auto *file = new std::ifstream();
+
+        // close if needed
+        if (file->is_open()) {
+            file->close();
+        }
+        file->open(scriptFile);
+        if (!file->is_open()) {
+            throw FileException(FILE_IS_NOT_OPEN_OR_NOT_EXIST);
+        }
+        codeStream = static_cast<std::istream *>(file);
+    } else {
+        // open code from string
+        auto *codeStr = new std::stringstream(code);
+        codeStream = static_cast<std::istream *>(codeStr);
     }
     ch = ' ';
     isNewLine = false;
@@ -18,10 +28,6 @@ void OgreScriptLSP::Scanner::loadScript(const std::string &scriptFile) {
 }
 
 std::vector<OgreScriptLSP::TokenValue> OgreScriptLSP::Scanner::parse() {
-    if (!file.is_open()) {
-        throw FileException(FILE_IS_NOT_OPEN_OR_NOT_EXIST);
-    }
-
     std::vector<OgreScriptLSP::TokenValue> list;
     while (true) {
         auto tk = nextToken();
@@ -31,7 +37,8 @@ std::vector<OgreScriptLSP::TokenValue> OgreScriptLSP::Scanner::parse() {
         list.push_back(tk);
     }
 
-    file.close();
+    delete codeStream;
+    codeStream = nullptr;
 
     return list;
 }
@@ -39,7 +46,7 @@ std::vector<OgreScriptLSP::TokenValue> OgreScriptLSP::Scanner::parse() {
 OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
     std::string tkStr;
 
-    while (!file.eof() && consumeEmpty()) {
+    while (!codeStream->eof() && consumeEmpty()) {
         switch (ch) {
             case '\n':
                 return symbolToken(endl_tk);
@@ -148,7 +155,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeNumber(bool isFirstPeri
     std::string literal;
     int line = lineCount;
     int column = columnCount, rangeLength = 0;
-    while (!file.eof()) {
+    while (!codeStream->eof()) {
         literal.push_back(ch);
         if (nextCharacter() && (isdigit(ch) || (ch == '.' && isFirstPeriod))) {
             if (ch == '.') {
@@ -168,7 +175,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeString(char stringDelim
     nextCharacter();
     int line = lineCount;
     int column = columnCount, rangeLength = 0;
-    while (!file.eof()) {
+    while (!codeStream->eof()) {
         rangeLength++;
         if (ch == '\n') {
             throw ScannerException(SCANNER_INVALID_STRING_LITERAL, Range::toRange(line, column, rangeLength));
@@ -189,7 +196,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeMatch() {
     nextCharacter();
     int line = lineCount;
     int column = columnCount, rangeLength = 0;
-    while (!file.eof()) {
+    while (!codeStream->eof()) {
         rangeLength++;
         if (ch == '\n' || ch == '\t' || ch == ' ' || ch == '\v' || ch == '\r' || ch == '\f') {
             throw ScannerException(SCANNER_INVALID_MATCH_LITERAL, Range::toRange(line, column, rangeLength));
@@ -210,7 +217,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
     std::string literal;
     int line = lineCount;
     int column = columnCount;
-    while (!file.eof()) {
+    while (!codeStream->eof()) {
         literal.push_back(ch);
         if (!nextCharacter() || !validLiteral(ch, false)) {
             if (literal == "abstract") {
@@ -279,7 +286,7 @@ bool OgreScriptLSP::Scanner::consumeEmpty() {
 }
 
 bool OgreScriptLSP::Scanner::nextCharacter() {
-    file.get(ch);
+    codeStream->get(ch);
     if (isNewLine) {
         lineCount++;
         columnCount = 0;
@@ -287,5 +294,5 @@ bool OgreScriptLSP::Scanner::nextCharacter() {
         columnCount++;
     }
     isNewLine = ch == '\n';
-    return !file.eof();
+    return !codeStream->eof();
 }

@@ -86,11 +86,14 @@ void OgreScriptLSP::LspServer::didClose(RequestMessage *rm) {
 }
 
 void OgreScriptLSP::LspServer::didChange(RequestMessage *rm, std::ostream &oos) {
-    auto uri = ((DidChangeTextDocumentParams *) rm->params)->textDocument.uri;
-    auto parser = getParserByUri(uri);
-    parser->parse(uri);
+    // toDo (gonzalezext)[10.02.24]: not support for range changes
+    auto params = ((DidChangeTextDocumentParams *) rm->params);
+    auto parser = new Parser();
+    parser->loadScript(params->textDocument.uri, params->contentChanges[0].text);
+    parser->parse();
 
     sendDiagnostic(parser, oos);
+    delete parser;
 }
 
 void OgreScriptLSP::LspServer::goToDefinition(RequestMessage *rm, std::ostream &oos) {

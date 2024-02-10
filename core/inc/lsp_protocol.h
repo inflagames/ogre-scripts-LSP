@@ -30,6 +30,10 @@ namespace OgreScriptLSP {
         std::string uri;
     };
 
+    struct VersionedTextDocumentIdentifier : TextDocumentIdentifier {
+        int version = 0;
+    };
+
     struct Position {
         int line;
         int character;
@@ -40,6 +44,15 @@ namespace OgreScriptLSP {
 
         bool operator>(const Position &a) const {
             return std::tie(line, character) > std::tie(a.line, a.character);
+        }
+
+        void fromJson(const nlohmann::json &j) {
+            if (j.contains("line")) {
+                j.at("line").get_to(line);
+            }
+            if (j.contains("character")) {
+                j.at("character").get_to(character);
+            }
         }
     };
 
@@ -62,9 +75,32 @@ namespace OgreScriptLSP {
             };
         }
 
+        void fromJson(const nlohmann::json &j) {
+            if (j.contains("start")) {
+                start.fromJson(j.at("start"));
+            }
+            if (j.contains("end")) {
+                end.fromJson(j.at("end"));
+            }
+        }
+
         static Range toRange(int line, int character, int size) {
             return {{line, character},
                     {line, character + size}};
+        }
+    };
+
+    struct TextDocumentContentChangeEvent {
+        Range range; // optional
+        std::string text;
+
+        void fromJson(const nlohmann::json &j) {
+            if (j.contains("text")) {
+                j.at("text").get_to(text);
+            }
+            if (j.contains("range")) {
+                range.fromJson(j.at("range"));
+            }
         }
     };
 
@@ -111,10 +147,6 @@ namespace OgreScriptLSP {
                 j.at("text").get_to(text);
             }
         }
-    };
-
-    struct TextDocumentContentChangeEvent {
-
     };
 
     struct ResultArray : ResultBase {
@@ -395,11 +427,22 @@ namespace OgreScriptLSP {
      * 'textDocument/didChange'
      */
     struct DidChangeTextDocumentParams : ParamsBase {
-        TextDocumentIdentifier textDocument;
+        VersionedTextDocumentIdentifier textDocument;
+        std::vector<TextDocumentContentChangeEvent> contentChanges;
 
         void fromJson(const nlohmann::json &j) override {
             if (j.contains("textDocument") && j.at("textDocument").contains("uri")) {
                 j.at("textDocument").at("uri").get_to(textDocument.uri);
+            }
+            if (j.contains("textDocument") && j.at("textDocument").contains("version")) {
+                j.at("textDocument").at("version").get_to(textDocument.version);
+            }
+            if (j.contains("contentChanges") && j.at("contentChanges").is_array()) {
+                for (const auto& it: j.at("contentChanges")) {
+                    TextDocumentContentChangeEvent nv;
+                    nv.fromJson(it);
+                    contentChanges.push_back(nv);
+                }
             }
         }
     };
@@ -467,7 +510,8 @@ namespace OgreScriptLSP {
                         {"message",  diag.message}
                 });
             }
-            return nlohmann::json{{"uri", uri}, {"diagnostics", diagnosticsArray}};
+            return nlohmann::json{{"uri",         uri},
+                                  {"diagnostics", diagnosticsArray}};
         }
     };
 

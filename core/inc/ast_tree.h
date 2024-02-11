@@ -10,6 +10,8 @@ namespace OgreScriptLSP {
     public:
         TokenValue name = {EOF_tk, ""};
         TokenValue parent = {EOF_tk, ""};
+
+        virtual ~AstObject() = default;
     };
 
     class ParamAst {
@@ -57,7 +59,7 @@ namespace OgreScriptLSP {
             vertex,
         } type;
 
-        ~ProgramAst() {
+        ~ProgramAst() override {
             for (auto ele: params) {
                 delete ele;
             }
@@ -96,7 +98,7 @@ namespace OgreScriptLSP {
     public:
         std::vector<TextureUnitParamAst *> params;
 
-        ~TextureUnitAst() {
+        ~TextureUnitAst() override {
             for (auto ele: params) {
                 delete ele;
             }
@@ -114,7 +116,7 @@ namespace OgreScriptLSP {
         std::vector<TextureUnitAst *> textures;
         std::vector<MaterialProgramAst *> programsReferences;
 
-        ~PassAst() {
+        ~PassAst() override {
             for (auto ele: params) {
                 delete ele;
             }
@@ -134,7 +136,7 @@ namespace OgreScriptLSP {
     public:
         std::vector<PassAst *> passes;
 
-        ~TechniqueAst() {
+        ~TechniqueAst() override {
             for (auto ele: passes) {
                 delete ele;
             }
@@ -151,7 +153,7 @@ namespace OgreScriptLSP {
         std::vector<MaterialParamAst *> params;
         std::vector<TechniqueAst *> techniques;
 
-        ~MaterialAst() {
+        ~MaterialAst() override {
             for (auto ele: params) {
                 delete ele;
             }
@@ -192,6 +194,17 @@ namespace OgreScriptLSP {
                 delete ele;
             }
             imports.clear();
+        }
+
+        std::vector<MaterialAst *> allMaterials() {
+            std::vector<MaterialAst *> res;
+            res.insert(res.end(), materials.begin(), materials.end());
+            for (auto a: abstracts) {
+                if (a->type.tk == material_tk) {
+                    res.push_back(dynamic_cast<MaterialAst *>(a->body));
+                }
+            }
+            return res;
         }
     };
 }

@@ -15,8 +15,28 @@ namespace OgreScriptLSP {
         static std::optional<OgreScriptLSP::ResultBase *>
         searchInMaterials(MaterialScriptAst *script, Position position);
 
+        static std::optional<OgreScriptLSP::TokenValue>
+        searchInMaterial(MaterialAst *mat, Position position);
+
+        static std::optional<OgreScriptLSP::ResultBase *>
+        searchMaterialDefinition(OgreScriptLSP::MaterialScriptAst *script,
+                                 const std::string &parentLiteral);
+
         static std::optional<OgreScriptLSP::ResultBase *>
         searchInPrograms(OgreScriptLSP::MaterialScriptAst *script, OgreScriptLSP::Position position);
+
+        static std::optional<OgreScriptLSP::ResultBase *>
+        searchProgramDefinition(OgreScriptLSP::MaterialScriptAst *script,
+                                const TokenValue &programTk);
+
+        static std::optional<OgreScriptLSP::TokenValue>
+        searchProgramInMaterial(MaterialAst *mat, OgreScriptLSP::Position position);
+
+        static std::optional<OgreScriptLSP::TokenValue>
+        searchProgramInTechnique(TechniqueAst *tech, OgreScriptLSP::Position position);
+
+        static std::optional<OgreScriptLSP::TokenValue>
+        searchProgramInPasses(PassAst *pass, OgreScriptLSP::Position position);
     };
 }
 

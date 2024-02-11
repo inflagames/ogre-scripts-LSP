@@ -1,19 +1,35 @@
 # Ogre scripts LSP
 
-This project is mean to create an LSP for ogre script (materials, fonts, particles, etc)
+This project is an LSP (Language Server Protocol) for ogre3d scripts (materials, fonts, particles, etc)
 
 Base on the LSP specifications from
-microsoft: https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/
+microsoft: https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/.
+
+Language specifications can be found on the ogre3d
+documentation: https://ogrecave.github.io/ogre/api/latest/_scripts.html.
+
+## Languages supported (so far)
+
+- [x] .material
+- [ ] .program
+- [ ] .particle
+- [ ] .compositor
+- [ ] .os
+- [ ] .overlay
+
+> Note: work in progress
 
 ## Server Capabilities
 
 - [x] textDocument/formatting (formatting requests)
 - [x] textDocument/rangeFormatting (range formatting requests)
 - [x] textDocument/definition (go to definition requests)
-- [ ] textDocument/publishDiagnostics (diagnostic notification)
+- [x] textDocument/publishDiagnostics (diagnostic notification)
 - [ ] textDocument/declaration (go to declaration request)
 - [ ] textDocument/hover (hover information requests)
 - [ ] textDocument/completion (code completion requests)
+
+> Note: work in progress
 
 ## Communication client-server supported
 
@@ -21,12 +37,16 @@ microsoft: https://microsoft.github.io/language-server-protocol/specifications/l
 
 ## Build
 
+This command will build the application directly on your `/usr/local/bin/` directory.
+
 ```
 # build project directly to /usr/local/bin/
 ./integration/build.sh
 ```
 
-## Lexer Material
+## Lexer definition
+
+### .material
 
 ```
 script = <script_body> | <script_body> <script>
@@ -83,6 +103,15 @@ definition_opt = <identifier> | <string_literal>
 
 ## ToDo
 
+- [ ] ci/cd build and deploy released versions
 - [ ] competition support
 - [ ] highlight support
 - [ ] include http client-server communication support
+
+## Contribution
+
+Any contribution is welcome.
+
+## License
+
+tbd

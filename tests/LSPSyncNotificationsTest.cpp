@@ -1,5 +1,9 @@
 #include <thread>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #include "gtest/gtest.h"
 
 #include "../core/inc/lsp_server.h"

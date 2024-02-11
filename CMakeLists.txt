@@ -32,9 +32,9 @@ add_executable(ogre_scripts_LSP main.cpp)
 
 if (UNIX)
     # Compile relese directly on bin folder
-    set_target_properties(ogre_scripts_LSP PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY_RELEASE /usr/local/bin
-    )
+#    set_target_properties(ogre_scripts_LSP PROPERTIES
+#            RUNTIME_OUTPUT_DIRECTORY_RELEASE /usr/local/bin
+#    )
 endif (UNIX)
 if (WIN32)
     # todo: install

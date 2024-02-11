@@ -44,11 +44,11 @@ namespace OgreScriptLSP {
             return exceptions;
         }
 
-        void loadScript(const std::string &uri, const std::string &code = "");
+        void loadScript(const std::string &fileUri, const std::string &code = "");
 
         static std::string uriToPath(const std::string &uri);
 
-        void parse(const std::string &uri);
+        void parse(const std::string &fileUri);
 
         void parse();
 

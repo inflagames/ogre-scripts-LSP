@@ -19,9 +19,9 @@ public:
 
     static Logs &getInstance();
 
-    void enableLogs(std::string logFile = "ogre3dscriptlsp.log");
+    void enableLogs(const std::string& logFile = "ogre3dscriptlsp.log");
 
-    void log(std::string text);
+    void log(const std::string& text);
 };
 
 #endif //OGRE_SCRIPTS_LSP_LIB_LOGS_H

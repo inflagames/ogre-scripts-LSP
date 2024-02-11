@@ -11,15 +11,15 @@ OgreScriptLSP::Parser::~Parser() {
     delete script;
 }
 
-void OgreScriptLSP::Parser::loadScript(const std::string &uri, const std::string &code) {
+void OgreScriptLSP::Parser::loadScript(const std::string &fileUri, const std::string &code) {
     exceptions.clear();
-    this->uri = uri;
-    scanner->loadScript(uriToPath(uri), code);
+    this->uri = fileUri;
+    scanner->loadScript(uriToPath(fileUri), code);
     tokens = scanner->parse();
     exceptions.insert(exceptions.end(), scanner->exceptions.begin(), scanner->exceptions.end());
     currentToken = 0;
     delete script;
-    script = new MaterialScriptAst(uri);
+    script = new MaterialScriptAst(fileUri);
 }
 
 std::string OgreScriptLSP::Parser::uriToPath(const std::string &uri) {
@@ -29,8 +29,8 @@ std::string OgreScriptLSP::Parser::uriToPath(const std::string &uri) {
     return uri;
 }
 
-void OgreScriptLSP::Parser::parse(const std::string &uri) {
-    loadScript(uri);
+void OgreScriptLSP::Parser::parse(const std::string &fileUri) {
+    loadScript(fileUri);
     declarations.clear();
     parse();
 }
@@ -59,7 +59,7 @@ void OgreScriptLSP::Parser::parse() {
                 exceptions.push_back(ParseException(INVALID_TOKEN, tk.toRange()));
                 recuperate = true;
             }
-        } catch (ParseException e) {
+        } catch (ParseException &e) {
             exceptions.push_back(e);
             recuperate = true;
             continue;
@@ -133,6 +133,8 @@ void OgreScriptLSP::Parser::abstract(MaterialScriptAst *scriptAst) {
             delete passTmp;
             break;
         }
+        default:
+            break;
     }
 
     scriptAst->abstracts.push_back(abstract);

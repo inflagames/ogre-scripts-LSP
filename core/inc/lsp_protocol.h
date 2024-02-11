@@ -91,7 +91,7 @@ namespace OgreScriptLSP {
     };
 
     struct TextDocumentContentChangeEvent {
-        Range range; // optional
+        Range range{}; // optional
         std::string text;
 
         void fromJson(const nlohmann::json &j) {
@@ -130,7 +130,7 @@ namespace OgreScriptLSP {
     struct TextDocumentItem {
         std::string uri;
         std::string languageId;
-        int version;
+        int version{};
         std::string text;
 
         void fromJson(const nlohmann::json &j) {
@@ -245,7 +245,7 @@ namespace OgreScriptLSP {
     };
 
     struct ClientCapabilities {
-        bool workspaceFolders;
+        bool workspaceFolders{};
         TextDocumentClientCapabilities textDocument;
     };
 

@@ -5,6 +5,7 @@
 #include "ast_tree.h"
 #include "exceptions.h"
 #include "lsp_protocol.h"
+#include "goto.h"
 
 
 namespace OgreScriptLSP {
@@ -41,8 +42,6 @@ namespace OgreScriptLSP {
         void parse(const std::string &uri);
 
         void parse();
-
-        ResultBase *goToDefinition(Position position);
 
         // IMPORT STATEMENT
         void importBlock(MaterialScriptAst *scriptAst);

@@ -1,5 +1,3 @@
-#include <utility>
-
 #include "../inc/lsp_server.h"
 
 void OgreScriptLSP::LspServer::runServer(std::ostream &oos, std::istream &ios) {
@@ -106,7 +104,7 @@ void OgreScriptLSP::LspServer::goToDefinition(RequestMessage *rm, std::ostream &
     try {
         DefinitionParams *definitionParams = ((DefinitionParams *) rm->params);
         auto parser = getParserByUri(definitionParams->textDocument.uri);
-        auto *res = parser->goToDefinition(definitionParams->position);
+        auto *res = OgreScriptLSP::GoTo::goToDefinition(parser->getScript(), definitionParams->position);
 
         ResponseMessage re = newResponseMessage(rm->id, res);
         sendResponse(nlohmann::to_string(re.toJson()), oos);

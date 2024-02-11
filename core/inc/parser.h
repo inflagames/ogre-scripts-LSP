@@ -7,6 +7,12 @@
 #include "lsp_protocol.h"
 #include "goto.h"
 
+#define MATERIAL_BLOCK 1
+#define PROGRAM_VERTEX_BLOCK 2
+#define PROGRAM_FRAGMENT_BLOCK 3
+#define TECHNIQUE_BLOCK 4
+#define PASS_BLOCK 5
+#define TEXTURE_UNIT_BLOCK 6
 
 namespace OgreScriptLSP {
     class Parser {
@@ -17,6 +23,7 @@ namespace OgreScriptLSP {
         int currentToken = 0;
 
         MaterialScriptAst *script = nullptr;
+        std::map<std::pair<int, std::string>, TokenValue> declarations;
 
         std::vector<BaseException> exceptions;
 
@@ -30,6 +37,8 @@ namespace OgreScriptLSP {
         MaterialScriptAst *getScript() {
             return script;
         }
+
+        [[nodiscard]] const std::map<std::pair<int, std::string>, TokenValue> &getDeclarations() const;
 
         std::vector<BaseException> getExceptions() {
             return exceptions;
@@ -107,9 +116,12 @@ namespace OgreScriptLSP {
 
         void initSwap();
 
+        void registerDeclaration(AstObject *object, int type);
+
         bool isMainStructure();
 
-        void objectDefinition(AstObject *astObject, std::string error1, std::string error2, bool notTopLevelObject = false);
+        void
+        objectDefinition(AstObject *astObject, std::string error1, std::string error2, bool notTopLevelObject = false);
     };
 }
 

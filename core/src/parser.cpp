@@ -31,6 +31,7 @@ std::string OgreScriptLSP::Parser::uriToPath(const std::string &uri) {
 
 void OgreScriptLSP::Parser::parse(const std::string &uri) {
     loadScript(uri);
+    declarations.clear();
     parse();
 }
 
@@ -107,6 +108,7 @@ void OgreScriptLSP::Parser::abstract(MaterialScriptAst *scriptAst) {
         case technique_tk: {
             auto *materialTmp = new MaterialAst();
             materialTechnique(materialTmp);
+            registerDeclaration(materialTmp->techniques[0], TECHNIQUE_BLOCK);
             abstract->body = materialTmp->techniques[0];
             materialTmp->techniques.clear();
             delete materialTmp;
@@ -115,6 +117,7 @@ void OgreScriptLSP::Parser::abstract(MaterialScriptAst *scriptAst) {
         case pass_tk: {
             auto *techniqueTmp = new TechniqueAst();
             materialPass(techniqueTmp);
+            registerDeclaration(techniqueTmp->passes[0], PASS_BLOCK);
             abstract->body = techniqueTmp->passes[0];
             techniqueTmp->passes.clear();
             delete techniqueTmp;
@@ -123,6 +126,7 @@ void OgreScriptLSP::Parser::abstract(MaterialScriptAst *scriptAst) {
         case texture_unit_tk: {
             auto *passTmp = new PassAst();
             materialTexture(passTmp);
+            registerDeclaration(passTmp->textures[0], TEXTURE_UNIT_BLOCK);
             abstract->body = passTmp->textures[0];
             passTmp->textures.clear();
             delete passTmp;
@@ -146,6 +150,8 @@ void OgreScriptLSP::Parser::program(MaterialScriptAst *scriptAst) {
 
     program->name = getToken();
     consumeToken(identifier, PROGRAM_NAME_MISSING);
+    declarations[std::make_pair(program->type == ProgramAst::vertex ? PROGRAM_VERTEX_BLOCK : PROGRAM_FRAGMENT_BLOCK,
+                                program->name.literal)] = program->name;
 
     programOpt(program);
 
@@ -219,6 +225,7 @@ void OgreScriptLSP::Parser::material(OgreScriptLSP::MaterialScriptAst *scriptAst
     nextToken();
 
     objectDefinition(material, MATERIAL_NAME_MISSION_ERROR, MATERIAL_INHERIT_ERROR);
+    declarations[std::make_pair(MATERIAL_BLOCK, material->name.literal)] = material->name;
 
     consumeOpenCurlyBracket();
 
@@ -525,4 +532,12 @@ bool OgreScriptLSP::Parser::isMainStructure() {
 
 void OgreScriptLSP::Parser::initSwap() {
     currentToken = 0;
+}
+
+void OgreScriptLSP::Parser::registerDeclaration(OgreScriptLSP::AstObject *object, int type) {
+    declarations[std::make_pair(type, object->name.literal)] = object->name;
+}
+
+const std::map<std::pair<int, std::string>, OgreScriptLSP::TokenValue> &OgreScriptLSP::Parser::getDeclarations() const {
+    return declarations;
 }

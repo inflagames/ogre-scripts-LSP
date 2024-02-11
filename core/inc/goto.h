@@ -4,14 +4,45 @@
 
 #include "lsp_protocol.h"
 #include "token.h"
+#include "parser.h"
 #include "../inc/ast_tree.h"
 
 namespace OgreScriptLSP {
     class GoTo {
     public:
-        static ResultBase *goToDefinition(MaterialScriptAst *script, Position position);
+        static ResultBase *
+        goToDefinition(MaterialScriptAst *script,
+                       std::map<std::pair<int, std::string>, TokenValue> declarations,
+                       Position position);
 
     private:
+        static std::optional<std::pair<int, std::string>>
+        search(MaterialScriptAst *script, Position position);
+
+        static std::optional<std::pair<int, std::string>>
+        searchAbstract(AbstractAst *abstract, Position position);
+
+        static std::optional<std::pair<int, std::string>>
+        searchMaterial(MaterialAst *script, Position position);
+
+        static std::optional<std::pair<int, std::string>>
+        searchTechnique(TechniqueAst *script, Position position);
+
+        static std::optional<std::pair<int, std::string>>
+        searchPass(PassAst *pass, Position position);
+
+        static std::optional<std::pair<int, std::string>>
+        searchTexture(TextureUnitAst *texture, Position position);
+
+        static std::optional<std::pair<int, std::string>>
+        searchProgram(ProgramAst *program, Position position);
+
+        static std::optional<std::pair<int, std::string>>
+        searchProgramRef(MaterialProgramAst *programRef, Position position);
+
+        static std::optional<std::pair<int, std::string>>
+        searchInObject(AstObject *object, Position position, int type);
+
         static std::optional<OgreScriptLSP::ResultBase *>
         searchInMaterials(MaterialScriptAst *script, Position position);
 

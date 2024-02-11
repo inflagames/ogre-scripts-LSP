@@ -33,6 +33,7 @@ namespace OgreScriptLSP {
 
     class AbstractAst {
     public:
+        // toDo (gonzalezext)[11.02.24]: can be removed
         TokenValue identifier;
         TokenValue type;
         AstObject *body{};

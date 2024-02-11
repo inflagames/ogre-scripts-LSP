@@ -104,7 +104,9 @@ void OgreScriptLSP::LspServer::goToDefinition(RequestMessage *rm, std::ostream &
     try {
         DefinitionParams *definitionParams = ((DefinitionParams *) rm->params);
         auto parser = getParserByUri(definitionParams->textDocument.uri);
-        auto *res = OgreScriptLSP::GoTo::goToDefinition(parser->getScript(), definitionParams->position);
+        auto *res = OgreScriptLSP::GoTo::goToDefinition(parser->getScript(),
+                                                        parser->getDeclarations(),
+                                                        definitionParams->position);
 
         ResponseMessage re = newResponseMessage(rm->id, res);
         sendResponse(nlohmann::to_string(re.toJson()), oos);

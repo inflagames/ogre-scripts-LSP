@@ -88,8 +88,13 @@ TEST (LSPSyncTest, clientSync_CoverServerCrashIssueInServer_validateBug) {
     // initialized notification
     inputData += test_utils::getMessageStr(R"({"jsonrpc": "2.0", "id": 456, "method": "initialized", "params": {}})");
     // formatting request
+    std::string fileToOpen = test_utils::readFile("./examples/lsp/formatting_programs_basic.material", true);
     inputData += test_utils::getMessageStr(
-            R"({"jsonrpc": "2.0", "id": 500, "method": "textDocument/didOpen", "params": {"textDocument": {"uri": "file://./examples/lsp/formatting_programs_basic.material"}}})");
+            "{\"jsonrpc\": \"2.0\", \"id\": 500, \"method\": \"textDocument/didOpen\", \"params\": {\"textDocument\": {\"uri\": \"file://./examples/lsp/formatting_programs_basic.material\", \"text\": \"" +
+            fileToOpen + "\"}}}"
+    );
+
+    std::cout << inputData << std::endl;
 
     // system in/out mocks
     auto *stringstreambuf = new test_utils::my_stringstreambuf(inputData);

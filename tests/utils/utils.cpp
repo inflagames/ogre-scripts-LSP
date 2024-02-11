@@ -80,7 +80,7 @@ int test_utils::positionInText(std::string text, position pos) {
     throw std::exception();
 }
 
-std::string test_utils::readFile(const std::string &filePath) {
+std::string test_utils::readFile(const std::string &filePath, bool prepareForSend) {
     std::ifstream file;
     std::string fileContent;
     file.open(filePath);
@@ -92,6 +92,19 @@ std::string test_utils::readFile(const std::string &filePath) {
         file.get(c);
         if (file.eof()) {
             break;
+        }
+        if (prepareForSend) {
+            if (c == '\"' || c == '\n') {
+                fileContent.push_back('\\');
+            }
+            if (c == '\n') {
+                fileContent.push_back('n');
+                continue;
+            }
+            if (c == '\t') {
+                fileContent.push_back('t');
+                continue;
+            }
         }
         fileContent.push_back(c);
     }

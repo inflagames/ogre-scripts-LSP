@@ -38,7 +38,7 @@ namespace test_utils {
      * Read all file content and return it as string
      * @param file file path
      */
-    std::string readFile(const std::string &file);
+    std::string readFile(const std::string &file, bool prepareForSend = false);
 
     /**
      * Include message json into protocol specification headers

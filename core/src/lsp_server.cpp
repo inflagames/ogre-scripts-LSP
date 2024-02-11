@@ -69,8 +69,13 @@ void OgreScriptLSP::LspServer::initialize(OgreScriptLSP::RequestMessage *rm, std
 
 void OgreScriptLSP::LspServer::didOpen(RequestMessage *rm, std::ostream &oos) {
     try {
-        auto uri = ((DidOpenTextDocumentParams *) rm->params)->textDocument.uri;
-        auto parser = getParserByUri(uri);
+        // toDo (gonzalezext)[11.02.24]: duplicated code in didChange
+        auto params = (DidOpenTextDocumentParams *) rm->params;
+        auto parser = new Parser();
+        parser->loadScript(params->textDocument.uri, params->textDocument.text);
+        parser->parse();
+        updateParserByUri(params->textDocument.uri, parser);
+
         sendDiagnostic(parser, oos);
     } catch (...) {
         // toDo (gonzalezext)[08.02.24]: exception
@@ -92,7 +97,6 @@ void OgreScriptLSP::LspServer::didChange(RequestMessage *rm, std::ostream &oos) 
     auto parser = new Parser();
     parser->loadScript(params->textDocument.uri, params->contentChanges[0].text);
     parser->parse();
-
     updateParserByUri(params->textDocument.uri, parser);
 
     sendDiagnostic(parser, oos);
@@ -205,7 +209,9 @@ OgreScriptLSP::Action OgreScriptLSP::LspServer::readContent(Action action, std::
         // convert content to json obj
         nlohmann::json j = nlohmann::json::parse(jsonrpc);
         ((RequestMessage *) action.message)->fromJson(j);
-    } catch (...) {
+    } catch (nlohmann::json::exception e) {
+        std::string errMsg = "message: " + std::string(e.what()) + "\nexception id: " + std::to_string(e.id);
+        Logs::getInstance().log(errMsg);
         // toDo (gonzalezext)[26.01.24]: handle error here
     }
 

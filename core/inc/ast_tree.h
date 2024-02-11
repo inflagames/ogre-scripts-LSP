@@ -6,6 +6,12 @@
 
 namespace OgreScriptLSP {
 
+    class AstObject {
+    public:
+        TokenValue name = {EOF_tk, ""};
+        TokenValue parent = {EOF_tk, ""};
+    };
+
     class ParamAst {
     public:
         std::vector<TokenValue> items;
@@ -23,11 +29,27 @@ namespace OgreScriptLSP {
     public:
     };
 
-    class ProgramAst {
+    class AbstractAst {
+    public:
+        TokenValue identifier;
+        TokenValue type;
+        AstObject *body{};
+
+        ~AbstractAst() {
+            delete body;
+        }
+    };
+
+    class ImportAst {
+    public:
+        TokenValue imported;
+        TokenValue file;
+    };
+
+    class ProgramAst : public AstObject {
     public:
         std::vector<ParamProgramAst *> params;
         std::vector<ParamProgramDefaultAst *> defaults;
-        TokenValue name;
         std::vector<TokenValue> highLevelProgramsType;
 
         enum ProgramType {
@@ -70,9 +92,8 @@ namespace OgreScriptLSP {
     public:
     };
 
-    class TextureUnitAst {
+    class TextureUnitAst : public AstObject {
     public:
-        TokenValue name;
         std::vector<TextureUnitParamAst *> params;
 
         ~TextureUnitAst() {
@@ -87,10 +108,8 @@ namespace OgreScriptLSP {
     public:
     };
 
-    class PassAst {
+    class PassAst : public AstObject {
     public:
-        TokenValue name;
-        TokenValue parent;
         std::vector<PassParamAst *> params;
         std::vector<TextureUnitAst *> textures;
         std::vector<MaterialProgramAst *> programsReferences;
@@ -100,10 +119,18 @@ namespace OgreScriptLSP {
                 delete ele;
             }
             params.clear();
+            for (auto ele: textures) {
+                delete ele;
+            }
+            textures.clear();
+            for (auto ele: programsReferences) {
+                delete ele;
+            }
+            programsReferences.clear();
         }
     };
 
-    class TechniqueAst {
+    class TechniqueAst : public AstObject {
     public:
         std::vector<PassAst *> passes;
 
@@ -119,10 +146,8 @@ namespace OgreScriptLSP {
     public:
     };
 
-    class MaterialAst {
+    class MaterialAst : public AstObject {
     public:
-        TokenValue name;
-        TokenValue parent;
         std::vector<MaterialParamAst *> params;
         std::vector<TechniqueAst *> techniques;
 
@@ -143,6 +168,8 @@ namespace OgreScriptLSP {
         std::string uri;
         std::vector<MaterialAst *> materials;
         std::vector<ProgramAst *> programs;
+        std::vector<AbstractAst *> abstracts;
+        std::vector<ImportAst *> imports;
 
         explicit MaterialScriptAst(std::string uri) {
             this->uri = std::move(uri);
@@ -157,6 +184,14 @@ namespace OgreScriptLSP {
                 delete ele;
             }
             programs.clear();
+            for (auto ele: abstracts) {
+                delete ele;
+            }
+            abstracts.clear();
+            for (auto ele: imports) {
+                delete ele;
+            }
+            imports.clear();
         }
     };
 }

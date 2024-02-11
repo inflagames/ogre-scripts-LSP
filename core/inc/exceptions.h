@@ -5,12 +5,17 @@
 #include "lsp_protocol.h"
 
 #define INVALID_TOKEN "Invalid main token"
-#define PROGRAM_NAME_MISSION "Error with program name identifier"
+#define PROGRAM_NAME_MISSING "Error with program name identifier"
 #define MATERIAL_NAME_MISSION_ERROR "Error with material name identifier"
+#define TECHNIQUE_NAME_MISSION_ERROR "Error with technique name identifier"
+#define PASS_NAME_MISSION_ERROR "Error with pass name identifier"
+#define TEXTURE_NAME_MISSION_ERROR "Error with texture name identifier"
 #define MATERIAL_PASS_NAME_MISSION_ERROR "Error with material pass name identifier"
-#define MATERIAL_TEXTURE_NAME_MISSION_ERROR "Error with material texture name identifier"
-#define MATERIAL_PROGRAM_NAME_MISSION_ERROR "Error with material program name identifier"
+#define MATERIAL_PROGRAM_NAME_MISSING_ERROR "Error with material program name identifier"
 #define MATERIAL_INHERIT_ERROR "Error with material inherit"
+#define TECHNIQUE_INHERIT_ERROR "Error with technique inherit"
+#define PASS_INHERIT_ERROR "Error with pass inherit"
+#define TEXTURE_INHERIT_ERROR "Error with texture inherit"
 #define MATERIAL_PASS_INHERIT_ERROR "Error with material pass inherit"
 #define CURLY_BRACKET_START_MISSING "Missing start curly bracket"
 #define CURLY_BRACKET_END_MISSING "Missing curly bracket"
@@ -22,6 +27,7 @@
 #define NOT_VALID_MATERIAL_PROGRAM_PARAM "Not valid material program param"
 #define NOT_VALID_MATERIAL_TECHNIQUE_BODY "Not valid material technique body"
 #define NOT_VALID_PARAM "Not valid program default param"
+#define NOT_VALID_IMPORT "Invalid import declaration"
 
 // Scanner error messages
 #define SCANNER_INVALID_CHARACTER "Invalid character"

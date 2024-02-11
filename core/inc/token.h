@@ -11,6 +11,7 @@ namespace OgreScriptLSP {
         entry_point_tk,
         fragment_program_tk,
         fragment_program_ref_tk,
+        from_tk,
         import_tk,
         material_tk,
         pass_tk,
@@ -28,6 +29,7 @@ namespace OgreScriptLSP {
 
         // symbols
         colon_tk, // : X
+        asterisk_tk, // *
         left_curly_bracket_tk, // { X
         right_curly_bracket_tk, // } X
 

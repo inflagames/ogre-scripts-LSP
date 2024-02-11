@@ -107,7 +107,6 @@ TEST (LSPSyncTest, clientSync_CoverServerCrashIssueInServer_validateBug) {
             R"({"jsonrpc": "2.0", "id": 98, "method": "textDocument/didChange", "params": {"textDocument": {"uri": "file://./examples/lsp/formatting_programs_basic.material"}, "contentChanges": [{"text": "fragment_program Game/Floor/ShaderFp glsl glsles {\n    source FloorFp.glsl\n}\n\nmaterial something {\n    technique {\n        pass {\n        }\n    }\n}\n\n\nmaterial kk : something {\n\n}\n\nvertex_program Game/Floor/ShaderVp glsl {\n    source FloorVp.glsl\n\n    default_params {\n        // assign samplers as required by GLSL\n        param_named normalMap int 0\n    }\n}\n"}]}})"
     ));
     while (stringstreambuf->currentChar() != WAITING_DATA);
-    sleep(1);// sleep for a second
     ASSERT_TRUE(lsp->running);
 
     // send updated file

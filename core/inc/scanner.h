@@ -62,6 +62,8 @@ namespace OgreScriptLSP {
          */
         bool consumeEmpty();
 
+        [[nodiscard]] static bool isInvalidMatchDigit(char c) ;
+
         void loadScript(const std::string &scriptFile, const std::string& code = "");
     };
 }

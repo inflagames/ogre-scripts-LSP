@@ -1,3 +1,5 @@
+import * from "parent.material"
+
 // Bump map vertex program shadow receiver
 vertex_program Examples/BumpMapVPShadowRcvGLSL glsl glsles
 {
@@ -26,7 +28,7 @@ fragment_program Examples/BumpMapFPShadowRcv unified
 	delegate Examples/BumpMapFPShadowRcvGLSL
 }
 
-material Game/BumpMapping/MultiLight/Rcv
+abstract material Game/BumpMapping/MultiLight/Rcv
 {
 	technique
 	{
@@ -135,23 +137,50 @@ material male.texture : Game/BumpMapping/MultiLight/Rcv {
     }
 }
 
+abstract texture_unit tex_unit_example {
+    texture male.texture.jpeg
+}
+
+abstract pass pass_example {
+    diffuse 1.0 1.0 1.0 1.0
+
+    texture_unit : tex_unit_example {
+    }
+
+    vertex_program_ref Game/Floor/ShaderVp {
+        param_named_auto lightPosition light_position_object_space 0
+        param_named_auto worldViewProj worldviewproj_matrix
+        param_named_auto worldMatrix world_matrix
+        param_named_auto texViewProj texture_viewproj_matrix
+    }
+
+    fragment_program_ref Game/Floor/ShaderFp {
+        param_named_auto lightDiffuse light_diffuse_colour 0
+    }
+}
+
+abstract technique tech_example {
+    pass : pass_example {
+    }
+}
+
 material female.texture : Game/BumpMapping/MultiLight/Rcv {
     receive_shadows on
 
-    technique {
+    technique : tech_example {
         pass perlight {
             texture_unit normalMap {
                 texture male.texture.jpeg
             }
         }
 
-        pass decal {
+        pass decal : pass_example {
             diffuse 1.0 1.0 1.0 1.0
             specular 0.4 0.4 0.4 0.5
             scene_blend dest_colour zero
 
             // - base_color_texture
-            texture_unit decalmap {
+            texture_unit decalmap : tex_unit_example {
                 texture male.texture.jpeg
                 tex_address_mode wrap
                 colour_op modulate

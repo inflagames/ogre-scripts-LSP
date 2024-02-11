@@ -75,6 +75,10 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
                     continue;
                 }
             case '*': {
+                auto tk = symbolToken(asterisk_tk);
+                if (isInvalidMatchDigit(ch)) {
+                    return tk;
+                }
                 auto res = consumeMatch();
                 return {match_literal, res.literal};
             }
@@ -196,10 +200,9 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeMatch() {
     std::string literal = "*";
     int line = lineCount;
     int column = columnCount, rangeLength = 0;
-    nextCharacter();
     while (!codeStream->eof()) {
         rangeLength++;
-        if (ch == '\n' || ch == '\t' || ch == ' ' || ch == '\v' || ch == '\r' || ch == '\f') {
+        if (isInvalidMatchDigit(ch)) {
             throw ScannerException(SCANNER_INVALID_MATCH_LITERAL, Range::toRange(line, column, rangeLength));
         } else if (ch == '*') {
             literal.push_back(ch);
@@ -214,6 +217,10 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeMatch() {
     throw ScannerException(SCANNER_EOF_ERROR, Range::toRange(line, column, rangeLength));
 }
 
+bool OgreScriptLSP::Scanner::isInvalidMatchDigit(char c) {
+    return c == '\n' || c == '\t' || c == ' ' || c == '\v' || c == '\r' || c == '\f';
+}
+
 OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
     std::string literal;
     int line = lineCount;
@@ -225,6 +232,8 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
                 return {abstract_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "import") {
                 return {import_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "from") {
+                return {from_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "default_params") {
                 return {default_params_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "entry_point") {

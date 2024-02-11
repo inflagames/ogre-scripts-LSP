@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "../inc/parser.h"
 
 OgreScriptLSP::Parser::Parser() {
@@ -101,7 +103,7 @@ void OgreScriptLSP::Parser::parse(const std::string &uri) {
 }
 
 void OgreScriptLSP::Parser::parse() {
-    currentToken = 0;
+    initSwap();
 
     bool recuperate = false;
     while (!isEof()) {
@@ -114,6 +116,12 @@ void OgreScriptLSP::Parser::parse() {
             } else if (tk.tk == material_tk) {
                 recuperate = false;
                 material(script);
+            } else if (tk.tk == abstract_tk) {
+                recuperate = false;
+                abstract(script);
+            } else if (tk.tk == import_tk) {
+                recuperate = false;
+                importBlock(script);
             } else if (!recuperate) {
                 exceptions.push_back(ParseException(INVALID_TOKEN, tk.toRange()));
                 recuperate = true;
@@ -129,6 +137,70 @@ void OgreScriptLSP::Parser::parse() {
     }
 }
 
+// IMPORT STATEMENT
+void OgreScriptLSP::Parser::importBlock(MaterialScriptAst *scriptAst) {
+    auto *importAst = new ImportAst();
+
+    consumeToken(import_tk, "");
+
+    importAst->imported = getToken();
+    if (getToken().tk == asterisk_tk) {
+        nextToken();
+    } else {
+        consumeToken(identifier, NOT_VALID_IMPORT);
+    }
+
+    consumeToken(from_tk, NOT_VALID_IMPORT);
+
+    importAst->file = getToken();
+    consumeToken(string_literal, NOT_VALID_IMPORT, true);
+
+    scriptAst->imports.push_back(importAst);
+}
+
+// ABSTRACT STATEMENT
+void OgreScriptLSP::Parser::abstract(MaterialScriptAst *scriptAst) {
+    auto *abstract = new AbstractAst();
+
+    nextToken();
+    switch (getToken().tk) {
+        case material_tk: {
+            auto *scriptTmp = new MaterialScriptAst("");
+            material(scriptTmp);
+            abstract->body = scriptTmp->materials[0];
+            scriptTmp->materials.clear();
+            delete scriptTmp;
+            break;
+        }
+        case technique_tk: {
+            auto *materialTmp = new MaterialAst();
+            materialTechnique(materialTmp);
+            abstract->body = materialTmp->techniques[0];
+            materialTmp->techniques.clear();
+            delete materialTmp;
+            break;
+        }
+        case pass_tk: {
+            auto *techniqueTmp = new TechniqueAst();
+            materialPass(techniqueTmp);
+            abstract->body = techniqueTmp->passes[0];
+            techniqueTmp->passes.clear();
+            delete techniqueTmp;
+            break;
+        }
+        case texture_unit_tk: {
+            auto *passTmp = new PassAst();
+            materialTexture(passTmp);
+            abstract->body = passTmp->textures[0];
+            passTmp->textures.clear();
+            delete passTmp;
+            break;
+        }
+    }
+
+    scriptAst->abstracts.push_back(abstract);
+}
+
 // PROGRAM STATEMENT
 void OgreScriptLSP::Parser::program(MaterialScriptAst *scriptAst) {
     auto *program = new ProgramAst();
@@ -140,11 +212,8 @@ void OgreScriptLSP::Parser::program(MaterialScriptAst *scriptAst) {
     }
     nextToken();
 
-    if (getToken().tk != identifier) {
-        throw ParseException(PROGRAM_NAME_MISSION, getToken().toRange());
-    }
     program->name = getToken();
-    nextToken();
+    consumeToken(identifier, PROGRAM_NAME_MISSING);
 
     programOpt(program);
 
@@ -217,11 +286,7 @@ void OgreScriptLSP::Parser::material(OgreScriptLSP::MaterialScriptAst *scriptAst
     // consume material_tk token
     nextToken();
 
-    auto def = objectDefinition(MATERIAL_NAME_MISSION_ERROR, MATERIAL_INHERIT_ERROR);
-    material->name = def[0];
-    if (def.size() > 1) {
-        material->parent = def[1];
-    }
+    objectDefinition(material, MATERIAL_NAME_MISSION_ERROR, MATERIAL_INHERIT_ERROR);
 
     consumeOpenCurlyBracket();
 
@@ -257,7 +322,9 @@ void OgreScriptLSP::Parser::materialTechnique(OgreScriptLSP::MaterialAst *materi
     auto *technique = new TechniqueAst();
 
     // consume technique_tk token
-    nextTokenAndConsumeEndLines();
+    nextToken();
+
+    objectDefinition(technique, TECHNIQUE_NAME_MISSION_ERROR, TECHNIQUE_INHERIT_ERROR, true);
 
     consumeOpenCurlyBracket();
 
@@ -287,7 +354,9 @@ void OgreScriptLSP::Parser::materialPass(OgreScriptLSP::TechniqueAst *technique)
     auto *pass = new PassAst();
 
     // consume pass_tk token
-    nextTokenAndConsumeEndLines();
+    nextToken();
+
+    objectDefinition(pass, PASS_NAME_MISSION_ERROR, PASS_INHERIT_ERROR, true);
 
     materialPassName(pass);
 
@@ -307,14 +376,8 @@ void OgreScriptLSP::Parser::materialPassName(OgreScriptLSP::PassAst *pass) {
 
         if (getToken().tk == colon_tk) {
             nextToken();
-
-            auto tk = getToken();
-            if (tk.tk != identifier) {
-                throw ParseException(MATERIAL_PASS_INHERIT_ERROR, tk.toRange());
-            }
-
-            pass->parent = tk;
-            nextTokenAndConsumeEndLines();
+            pass->parent = getToken();
+            consumeToken(identifier, MATERIAL_PASS_INHERIT_ERROR, true);
         }
     } else if (getToken().tk == match_literal) {
         pass->name = getToken();
@@ -354,15 +417,9 @@ void OgreScriptLSP::Parser::materialTexture(OgreScriptLSP::PassAst *pass) {
     auto *texture = new TextureUnitAst();
 
     // consume texture_unit_tk token
-    nextTokenAndConsumeEndLines();
+    nextToken();
 
-    auto tk = getToken();
-    if (tk.tk == identifier) {
-        texture->name = tk;
-        nextTokenAndConsumeEndLines();
-    } else if (tk.tk != left_curly_bracket_tk) {
-        throw ParseException(MATERIAL_TEXTURE_NAME_MISSION_ERROR, tk.toRange());
-    }
+    objectDefinition(texture, TEXTURE_NAME_MISSION_ERROR, TEXTURE_INHERIT_ERROR, true);
 
     consumeOpenCurlyBracket();
 
@@ -402,7 +459,7 @@ void OgreScriptLSP::Parser::materialProgramRef(OgreScriptLSP::PassAst *pass) {
         programRef->name = tk;
         nextTokenAndConsumeEndLines();
     } else if (tk.tk != left_curly_bracket_tk) {
-        throw ParseException(MATERIAL_PROGRAM_NAME_MISSION_ERROR, tk.toRange());
+        throw ParseException(MATERIAL_PROGRAM_NAME_MISSING_ERROR, tk.toRange());
     }
 
     consumeOpenCurlyBracket();
@@ -466,42 +523,57 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Parser::getToken() {
     return tokens[currentToken];
 }
 
-std::vector<OgreScriptLSP::TokenValue>
-OgreScriptLSP::Parser::objectDefinition(std::string error1, std::string error2) {
-    std::vector<TokenValue> res;
+void OgreScriptLSP::Parser::objectDefinition(AstObject *astObject, std::string error1, std::string error2,
+                                             bool notTopLevelObject) {
 
-    if (getToken().tk != identifier) {
-        throw ParseException(std::move(error1), getToken().toRange());
+    if (notTopLevelObject) {
+        if (getToken().tk == left_curly_bracket_tk || getToken().tk == endl_tk) {
+            consumeEndLines();
+            return;
+        } else if (getToken().tk == match_literal) {
+            astObject->name = getToken();
+            nextTokenAndConsumeEndLines();
+            return;
+        }
     }
-    res.push_back(getToken());
-    nextToken();
+
+    if (!notTopLevelObject || getToken().tk != colon_tk) {
+        if (getToken().tk != identifier && getToken().tk != string_literal) {
+            throw ParseException(std::move(error1), getToken().toRange());
+        }
+        astObject->name = getToken();
+        nextToken();
+    }
 
     if (getToken().tk == colon_tk) {
         nextToken();
 
-        auto tk = getToken();
-        if (tk.tk != identifier) {
-            throw ParseException(std::move(error2), tk.toRange());
+        if (getToken().tk != identifier && getToken().tk != string_literal) {
+            throw ParseException(std::move(error2), getToken().toRange());
         }
-        res.push_back(getToken());
+        astObject->parent = getToken();
         nextToken();
     }
     consumeEndLines();
-    return res;
 }
 
 void OgreScriptLSP::Parser::consumeOpenCurlyBracket() {
-    if (getToken().tk != left_curly_bracket_tk) {
-        throw ParseException(CURLY_BRACKET_START_MISSING, getToken().toRange());
-    }
-    nextTokenAndConsumeEndLines();
+    consumeToken(left_curly_bracket_tk, CURLY_BRACKET_START_MISSING, true);
 }
 
 void OgreScriptLSP::Parser::consumeCloseCurlyBracket() {
-    if (getToken().tk != right_curly_bracket_tk) {
-        throw ParseException(CURLY_BRACKET_END_MISSING, getToken().toRange());
+    consumeToken(right_curly_bracket_tk, CURLY_BRACKET_END_MISSING, true);
+}
+
+void OgreScriptLSP::Parser::consumeToken(Token token, std::string errorMessage, bool consumeEndLines) {
+    if (getToken().tk != token) {
+        throw ParseException(std::move(errorMessage), getToken().toRange());
     }
-    nextTokenAndConsumeEndLines();
+    if (consumeEndLines) {
+        nextTokenAndConsumeEndLines();
+    } else {
+        nextToken();
+    }
 }
 
 void OgreScriptLSP::Parser::nextToken() {

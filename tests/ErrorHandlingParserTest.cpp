@@ -12,7 +12,7 @@ TEST (ParserTest, parse_ShouldFailWithErrorsAndRecuperate) {
 
     auto exceptions = parser->getExceptions();
     auto e = exceptions[0];
-    ASSERT_EQ(PROGRAM_NAME_MISSION, e.message);
+    ASSERT_EQ(PROGRAM_NAME_MISSING, e.message);
     ASSERT_EQ(1, e.range.start.line);
     ASSERT_EQ(17, e.range.start.character);
 

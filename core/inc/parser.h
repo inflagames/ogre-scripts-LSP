@@ -34,7 +34,7 @@ namespace OgreScriptLSP {
             return exceptions;
         }
 
-        void loadScript(const std::string &uri, const std::string& code = "");
+        void loadScript(const std::string &uri, const std::string &code = "");
 
         static std::string uriToPath(const std::string &uri);
 
@@ -43,6 +43,12 @@ namespace OgreScriptLSP {
         void parse();
 
         ResultBase *goToDefinition(Position position);
+
+        // IMPORT STATEMENT
+        void importBlock(MaterialScriptAst *scriptAst);
+
+        // ABSTRACT STATEMENT
+        void abstract(MaterialScriptAst *scriptAst);
 
         // PROGRAM STATEMENT
         void program(MaterialScriptAst *scriptAst);
@@ -92,6 +98,8 @@ namespace OgreScriptLSP {
 
         void consumeCloseCurlyBracket();
 
+        void consumeToken(Token token, std::string errorMessage, bool consumeEndLines = false);
+
         void nextToken();
 
         void consumeEndLines();
@@ -102,7 +110,7 @@ namespace OgreScriptLSP {
 
         bool isMainStructure();
 
-        std::vector<TokenValue> objectDefinition(std::string error1, std::string error2);
+        void objectDefinition(AstObject *astObject, std::string error1, std::string error2, bool notTopLevelObject = false);
     };
 }
 

@@ -83,10 +83,6 @@ definition_opt = <identifier> | <string_literal>
 
 ## ToDo
 
-- [ ] Update parse (language update)
-    - [ ] import block
-    - [ ] abstract block
-    - [ ] object_definition on each internal property
-- [ ] code diagnostic support
 - [ ] competition support
+- [ ] highlight support
 - [ ] include http client-server communication support

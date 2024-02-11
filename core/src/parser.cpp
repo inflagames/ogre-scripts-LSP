@@ -96,6 +96,7 @@ void OgreScriptLSP::Parser::abstract(MaterialScriptAst *scriptAst) {
     auto *abstract = new AbstractAst();
 
     nextToken();
+    abstract->type = getToken();
     switch (getToken().tk) {
         case material_tk: {
             auto *scriptTmp = new MaterialScriptAst("");

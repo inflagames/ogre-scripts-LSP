@@ -1,0 +1,37 @@
+abstract technique "this is a test" {
+}
+
+abstract material Game/BumpMapping/MultiLight/Rcv
+{
+    technique : "this is a test"
+    {
+        pass
+        {
+            scene_blend add
+
+			// texture shadow receiver program
+            vertex_program_ref Examples/BumpMapVPShadowRcv
+            {
+                param_named_auto lightPosition light_position_object_space 0
+                param_named_auto worldViewProj worldviewproj_matrix
+                param_named_auto worldMatrix world_matrix
+                param_named_auto texViewProj texture_viewproj_matrix
+            }
+			// Additive texture shadow receiver program
+            fragment_program_ref Examples/BumpMapFPShadowRcv
+            {
+                param_named_auto lightDiffuse light_diffuse_colour 0
+            }
+
+            texture_unit shadowmap
+            {
+                content_type shadow
+            }
+
+            texture_unit normalmap
+            {
+                texture normal_map.jpg
+            }
+        }
+    }
+}

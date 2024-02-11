@@ -178,7 +178,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeNumber(bool isFirstPeri
 OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeString(char stringDelimiter) {
     std::string literal;
     int line = lineCount;
-    int column = columnCount, rangeLength = 0;
+    int column = columnCount, rangeLength = 1;
     nextCharacter();
     while (!codeStream->eof()) {
         rangeLength++;

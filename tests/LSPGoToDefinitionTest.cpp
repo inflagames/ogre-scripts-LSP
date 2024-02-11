@@ -77,3 +77,8 @@ TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_sameMa
     validateGoTo({10, 29}, {{10, 15},
                             {10, 34}}, "file://./examples/lsp/goto_definition_program.material");
 }
+
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_techniqueDefinitionPosition) {
+    validateGoTo({0, 20}, {{0, 19},
+                            {0, 35}}, "file://./examples/lsp/goto_definition_technique.material");
+}

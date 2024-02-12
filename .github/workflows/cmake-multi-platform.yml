@@ -91,6 +91,7 @@ jobs:
             build_type: Release,
             c_compiler: gcc,
             cpp_compiler: g++,
+            artifact_bin: "ogre3d-scripts-lsp_linux",
             artifact: "ogre3d-scripts-lsp_linux.tar.xz"
           }
     #        os: [ ubuntu-latest ]
@@ -134,15 +135,15 @@ jobs:
         run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.config.build_type }}
       #        run: ./integration/build.sh ${{ matrix.build_type }}
 
-      - name: Install Strip
-        run: cmake --install ${{ steps.strings.outputs.build-output-dir }} --prefix instdir --strip
+#      - name: Install Strip
+#        run: cmake --install ${{ steps.strings.outputs.build-output-dir }} --prefix instdir --strip
 
-      - name: Pack
-        working-directory: instdir
-        run: cmake -E tar cJfv ../${{ matrix.config.artifact }} .
+#      - name: Pack
+#        working-directory: instdir
+#        run: cmake -E tar cJfv ../${{ matrix.config.artifact }} .
 
-      - name: Upload
+      - name: Upload bin
         uses: actions/upload-artifact@v1
         with:
-          path: ./${{ matrix.config.artifact }}
+          path: ${{ steps.strings.outputs.build-output-dir }}/ogre_scripts_LSP
           name: ${{ matrix.config.artifact }}

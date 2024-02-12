@@ -6,6 +6,34 @@
 
 using namespace OgreScriptLSP;
 
+/**
+ * @brief Validates the structure of an edit operation represented by a JSON object.
+ *
+ * This function validates the structure of an edit operation represented by a JSON object. It ensures that the JSON
+ * object contains the necessary fields and subfields expected for an edit operation, including "newText" for the edited
+ * content and "range" for specifying the range of text to be edited.
+ *
+ * @param it The JSON object representing the edit operation.
+ *
+ * @return void
+ *
+ * @remarks
+ *  - This function performs structural validation of the JSON object to ensure that it conforms to the expected format
+ *    for representing edit operations within the Language Server Protocol (LSP).
+ *  - It checks for the presence of key fields ("newText" and "range") as well as subfields ("line" and "character")
+ *    within the "start" and "end" objects under the "range" field.
+ *
+ * @dependencies
+ *  - This function relies on the nlohmann::json type for representing JSON objects and the ASSERT_TRUE macro for
+ *    performing assertion checks.
+ *
+ * @note
+ *  - Developers should ensure that the input JSON object accurately represents the edit operation being validated.
+ *  - This function is intended for use in testing scenarios to verify the correctness of edit operations generated
+ *    by language processing tools or components.
+ *  - It is recommended to handle potential exceptions or errors that may occur during JSON parsing or validation to
+ *    provide robust error handling mechanisms.
+ */
 void validateEdit(nlohmann::json it) {
     ASSERT_TRUE(it.contains("newText"));
     ASSERT_TRUE(it.contains("range"));

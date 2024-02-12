@@ -91,7 +91,7 @@ jobs:
             build_type: Release,
             c_compiler: gcc,
             cpp_compiler: g++,
-            bin: "ogre_scripts_LSP",
+            bin: "/ogre_scripts_LSP",
             artifact_bin: "ogre3d-scripts-lsp_linux",
             artifact: "ogre3d-scripts-lsp_linux.tar.xz"
           }
@@ -100,7 +100,7 @@ jobs:
             build_type: Release,
             c_compiler: cl,
             cpp_compiler: cl,
-            bin: "ogre_scripts_LSP.exe",
+            bin: "\Release\ogre_scripts_LSP.exe",
             artifact_bin: "ogre3d-scripts-lsp_windows",
             artifact: "ogre3d-scripts-lsp_windows.tar.xz"
           }
@@ -140,5 +140,5 @@ jobs:
       - name: Upload bin
         uses: actions/upload-artifact@v1
         with:
-          path: ${{ steps.strings.outputs.build-output-dir }}/${{ matrix.config.bin }}
+          path: ${{ steps.strings.outputs.build-output-dir }}${{ matrix.config.bin }}
           name: ${{ matrix.config.artifact_bin }}

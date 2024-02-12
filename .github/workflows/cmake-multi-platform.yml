@@ -70,7 +70,7 @@ jobs:
   #        run: ctest --build-config ${{ matrix.build_type }}
 
   release:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.config.os }}
     #    needs: [build]
 
     strategy:
@@ -85,21 +85,29 @@ jobs:
       # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       matrix:
         #        os: [ ubuntu-latest, windows-latest ]
-        os: [ ubuntu-latest ]
-        build_type: [ Release ]
-        c_compiler: [ gcc, cl ]
-        include:
-          #          - os: windows-latest
-          #            c_compiler: cl
-          #            cpp_compiler: cl
-          - os: ubuntu-latest
-            c_compiler: gcc
-            cpp_compiler: g++
-        exclude:
-          #          - os: windows-latest
-          #            c_compiler: gcc
-          - os: ubuntu-latest
-            c_compiler: cl
+        config:
+          - {
+            os: ubuntu-latest,
+            build_type: Release,
+            c_compiler: gcc,
+            cpp_compiler: g++,
+            artifact: "ogre3d-scripts-lsp_linux.tar.xz"
+          }
+    #        os: [ ubuntu-latest ]
+    #        build_type: [ Release ]
+    #        c_compiler: [ gcc, cl ]
+    #        include:
+    #          #          - os: windows-latest
+    #          #            c_compiler: cl
+    #          #            cpp_compiler: cl
+    #          - os: ubuntu-latest
+    #            c_compiler: gcc
+    #            cpp_compiler: g++
+    #        exclude:
+    #          #          - os: windows-latest
+    #          #            c_compiler: gcc
+    #          - os: ubuntu-latest
+    #            c_compiler: cl
 
     steps:
       - uses: actions/checkout@v3
@@ -116,23 +124,23 @@ jobs:
         # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
         run: >
           cmake -B ${{ steps.strings.outputs.build-output-dir }}
-          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.config.cpp_compiler }}
+          -DCMAKE_C_COMPILER=${{ matrix.config.c_compiler }}
+          -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }}
           -S ${{ github.workspace }}
 
       - name: Build
         # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
-#        run: ./integration/build.sh ${{ matrix.build_type }}
+        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.config.build_type }}
+      #        run: ./integration/build.sh ${{ matrix.build_type }}
 
       - name: Install Strip
         run: cmake --install ${{ steps.strings.outputs.build-output-dir }} --prefix instdir --strip
 
-#      - name: Pack
-#        working-directory: instdir
-#        run: ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake -E tar cJfv ../${{ matrix.config.artifact }} .
-#
+      - name: Pack
+        working-directory: instdir
+        run: cmake -E tar cJfv ../${{ matrix.config.artifact }} .
+
 #      - name: Upload
 #        uses: actions/upload-artifact@v1
 #        with:

@@ -91,24 +91,19 @@ jobs:
             build_type: Release,
             c_compiler: gcc,
             cpp_compiler: g++,
+            bin: "ogre_scripts_LSP",
             artifact_bin: "ogre3d-scripts-lsp_linux",
             artifact: "ogre3d-scripts-lsp_linux.tar.xz"
           }
-    #        os: [ ubuntu-latest ]
-    #        build_type: [ Release ]
-    #        c_compiler: [ gcc, cl ]
-    #        include:
-    #          #          - os: windows-latest
-    #          #            c_compiler: cl
-    #          #            cpp_compiler: cl
-    #          - os: ubuntu-latest
-    #            c_compiler: gcc
-    #            cpp_compiler: g++
-    #        exclude:
-    #          #          - os: windows-latest
-    #          #            c_compiler: gcc
-    #          - os: ubuntu-latest
-    #            c_compiler: cl
+          - {
+            os: windows-latest,
+            build_type: Release,
+            c_compiler: cl,
+            cpp_compiler: cl,
+            bin: "ogre_scripts_LSP.exe",
+            artifact_bin: "ogre3d-scripts-lsp_windows",
+            artifact: "ogre3d-scripts-lsp_windows.tar.xz"
+          }
 
     steps:
       - uses: actions/checkout@v3
@@ -135,15 +130,15 @@ jobs:
         run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.config.build_type }}
       #        run: ./integration/build.sh ${{ matrix.build_type }}
 
-#      - name: Install Strip
-#        run: cmake --install ${{ steps.strings.outputs.build-output-dir }} --prefix instdir --strip
+      #      - name: Install Strip
+      #        run: cmake --install ${{ steps.strings.outputs.build-output-dir }} --prefix instdir --strip
 
-#      - name: Pack
-#        working-directory: instdir
-#        run: cmake -E tar cJfv ../${{ matrix.config.artifact }} .
+      #      - name: Pack
+      #        working-directory: instdir
+      #        run: cmake -E tar cJfv ../${{ matrix.config.artifact }} .
 
       - name: Upload bin
         uses: actions/upload-artifact@v1
         with:
-          path: ${{ steps.strings.outputs.build-output-dir }}/ogre_scripts_LSP
-          name: ${{ matrix.config.artifact }}
+          path: ${{ steps.strings.outputs.build-output-dir }}/${{ matrix.config.bin }}
+          name: ${{ matrix.config.artifact_bin }}

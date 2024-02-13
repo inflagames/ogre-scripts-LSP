@@ -74,9 +74,12 @@ OgreScriptLSP::ResultArray *OgreScriptLSP::Formatter::formatting(Parser *parser,
     }
 
     // mainly for range formatting
-    res->elements.erase(std::remove_if(res->elements.begin(), res->elements.end(), [&range](const auto& e) {
-        return !range.inRange(e.range);
-    }), res->elements.end());
+    for (auto it = res->elements.begin(); it != res->elements.end(); it++) {
+        auto e = (TextEdit *) *it;
+        if (!range.inRange(e->range)) {
+            res->elements.erase(it);
+        }
+    }
 
     return res;
 }

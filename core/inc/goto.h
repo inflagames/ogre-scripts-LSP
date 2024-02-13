@@ -15,7 +15,7 @@ namespace OgreScriptLSP {
                                           Position position);
 
     private:
-        static std::optional<std::pair<int, std::string>> search(MaterialScriptAst *script, Position position);
+        static std::optional<std::pair<int, std::string>> search(const std::unique_ptr<OgreScriptLSP::MaterialScriptAst>& script, OgreScriptLSP::Position position);
 
         static std::optional<std::pair<int, std::string>> searchAbstract(AbstractAst *abstract, Position position);
 

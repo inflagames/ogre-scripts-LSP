@@ -10,9 +10,9 @@
 namespace OgreScriptLSP {
     class GoTo {
     public:
-        static ResultBase *goToDefinition(MaterialScriptAst *script,
-                                          std::map<std::pair<int, std::string>, TokenValue> declarations,
-                                          Position position);
+        static std::unique_ptr<OgreScriptLSP::ResultBase> goToDefinition(const std::unique_ptr<OgreScriptLSP::MaterialScriptAst>& script,
+                                                               std::unique_ptr<std::map<std::pair<int, std::string>, TokenValue>> declarations,
+                                                               Position position) ;
 
     private:
         static std::optional<std::pair<int, std::string>> search(const std::unique_ptr<OgreScriptLSP::MaterialScriptAst>& script, OgreScriptLSP::Position position);

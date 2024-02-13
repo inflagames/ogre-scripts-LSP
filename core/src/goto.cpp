@@ -1,17 +1,18 @@
 #include "../inc/goto.h"
 
-OgreScriptLSP::ResultBase *OgreScriptLSP::GoTo::goToDefinition(MaterialScriptAst *script,
-                                                               std::map<std::pair<int, std::string>, TokenValue> declarations,
-                                                               Position position) {
+std::unique_ptr<OgreScriptLSP::ResultBase> OgreScriptLSP::GoTo::goToDefinition(const std::unique_ptr<OgreScriptLSP::MaterialScriptAst>& script,
+                                                               std::unique_ptr<std::map<std::pair<int, std::string>, TokenValue>> declarations,
+                                                               const Position position) {
     auto el = search(script, position);
-    if (el.has_value() && declarations.contains(el.value())) {
-        return new Location(script->uri, declarations[el.value()].toRange());
+    if (el.has_value() && declarations->contains(el.value())) {
+        return std::make_unique<Location>(script->uri, declarations->at(el.value()).toRange());
     }
 
     // by default return same position range
     Range range = {{position.line, position.character},
                    {position.line, position.character}};
-    return new Location(script->uri, range);
+
+    return std::make_unique<Location>(script->uri, range);
 }
 
 std::optional<std::pair<int, std::string>>

@@ -540,7 +540,3 @@ void OgreScriptLSP::Parser::initSwap() {
 void OgreScriptLSP::Parser::registerDeclaration(OgreScriptLSP::AstObject *object, int type) {
     declarations[std::make_pair(type, object->name.literal)] = object->name;
 }
-
-const std::map<std::pair<int, std::string>, OgreScriptLSP::TokenValue> &OgreScriptLSP::Parser::getDeclarations() const {
-    return declarations;
-}

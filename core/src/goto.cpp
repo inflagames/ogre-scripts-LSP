@@ -1,39 +1,43 @@
 #include "../inc/goto.h"
 
-OgreScriptLSP::ResultBase *OgreScriptLSP::GoTo::goToDefinition(MaterialScriptAst *script,
-                                                               std::map<std::pair<int, std::string>, TokenValue> declarations,
-                                                               Position position) {
+std::unique_ptr<OgreScriptLSP::ResultBase> OgreScriptLSP::GoTo::goToDefinition(const std::unique_ptr<OgreScriptLSP::MaterialScriptAst>& script,
+                                                               std::unique_ptr<std::map<std::pair<int, std::string>, TokenValue>> declarations,
+                                                               const Position position) {
     auto el = search(script, position);
-    if (el.has_value() && declarations.contains(el.value())) {
-        return new Location(script->uri, declarations[el.value()].toRange());
+    if (el.has_value() && declarations->contains(el.value())) {
+        return std::make_unique<Location>(script->uri, declarations->at(el.value()).toRange());
     }
 
     // by default return same position range
     Range range = {{position.line, position.character},
                    {position.line, position.character}};
-    return new Location(script->uri, range);
+
+    return std::make_unique<Location>(script->uri, range);
 }
 
 std::optional<std::pair<int, std::string>>
-OgreScriptLSP::GoTo::search(OgreScriptLSP::MaterialScriptAst *script, OgreScriptLSP::Position position) {
-    for (auto m: script->materials) {
-        auto r = searchMaterial(m, position);
-        if (r.has_value()) {
-            return r;
-        }
+OgreScriptLSP::GoTo::search(const std::unique_ptr<OgreScriptLSP::MaterialScriptAst>& script, OgreScriptLSP::Position position) {
+    const auto materialIter = std::ranges::find_if(script->materials.begin(), script->materials.end(),
+            [&](const auto& m) { return searchMaterial(m, position).has_value(); });
+
+    if (materialIter != script->materials.end()) {
+        return searchMaterial(*materialIter, position);
     }
-    for (auto a: script->abstracts) {
-        auto r = searchAbstract(a, position);
-        if (r.has_value()) {
-            return r;
-        }
+
+    const auto abstractIter = std::ranges::find_if(script->abstracts.begin(), script->abstracts.end(),
+        [&](const auto& a) { return searchAbstract(a, position).has_value(); });
+
+    if (abstractIter != script->abstracts.end()) {
+        return searchAbstract(*abstractIter, position);
     }
-    for (auto p: script->programs) {
-        auto r = searchProgram(p, position);
-        if (r.has_value()) {
-            return r;
-        }
+
+    const auto programIter = std::ranges::find_if(script->programs.begin(), script->programs.end(),
+        [&](const auto& p) { return searchProgram(p, position).has_value(); });
+
+    if (programIter != script->programs.end()) {
+        return searchProgram(*programIter, position);
     }
+
     return std::nullopt;
 }
 

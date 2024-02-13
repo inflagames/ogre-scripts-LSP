@@ -11,7 +11,7 @@ namespace OgreScriptLSP {
         static ResultArray *formatting(Parser *parser, FormattingOptions options, Range range = {{0, 0},
                                                                           {INT32_MAX, INT32_MAX}});
 
-        static std::string repeatCharacter(char c, int times);
+        static std::string repeatCharacter(char c, std::size_t times);
     };
 }
 

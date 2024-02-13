@@ -29,39 +29,26 @@ OgreScriptLSP::ResultArray *OgreScriptLSP::Formatter::formatting(Parser *parser,
             level--;
         }
 
-        int position;
-
-        if (!firstInLine) {
-            // toDo (gonzalezext)[28.01.24]: calculate separation base on the tokens
-            if (tk.tk == endl_tk) {
-                position = previousTokenPosition;
-            } else {
-                position = previousTokenPosition + 1;
-            }
-        }
+        // Calculate position based on the tokens
+        int position = (tk.tk == endl_tk) ? previousTokenPosition : previousTokenPosition + 1;
 
         if (firstInLine) {
             if (tk.tk != endl_tk) {
-                std::string nexText;
-                if (options.insertSpaces) {
-                    nexText = repeatCharacter(' ', level * (int) options.tabSize);
-                } else {
-                    nexText = repeatCharacter('\t', level);
-                }
-                res->elements.push_back(new TextEdit({tk.line, previousTokenPosition},
-                                                     {tk.line, tk.column},
+                std::string nexText = (options.insertSpaces) ? repeatCharacter(' ', level * static_cast<int>(options.tabSize)) : repeatCharacter('\t', level);
+
+                res->elements.emplace_back(new TextEdit({tk.line, previousTokenPosition},{tk.line, tk.column},
                                                      nexText));
             }
         } else {
             if (tk.column > position) {
-                res->elements.push_back(new TextEdit({tk.line, position},
-                                                     {tk.line, tk.column},
-                                                     ""));
+                // If the current token's column is greater than the expected position,
+                // add an empty TextEdit to compensate for the missing content
+                res->elements.emplace_back(new TextEdit({tk.line, position}, {tk.line, tk.column}, ""));
             } else if (tk.column < position) {
+                // If the current token's column is less than the expected position,
+                // calculate the necessary indentation and add it as nexText
                 std::string nexText = repeatCharacter(' ', position - tk.column);
-                res->elements.push_back(new TextEdit({tk.line, previousTokenPosition},
-                                                     {tk.line, previousTokenPosition},
-                                                     nexText));
+                res->elements.emplace_back(new TextEdit({tk.line, previousTokenPosition}, {tk.line, previousTokenPosition}, nexText));
             }
         }
 
@@ -81,7 +68,7 @@ OgreScriptLSP::ResultArray *OgreScriptLSP::Formatter::formatting(Parser *parser,
 
     // add end line
     if (options.insertFinalNewline && lastToken.tk != endl_tk) {
-        res->elements.push_back(new TextEdit({lastToken.line, lastToken.column + lastToken.size},
+        res->elements.emplace_back(new TextEdit({lastToken.line, lastToken.column + lastToken.size},
                                              {lastToken.line, lastToken.column + lastToken.size},
                                              "\n"));
     }
@@ -97,10 +84,6 @@ OgreScriptLSP::ResultArray *OgreScriptLSP::Formatter::formatting(Parser *parser,
     return res;
 }
 
-std::string OgreScriptLSP::Formatter::repeatCharacter(char c, int times) {
-    std::string text;
-    for (int i = 0; i < times; i++) {
-        text.push_back(c);
-    }
-    return text;
+std::string OgreScriptLSP::Formatter::repeatCharacter(char c, const std::size_t times) {
+    return std::string(times, c);
 }

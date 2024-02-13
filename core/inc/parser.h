@@ -6,6 +6,7 @@
 #include "exceptions.h"
 #include "lsp_protocol.h"
 #include "goto.h"
+#include <memory>
 
 #define MATERIAL_BLOCK 1
 #define PROGRAM_VERTEX_BLOCK 2
@@ -34,11 +35,12 @@ namespace OgreScriptLSP {
 
         ~Parser();
 
-        MaterialScriptAst *getScript() {
-            return script;
-        }
+        std::unique_ptr<MaterialScriptAst> getScript() { return std::unique_ptr<MaterialScriptAst>(script); }
 
-        [[nodiscard]] const std::map<std::pair<int, std::string>, TokenValue> &getDeclarations() const;
+        [[nodiscard]] std::unique_ptr<std::map<std::pair<int, std::string>, TokenValue>> getDeclarations() const {
+            auto decl = std::make_unique<std::map<std::pair<int, std::string>, TokenValue>>(declarations);
+            return decl;
+        }
 
         std::vector<BaseException> getExceptions() {
             return exceptions;

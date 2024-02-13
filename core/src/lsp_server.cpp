@@ -104,11 +104,9 @@ void OgreScriptLSP::LspServer::goToDefinition(RequestMessage *rm, std::ostream &
     try {
         DefinitionParams *definitionParams = ((DefinitionParams *) rm->params);
         auto parser = getParserByUri(definitionParams->textDocument.uri);
-        auto *res = OgreScriptLSP::GoTo::goToDefinition(parser->getScript(),
-                                                        parser->getDeclarations(),
-                                                        definitionParams->position);
+        auto res = OgreScriptLSP::GoTo::goToDefinition(parser->getScript(), parser->getDeclarations(), definitionParams->position);
 
-        ResponseMessage re = newResponseMessage(rm->id, res);
+        ResponseMessage re = newResponseMessage(rm->id, res.get());
         sendResponse(nlohmann::to_string(re.toJson()), oos);
     } catch (...) {
         // toDo (gonzalezext)[03.02.24]: send fail to client

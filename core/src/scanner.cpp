@@ -79,8 +79,14 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
                 if (isInvalidMatchDigit(ch)) {
                     return tk;
                 }
-                auto res = consumeMatch();
-                return {match_literal, res.literal};
+                try {
+                    auto res = consumeMatch();
+                    return {match_literal, res.literal};
+                } catch (ScannerException &e) {
+                    exceptions.push_back(e);
+                    recuperateError();
+                    continue;
+                }
             }
             case '-':
             case '.': {

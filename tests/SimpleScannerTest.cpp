@@ -23,6 +23,14 @@ TEST (ScannerTest, scanner_ShouldOpenScriptFileAndLoadTokens) {
     scanner->parse();
 }
 
+TEST (ScannerTest, scanner_ShouldReadCorrectlyTheListFromProdIssueWithMatchLiteralException) {
+    auto *scanner = new OgreScriptLSP::Scanner();
+    scanner->loadScript("./examples/scanner/bad_tokens.material");
+
+    std::vector<OgreScriptLSP::TokenValue> result = scanner->parse();
+    ASSERT_EQ(54, result.size());
+}
+
 TEST (ScannerTest, scanner_ShouldReadCorrectlyTheListOfTokens) {
     auto *scanner = new OgreScriptLSP::Scanner();
     scanner->loadScript("./examples/scanner/simple_token_validation.material");

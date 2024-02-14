@@ -27,5 +27,5 @@ TEST (LSPProdErrorsReproductionTest, shouldExecuteWithoutErrors) {
 
     std::cout << outMock.str() << std::endl;
 
-    ASSERT_EQ(4, test_utils::countJson(outMock.str()));
+    ASSERT_EQ(5, test_utils::countJson(outMock.str()));
 }

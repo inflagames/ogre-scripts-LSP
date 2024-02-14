@@ -28,7 +28,8 @@ TEST (ScannerTest, scanner_ShouldReadCorrectlyTheListFromProdIssueWithMatchLiter
     scanner->loadScript("./examples/scanner/bad_tokens.material");
 
     std::vector<OgreScriptLSP::TokenValue> result = scanner->parse();
-    ASSERT_EQ(54, result.size());
+    ASSERT_EQ(7, result.size());
+    ASSERT_EQ(1, scanner->exceptions.size());
 }
 
 TEST (ScannerTest, scanner_ShouldReadCorrectlyTheListOfTokens) {

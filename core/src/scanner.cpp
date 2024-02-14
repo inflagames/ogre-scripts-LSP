@@ -280,7 +280,7 @@ bool OgreScriptLSP::Scanner::validLiteral(char c, bool startCharacter) {
 
 void OgreScriptLSP::Scanner::recuperateError(const std::string &error) {
     int rangeLength = 0;
-    while (ch != ' ' || ch != '\t' || ch != '\n' || ch != '\f' || ch != '\v' || ch != '\r') {
+    while (ch != ' ' && ch != '\t' && ch != '\n' && ch != '\f' && ch != '\v' && ch != '\r') {
         rangeLength++;
         if (!nextCharacter()) {
             break;

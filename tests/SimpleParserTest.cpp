@@ -14,8 +14,20 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly) {
     ASSERT_EQ(4, parser->getScript()->materials.size());
     ASSERT_EQ(4, parser->getScript()->abstracts.size());
     ASSERT_EQ(1, parser->getScript()->imports.size());
+}
 
-    ASSERT_EQ(0, parser->getExceptions().size());
+TEST (ParserTest, parse_ShouldParseFileCorrectly_withBadTokens) {
+    auto *parser = new OgreScriptLSP::Parser();
+    std::string scriptFile = "./examples/scanner/bad_tokens.material";
+    parser->loadScript(scriptFile);
+
+    parser->parse();
+
+    ASSERT_EQ(1, parser->getExceptions().size());
+    ASSERT_EQ(0, parser->getScript()->programs.size());
+    ASSERT_EQ(1, parser->getScript()->materials.size());
+    ASSERT_EQ(0, parser->getScript()->abstracts.size());
+    ASSERT_EQ(0, parser->getScript()->imports.size());
 }
 
 TEST (ParserTest, parse_ShouldCreateAstForFragmentDeclaration) {

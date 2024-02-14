@@ -45,6 +45,25 @@ void validateEdit(nlohmann::json it) {
     ASSERT_TRUE(it.at("range").at("end").contains("character"));
 }
 
+std::vector<edit > extractRanges(nlohmann::json j) {
+    std::vector<edit > edits;
+    for (auto it: j) {
+        validateEdit(it);
+
+        range r = {
+                {
+                        it.at("range").at("start").at("line").template get<int>(),
+                        it.at("range").at("start").at("character").template get<int>()
+                },
+                {
+                        it.at("range").at("end").at("line").template get<int>(),
+                        it.at("range").at("end").at("character").template get<int>()
+                }};
+        edits.emplace_back(r, it.at("newText").template get<std::string>());
+    }
+    return edits;
+}
+
 TEST (LSPFormattingTest, formattingFile_ShouldFormatTheFile_basicFormatting) {
     auto *lsp = new LspServer();
     // initialize request
@@ -75,22 +94,7 @@ TEST (LSPFormattingTest, formattingFile_ShouldFormatTheFile_basicFormatting) {
     ASSERT_TRUE(j.contains("result"));
     ASSERT_TRUE(j.at("result").is_array());
 
-    std::vector<edit > edits;
-    for (auto it: j.at("result")) {
-        validateEdit(it);
-
-        range r = {
-                {
-                        it.at("range").at("start").at("line").template get<int>(),
-                        it.at("range").at("start").at("character").template get<int>()
-                },
-                {
-                        it.at("range").at("end").at("line").template get<int>(),
-                        it.at("range").at("end").at("character").template get<int>()
-                }};
-        edits.emplace_back(r, it.at("newText").template get<std::string>());
-    }
-
+    std::vector<edit > edits = extractRanges(j.at("result"));
     std::string resultText = test_utils::applyModifications(initialCode, edits);
 
 //    std::cout << "----------------" << std::endl;
@@ -136,22 +140,7 @@ TEST (LSPFormattingTest, formattingFile_ShouldFormatTheFile_withTabSizeOf4Spaces
     ASSERT_TRUE(j.contains("result"));
     ASSERT_TRUE(j.at("result").is_array());
 
-    std::vector<edit > edits;
-    for (auto it: j.at("result")) {
-        validateEdit(it);
-
-        range r = {
-                {
-                        it.at("range").at("start").at("line").template get<int>(),
-                        it.at("range").at("start").at("character").template get<int>()
-                },
-                {
-                        it.at("range").at("end").at("line").template get<int>(),
-                        it.at("range").at("end").at("character").template get<int>()
-                }};
-        edits.emplace_back(r, it.at("newText").template get<std::string>());
-    }
-
+    std::vector<edit > edits = extractRanges(j.at("result"));
     std::string resultText = test_utils::applyModifications(initialCode, edits);
 
 //    std::cout << "----------------" << std::endl;
@@ -191,22 +180,7 @@ TEST (LSPFormattingTest, formattingFile_ShouldFormatWithFinalNewLine) {
     ASSERT_TRUE(j.contains("result"));
     ASSERT_TRUE(j.at("result").is_array());
 
-    std::vector<edit > edits;
-    for (auto it: j.at("result")) {
-        validateEdit(it);
-
-        range r = {
-                {
-                        it.at("range").at("start").at("line").template get<int>(),
-                        it.at("range").at("start").at("character").template get<int>()
-                },
-                {
-                        it.at("range").at("end").at("line").template get<int>(),
-                        it.at("range").at("end").at("character").template get<int>()
-                }};
-        edits.emplace_back(r, it.at("newText").template get<std::string>());
-    }
-
+    std::vector<edit > edits = extractRanges(j.at("result"));
     std::string resultText = test_utils::applyModifications(initialCode, edits);
 
 //    std::cout << "----------------" << std::endl;
@@ -215,6 +189,7 @@ TEST (LSPFormattingTest, formattingFile_ShouldFormatWithFinalNewLine) {
 
     ASSERT_EQ(resultCode, resultText);
 }
+
 TEST (LSPFormattingTest, formattingFile_ShouldFormatTheFile_withoutEndLine) {
     auto *lsp = new LspServer();
     // initialize request
@@ -245,22 +220,7 @@ TEST (LSPFormattingTest, formattingFile_ShouldFormatTheFile_withoutEndLine) {
     ASSERT_TRUE(j.contains("result"));
     ASSERT_TRUE(j.at("result").is_array());
 
-    std::vector<edit > edits;
-    for (auto it: j.at("result")) {
-        validateEdit(it);
-
-        range r = {
-                {
-                        it.at("range").at("start").at("line").template get<int>(),
-                        it.at("range").at("start").at("character").template get<int>()
-                },
-                {
-                        it.at("range").at("end").at("line").template get<int>(),
-                        it.at("range").at("end").at("character").template get<int>()
-                }};
-        edits.emplace_back(r, it.at("newText").template get<std::string>());
-    }
-
+    std::vector<edit > edits = extractRanges(j.at("result"));
     std::string resultText = test_utils::applyModifications(initialCode, edits);
 
 //    std::cout << "----------------" << std::endl;
@@ -268,4 +228,44 @@ TEST (LSPFormattingTest, formattingFile_ShouldFormatTheFile_withoutEndLine) {
 //    std::cout << "----------------" << std::endl;
 
     ASSERT_EQ(resultCode, resultText);
+}
+
+TEST (LSPFormattingTest, formattingFile_ShouldFormatTheFile_withBadToken) {
+    auto *lsp = new LspServer();
+    // initialize request
+    std::string inputData = test_utils::getMessageStr(
+            R"({"jsonrpc": "2.0", "id": 1234, "method": "initialize", "params": {"processId": 31, "clientInfo": {"name": "client-name"}, "rootUri": "/some/that", "capabilities": {}}})");
+    // initialized notification
+    inputData += test_utils::getMessageStr(R"({"jsonrpc": "2.0", "id": 456, "method": "initialized", "params": {}})");
+    // formatting request
+    inputData += test_utils::getMessageStr(
+            R"({"jsonrpc": "2.0", "id": 500, "method": "textDocument/formatting", "params": {"textDocument": {"uri": "file://./examples/scanner/bad_tokens.material"},"options": {"tabSize": 2, "insertSpaces": true, "insertFinalNewline": true}}})");
+    // exit request
+    inputData += test_utils::getMessageStr(R"({"jsonrpc": "2.0", "id": 7345, "method": "exit"})");
+
+    // read file
+    std::string initialCode = test_utils::readFile("./examples/scanner/bad_tokens.material");
+    std::string expectedCode = test_utils::readFile("./examples/lsp/formatting_bad_tokens.material");
+
+    // system in/out mocks
+    std::istringstream inMock(inputData);
+    std::ostringstream outMock;
+
+    lsp->runServer(outMock, inMock);
+
+    nlohmann::json j = nlohmann::json::parse(test_utils::extractJson(outMock.str(), 2));
+    std::cout << nlohmann::to_string(j) << std::endl;
+
+    ASSERT_TRUE(j.contains("id"));
+    ASSERT_TRUE(j.contains("result"));
+    ASSERT_TRUE(j.at("result").is_array());
+
+    std::vector<edit > edits = extractRanges(j.at("result"));
+    std::string resultCode = test_utils::applyModifications(initialCode, edits);
+
+//    std::cout << "----------------" << std::endl;
+//    std::cout << resultCode << std::endl;
+//    std::cout << "----------------" << std::endl;
+
+    ASSERT_EQ(expectedCode, resultCode);
 }

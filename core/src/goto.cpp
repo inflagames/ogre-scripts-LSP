@@ -1,6 +1,6 @@
 #include "../inc/goto.h"
 
-std::unique_ptr<OgreScriptLSP::ResultBase> OgreScriptLSP::GoTo::goToDefinition(const std::unique_ptr<OgreScriptLSP::MaterialScriptAst>& script,
+std::unique_ptr<OgreScriptLSP::ResultBase> OgreScriptLSP::GoTo::goToDefinition(OgreScriptLSP::MaterialScriptAst *script,
                                                                std::unique_ptr<std::map<std::pair<int, std::string>, TokenValue>> declarations,
                                                                const Position position) {
     auto el = search(script, position);
@@ -16,7 +16,7 @@ std::unique_ptr<OgreScriptLSP::ResultBase> OgreScriptLSP::GoTo::goToDefinition(c
 }
 
 std::optional<std::pair<int, std::string>>
-OgreScriptLSP::GoTo::search(const std::unique_ptr<OgreScriptLSP::MaterialScriptAst>& script, OgreScriptLSP::Position position) {
+OgreScriptLSP::GoTo::search(OgreScriptLSP::MaterialScriptAst* script, OgreScriptLSP::Position position) {
     const auto materialIter = std::ranges::find_if(script->materials.begin(), script->materials.end(),
             [&](const auto& m) { return searchMaterial(m, position).has_value(); });
 

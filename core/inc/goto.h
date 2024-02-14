@@ -22,9 +22,10 @@ namespace OgreScriptLSP {
          * It returns a pointer to the result of the search, which contains relevant information about the found definition.
          * If no definition is found at the given position, the returned pointer is null.
          */
-        static std::unique_ptr<OgreScriptLSP::ResultBase> goToDefinition(const std::unique_ptr<OgreScriptLSP::MaterialScriptAst>& script,
-                                                               std::unique_ptr<std::map<std::pair<int, std::string>, TokenValue>> declarations,
-                                                               Position position) ;
+        static std::unique_ptr<OgreScriptLSP::ResultBase>
+        goToDefinition(OgreScriptLSP::MaterialScriptAst *script,
+                       std::unique_ptr<std::map<std::pair<int, std::string>, TokenValue>> declarations,
+                       Position position);
 
     private:
         /**
@@ -38,7 +39,8 @@ namespace OgreScriptLSP {
          * It returns an optional pair containing the line number and token string found at the position, if any.
          * If no token is found at the given position, an empty optional is returned.
          */
-        static std::optional<std::pair<int, std::string>> search(const std::unique_ptr<OgreScriptLSP::MaterialScriptAst>& script, OgreScriptLSP::Position position);
+        static std::optional<std::pair<int, std::string>>
+        search(OgreScriptLSP::MaterialScriptAst *script, OgreScriptLSP::Position position);
 
         /**
          * @brief Searches for a token at the given position in an abstract syntax tree (AST).
@@ -129,7 +131,8 @@ namespace OgreScriptLSP {
          * It returns an optional pair containing the line number and token string found at the position, if any.
          * If no token is found at the given position, an empty optional is returned.
          */
-        static std::optional<std::pair<int, std::string>> searchProgramRef(MaterialProgramAst *programRef, Position position);
+        static std::optional<std::pair<int, std::string>>
+        searchProgramRef(MaterialProgramAst *programRef, Position position);
 
         /**
          * @brief Searches for a token at the given position in an abstract syntax tree (AST) object of a specified type.
@@ -143,7 +146,8 @@ namespace OgreScriptLSP {
          * It returns an optional pair containing the line number and token string found at the position, if any.
          * If no token is found at the given position, an empty optional is returned.
          */
-        static std::optional<std::pair<int, std::string>> searchInObject(AstObject *object, Position position, int type);
+        static std::optional<std::pair<int, std::string>>
+        searchInObject(AstObject *object, Position position, int type);
     };
 }
 

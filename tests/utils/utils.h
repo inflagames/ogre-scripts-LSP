@@ -15,7 +15,7 @@
 #define edit std::pair<range, std::string>
 
 #define WAITING_DATA (-2)
-#define TIMEOUT_MS 10000 // 10 seconds
+#define TIMEOUT_MS 2000 // 2 seconds
 
 /**
  * Only for testing support
@@ -64,7 +64,6 @@ namespace test_utils {
         }
     }
 
-
     /**
      * @brief Extracts a JSON object or array from the provided text at the specified position.
      *
@@ -95,6 +94,8 @@ namespace test_utils {
      *    robust error handling.
      */
     std::string extractJson(std::string_view text, std::size_t jsonIt = 1);
+
+    int countJson(std::string_view text);
 
     /**
      * @brief Obtains the current time in milliseconds since the epoch.

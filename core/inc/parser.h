@@ -35,7 +35,7 @@ namespace OgreScriptLSP {
 
         ~Parser();
 
-        std::unique_ptr<MaterialScriptAst> getScript() { return std::unique_ptr<MaterialScriptAst>(script); }
+        MaterialScriptAst *getScript() { return script; }
 
         [[nodiscard]] std::unique_ptr<std::map<std::pair<int, std::string>, TokenValue>> getDeclarations() const {
             auto decl = std::make_unique<std::map<std::pair<int, std::string>, TokenValue>>(declarations);

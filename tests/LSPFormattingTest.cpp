@@ -107,6 +107,12 @@ TEST (LSPFormattingTest, formattingFile_ShouldFormatTheFile_withTabSizeOf4Spaces
             R"({"jsonrpc": "2.0", "id": 1234, "method": "initialize", "params": {"processId": 31, "clientInfo": {"name": "client-name"}, "rootUri": "/some/that", "capabilities": {}}})");
     // initialized notification
     inputData += test_utils::getMessageStr(R"({"jsonrpc": "2.0", "id": 456, "method": "initialized", "params": {}})");
+    // open request before formatting
+    std::string fileToOpen = test_utils::readFile("./examples/lsp/formatting_programs.material", true);
+    inputData += test_utils::getMessageStr(
+            "{\"jsonrpc\": \"2.0\", \"id\": 500, \"method\": \"textDocument/didOpen\", \"params\": {\"textDocument\": {\"uri\": \"file://./examples/lsp/formatting_programs.material\", \"text\": \"" +
+            fileToOpen + "\"}}}"
+    );
     // formatting request
     inputData += test_utils::getMessageStr(
             R"({"jsonrpc": "2.0", "id": 500, "method": "textDocument/formatting", "params": {"textDocument": {"uri": "file://./examples/lsp/formatting_programs.material"},"options": {"tabSize": 4, "insertSpaces": true}}})");
@@ -123,7 +129,7 @@ TEST (LSPFormattingTest, formattingFile_ShouldFormatTheFile_withTabSizeOf4Spaces
 
     lsp->runServer(outMock, inMock);
 
-    nlohmann::json j = nlohmann::json::parse(test_utils::extractJson(outMock.str(), 2));
+    nlohmann::json j = nlohmann::json::parse(test_utils::extractJson(outMock.str(), 3));
     std::cout << nlohmann::to_string(j) << std::endl;
 
     ASSERT_TRUE(j.contains("id"));

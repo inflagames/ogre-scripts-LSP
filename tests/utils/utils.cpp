@@ -16,6 +16,11 @@ std::string test_utils::extractJson(const std::string_view text, std::size_t jso
         char startChar = findStartChar(text, pos);
         char endChar = (startChar == '{') ? '}' : ']';
 
+        if (pos >= text.size()) {
+            // json not found
+            return "";
+        }
+
         std::size_t count = 0;
         std::size_t initialCapacity = text.size() - pos; // Estimate initial capacity
         res.reserve(initialCapacity);
@@ -74,19 +79,23 @@ bool test_utils::inRange(const range &a, const range &b) {
 }
 
 std::size_t test_utils::positionInText(const std::string_view text, const position pos) {
-    std::size_t line = 0, character = 0;
-    for (const char c : text) {
-        const bool is_newline = (c == '\n');
-
-        // Increment the line if a line break is found and we are before the target position
-        line += (line < pos.first && is_newline);
-
-        // Increment character if it is not a line break and we are before the target position
-        character += (!is_newline && character < pos.second);
-
-        // If we reach the target position, return the current position
-        if (line == pos.first && character == pos.second)
-            return &c - text.data();
+    int line = 0, character = 0;
+    for (int i = 0; i < text.size(); i++) {
+        if (line < pos.first) {
+            if (text[i] == '\n') {
+                line++;
+            }
+        } else if (character < pos.second) {
+            if (text[i] == '\n') {
+                break;
+            }
+            character++;
+        } else if (line == pos.first && character == pos.second) {
+            return i;
+        }
+    }
+    if (line == pos.first && character == pos.second) {
+        return (int) text.size();
     }
 
     // If the position was not found, throw an exception
@@ -104,10 +113,20 @@ std::string test_utils::readFile(const std::string_view filePath, const bool pre
     std::string fileContent;
     char c;
     while (file.get(c)) {
-        fileContent.push_back((c == '\"' && prepareForSend) ? '\\' : c);
-        if (prepareForSend && (c == '\n' || c == '\t')) {
-            fileContent.push_back((c == '\n') ? 'n' : 't');
+        if (prepareForSend) {
+            if (c == '\"' || c == '\n') {
+                fileContent.push_back('\\');
+            }
+            if (c == '\n') {
+                fileContent.push_back('n');
+                continue;
+            }
+            if (c == '\t') {
+                fileContent.push_back('t');
+                continue;
+            }
         }
+        fileContent.push_back(c);
     }
     file.close();
 
@@ -126,4 +145,12 @@ std::string test_utils::getMessageStr(const std::string_view data) {
 uint64_t test_utils::getTimeNow() {
     auto now = std::chrono::system_clock::now();
     return std::chrono::time_point_cast<std::chrono::milliseconds>(now).time_since_epoch().count();
+}
+
+int test_utils::countJson(std::string_view text) {
+    int c = 1;
+    while (!extractJson(text, c).empty()) {
+        c++;
+    }
+    return c - 1;
 }

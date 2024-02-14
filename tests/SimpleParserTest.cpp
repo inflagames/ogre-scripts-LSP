@@ -25,7 +25,7 @@ TEST (ParserTest, parse_ShouldCreateAstForFragmentDeclaration) {
 
     parser->parse();
 
-    OgreScriptLSP::MaterialScriptAst *s = parser->getScript().get();
+    OgreScriptLSP::MaterialScriptAst *s = parser->getScript();
     ASSERT_TRUE(s != nullptr);
     ASSERT_EQ(2, s->programs.size());
 
@@ -47,7 +47,7 @@ TEST (ParserTest, parse_ShouldCreateAstForMaterialDeclaration) {
 
     parser->parse();
 
-    OgreScriptLSP::MaterialScriptAst *s = parser->getScript().get();
+    OgreScriptLSP::MaterialScriptAst *s = parser->getScript();
     ASSERT_TRUE(s != nullptr);
     ASSERT_EQ(2, s->materials.size());
 

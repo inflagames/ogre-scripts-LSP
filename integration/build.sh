@@ -30,4 +30,6 @@ else
   # Generate executable
   make
 
+  sudo cp ogre_scripts_LSP /usr/local/bin/ogre_scripts_LSP
+
 fi

@@ -132,11 +132,11 @@ void waitForSize(LspServer *lsp, int sizeValue) {
  *    where strict timing accuracy is crucial.
  */
 void sleepOS(size_t milliseconds) {
-    #ifdef _WIN32
-        Sleep(milliseconds);
-    #else
-        sleep(milliseconds / 1000);
-    #endif
+#ifdef _WIN32
+    Sleep(milliseconds);
+#else
+    sleep(milliseconds / 1000);
+#endif
 }
 
 TEST (LSPSyncTest, clientSync_LspServerShouldOpenCloseChangeFiles_validateLspAfterEachSync) {
@@ -193,7 +193,8 @@ TEST (LSPSyncTest, clientSync_LspServerShouldOpenCloseChangeFiles_validateLspAft
 /**
  * This test is replicating a bug from the integration with JetBrains plugin
  */
-TEST (LSPSyncTest, clientSync_CoverServerCrashIssueInServer_validateBug) {
+TEST (LSPSyncTest, clientSync_ShouldReceiveDiagnostic) {
+    GTEST_SKIP();
     auto *lsp = new LspServer();
     // initialize request
     std::string inputData = test_utils::getMessageStr(
@@ -217,7 +218,60 @@ TEST (LSPSyncTest, clientSync_CoverServerCrashIssueInServer_validateBug) {
     // run server on thread
     std::thread runServerThread(runServer, std::ref(lsp), std::ref(outMock), std::ref(inMock));
 
-    // with the formatting, the parser map should be updated
+    // with the didOpen, the parser map should be updated
+    waitForSize(lsp, 1);
+
+    // send updated file
+    stringstreambuf->appendStr(test_utils::getMessageStr(
+            R"({"jsonrpc": "2.0", "id": 98, "method": "textDocument/didChange", "params": {"textDocument": {"uri": "file://./examples/lsp/formatting_programs_basic.material"}, "contentChanges": [{"text": "fragment_program Game/Floor/ShaderFp glsl glsles {\n    source FloorFp.glsl\n}\n\nmaterial something {\n    technique {\n        pass {\n        }\n    }\n}\n\n\nmaterial kk : something {\n\n}\n\nvertex_program Game/Floor/ShaderVp glsl {\n    source FloorVp.glsl\n\n    default_params {\n        // assign samplers as required by GLSL\n        param_named normalMap int 0\n    }\n}\n"}]}})"
+    ));
+    while (stringstreambuf->currentChar() != WAITING_DATA);
+    ASSERT_TRUE(lsp->running);
+
+    // send updated file
+    stringstreambuf->appendStr(test_utils::getMessageStr(
+            R"({"jsonrpc": "2.0", "id": 98, "method": "textDocument/didChange", "params": {"textDocument": {"uri": "file://./examples/lsp/formatting_programs_basic.material"}, "contentChanges": [{"text": "fragment_program Game/Floor/ShaderFp glsl glsles {\n    source FloorFp.glsl\n}\n\nmaterial something {\n    technique {\n        pass {\n        }\n    }\n}\n\n\nmaterial kk : something {j\n\n}\n\nvertex_program Game/Floor/ShaderVp glsl {\n    source FloorVp.glsl\n\n    default_params {\n        // assign samplers as required by GLSL\n        param_named normalMap int 0\n    }\n}\n"}]}})"
+    ));
+    while (stringstreambuf->currentChar() != WAITING_DATA);
+    sleepOS(1);// sleep for a second
+    ASSERT_TRUE(lsp->running);// at this point the server crash
+
+    // exit request
+    stringstreambuf->appendStr(test_utils::getMessageStr(R"({"jsonrpc": "2.0", "id": 7345, "method": "exit"})"));
+    stringstreambuf->setEof();
+
+    // wait for thread
+    runServerThread.join();
+}
+
+/**
+ * This test is replicating a bug from the integration with JetBrains plugin
+ */
+TEST (LSPSyncTest, clientSync_CoverServerCrashIssueInServer_validateBug) {
+    auto *lsp = new LspServer();
+    // initialize request
+    std::string inputData = test_utils::getMessageStr(
+            R"({"jsonrpc": "2.0", "id": 1234, "method": "initialize", "params": {"processId": 31, "clientInfo": {"name": "client-name"}, "rootUri": "/some/that", "capabilities": {}}})");
+    // initialized notification
+    inputData += test_utils::getMessageStr(R"({"jsonrpc": "2.0", "id": 456, "method": "initialized", "params": {}})");
+    // open request
+    std::string fileToOpen = test_utils::readFile("./examples/lsp/formatting_programs_basic.material", true);
+    inputData += test_utils::getMessageStr(
+            "{\"jsonrpc\": \"2.0\", \"id\": 500, \"method\": \"textDocument/didOpen\", \"params\": {\"textDocument\": {\"uri\": \"file://./examples/lsp/formatting_programs_basic.material\", \"text\": \"" +
+            fileToOpen + "\"}}}"
+    );
+
+    std::cout << inputData << std::endl;
+
+    // system in/out mocks
+    auto *stringstreambuf = new test_utils::my_stringstreambuf(inputData);
+    std::istream inMock(stringstreambuf);
+    std::stringstream outMock;
+
+    // run server on thread
+    std::thread runServerThread(runServer, std::ref(lsp), std::ref(outMock), std::ref(inMock));
+
+    // with the didOpen, the parser map should be updated
     waitForSize(lsp, 1);
 
     // send updated file

@@ -30,21 +30,12 @@ add_library(ogre_scripts_LSP_lib STATIC
 
 add_executable(ogre_scripts_LSP main.cpp)
 
-if (UNIX)
-    # Compile relese directly on bin folder
-#    set_target_properties(ogre_scripts_LSP PROPERTIES
-#            RUNTIME_OUTPUT_DIRECTORY_RELEASE /usr/local/bin
-#    )
-endif (UNIX)
-if (WIN32)
-    # todo: install
-endif (WIN32)
 
 target_link_libraries(ogre_scripts_LSP_lib PUBLIC nlohmann_json::nlohmann_json)
 target_link_libraries(ogre_scripts_LSP ogre_scripts_LSP_lib)
-if (WIN32)
-    target_link_libraries(ogre_scripts_LSP -static-libgcc -static-libstdc++ -static -lpthread)
-endif (WIN32)
+
+# link standard libraries into the app as static
+target_link_libraries(ogre_scripts_LSP -static-libgcc -static-libstdc++ -static -lpthread)
 
 # testing
 enable_testing()

@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "../inc/logs.h"
 
 Logs &Logs::getInstance() {
@@ -5,19 +7,28 @@ Logs &Logs::getInstance() {
     return instance;
 }
 
-void Logs::log(const std::string& text) {
+void Logs::log(std::string text) {
+#ifndef NDEBUG
+    log(std::move(text), std::nullopt);
+#endif // NDEBUG
+}
+
+void Logs::log(std::string text, std::optional<std::exception> e) {
+#ifndef NDEBUG
     if (file.is_open()) {
+        if (e.has_value()) {
+            text.push_back('\n');
+            text.append(e.value().what());
+        }
         file << text << std::endl;
         file << "----------------------------------------" << std::endl;
     }
+#endif // NDEBUG
 }
 
-void Logs::enableLogs(const std::string& logFile) {
-#ifdef __linux__
-//    file.open("/var/log/" + logFile, std::fstream::out | std::fstream::trunc);
-    file.open("/home/gonzalezext/Desktop/" + logFile, std::fstream::out | std::fstream::trunc);
-#elif _WIN32
-    // toDo (gonzalezext)[08.02.24]: open logs file in window
-    file.open("C:\\Users\\ggjne\\Desktop\\ogre3dlsp.log");
-#endif
+void Logs::enableLogs(const std::string &logFile) {
+#ifndef NDEBUG
+    std::filesystem::path filePath(logFile);
+    file.open(std::filesystem::temp_directory_path() / filePath, std::fstream::out | std::fstream::trunc);
+#endif // NDEBUG
 }

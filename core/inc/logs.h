@@ -5,6 +5,9 @@
 #include <cstdio>
 #include <string>
 #include <mutex>
+#include <optional>
+#include <filesystem>
+#include <iostream>
 
 class Logs {
 private:
@@ -21,7 +24,9 @@ public:
 
     void enableLogs(const std::string& logFile = "ogre3dscriptlsp.log");
 
-    void log(const std::string& text);
+    void log(std::string text);
+
+    void log(std::string text, std::optional<std::exception> e);
 };
 
 #endif //OGRE_SCRIPTS_LSP_LIB_LOGS_H

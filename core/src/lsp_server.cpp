@@ -48,10 +48,10 @@ void OgreScriptLSP::LspServer::runServer(std::ostream &oos, std::istream &ios) {
                 shutdown();
             }
         } catch (OgreScriptLSP::ServerEOFException &e) {
-            Logs::getInstance().log("Error: " + e.message);
+            Logs::getInstance().log("Error: " + e.message, e);
             break;
-        } catch (...) {
-            Logs::getInstance().log("Error: The server crash");
+        } catch (std::exception &e) {
+            Logs::getInstance().log("Error: The server crash", e);
             break;
         }
     }
@@ -108,9 +108,9 @@ void OgreScriptLSP::LspServer::goToDefinition(RequestMessage *rm, std::ostream &
 
         ResponseMessage re = newResponseMessage(rm->id, res.get());
         sendResponse(nlohmann::to_string(re.toJson()), oos);
-    } catch (...) {
+    } catch (std::exception &e) {
         // toDo (gonzalezext)[03.02.24]: send fail to client
-        Logs::getInstance().log("ERROR: goToDefinition");
+        Logs::getInstance().log("ERROR: goToDefinition", e);
     }
 }
 
@@ -130,7 +130,7 @@ void OgreScriptLSP::LspServer::formatting(RequestMessage *rm, bool withRange, st
         sendResponse(nlohmann::to_string(re.toJson()), oos);
     } catch (OgreScriptLSP::BaseException &e) {
         // toDo (gonzalezext)[03.02.24]: send fail message to client
-        Logs::getInstance().log("ERROR: " + e.message);
+        Logs::getInstance().log("ERROR: " + e.message, e);
     }
 }
 
@@ -214,8 +214,7 @@ OgreScriptLSP::Action OgreScriptLSP::LspServer::readContent(Action action, std::
         nlohmann::json j = nlohmann::json::parse(jsonrpc);
         ((RequestMessage *) action.message)->fromJson(j);
     } catch (nlohmann::json::exception &e) {
-        std::string errMsg = "message: " + std::string(e.what()) + "\nexception id: " + std::to_string(e.id);
-        Logs::getInstance().log(errMsg);
+        Logs::getInstance().log("Error with nlohmann::json lib", e);
         // toDo (gonzalezext)[26.01.24]: handle error here
     }
 

@@ -32,8 +32,8 @@ jobs:
           - {
             os: windows-latest,
             build_type: Release,
-            c_compiler: cl,
-            cpp_compiler: cl,
+            c_compiler: clang,
+            cpp_compiler: clang++,
             bin: "\\Release\\ogre_scripts_LSP.exe",
             artifact_bin: "ogre3d-scripts-lsp_windows.exe",
             artifact: "ogre3d-scripts-lsp_windows.tar.xz"

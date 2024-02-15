@@ -164,6 +164,9 @@ OgreScriptLSP::Action OgreScriptLSP::LspServer::readHeaders(std::istream &os) {
 std::string OgreScriptLSP::LspServer::readHeaderName(std::istream &os) {
     std::string name;
     while (nextCharacter(os) != EOF) {
+        if (ch == '\n') {
+            break;
+        }
         if (ch == '\r') {
             nextCharacter(os);
             break;
@@ -185,6 +188,9 @@ std::string OgreScriptLSP::LspServer::readHeaderValue(std::istream &os) {
             continue;
         }
         firstChar = false;
+        if (ch == '\n') {
+            break;
+        }
         if (ch == '\r') {
             nextCharacter(os);
             break;

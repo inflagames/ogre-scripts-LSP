@@ -42,6 +42,9 @@ endif (WIN32)
 
 target_link_libraries(ogre_scripts_LSP_lib PUBLIC nlohmann_json::nlohmann_json)
 target_link_libraries(ogre_scripts_LSP ogre_scripts_LSP_lib)
+if (WIN32)
+    target_link_libraries(ogre_scripts_LSP -static-libgcc -static-libstdc++ -static -lpthread)
+endif (WIN32)
 
 # testing
 enable_testing()

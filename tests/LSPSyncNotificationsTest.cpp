@@ -49,6 +49,7 @@ using namespace OgreScriptLSP;
  *    method or through appropriate error handling mechanisms.
  */
 void runServer(LspServer *lsp, std::ostream &oos, std::istream &ios) {
+    Logs::getInstance().enableLogs();
     lsp->runServer(oos, ios);
 }
 

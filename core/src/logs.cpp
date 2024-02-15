@@ -18,5 +18,6 @@ void Logs::enableLogs(const std::string& logFile) {
     file.open("/home/gonzalezext/Desktop/" + logFile, std::fstream::out | std::fstream::trunc);
 #elif _WIN32
     // toDo (gonzalezext)[08.02.24]: open logs file in window
+    file.open("C:\\Users\\ggjne\\Desktop\\ogre3dlsp.log");
 #endif
 }

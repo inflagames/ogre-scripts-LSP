@@ -1,11 +1,21 @@
 // start LSP
 
 #include "core/inc/lsp_server.h"
+#include "core/inc/program_arg.h"
 
-// toDo (gonzalezext)[08.02.24]: include some argument to configure the server
-int main() {
+int main(int argc, char **argv) {
+    {
+        // handle application arguments
+        std::unique_ptr<ProgramArg> programArg = std::make_unique<ProgramArg>(argc, argv);
+        if (programArg->shouldShowHelp()) {
+            programArg->showHelp();
+            return 0;
+        }
 
-    Logs::getInstance().enableLogs();
+        if (programArg->shouldLogging()) {
+            Logs::getInstance().enableLogs();
+        }
+    }
 
     auto *lcp = new OgreScriptLSP::LspServer();
     lcp->runServer();

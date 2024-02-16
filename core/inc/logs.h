@@ -7,11 +7,10 @@
 #include <mutex>
 #include <optional>
 #include <filesystem>
-#include <iostream>
 
 class Logs {
 private:
-    std::ofstream file;
+    std::unique_ptr<std::ofstream> file;
 
     Logs() = default;
 
@@ -22,7 +21,7 @@ public:
 
     static Logs &getInstance();
 
-    void enableLogs(const std::string& logFile = "ogre3dscriptlsp.log");
+    void enableLogs(const std::string &logFile = "ogre3dscriptlsp.log");
 
     void log(std::string text);
 

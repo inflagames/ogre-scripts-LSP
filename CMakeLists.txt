@@ -26,6 +26,8 @@ add_library(ogre_scripts_LSP_lib STATIC
         core/inc/formatter.h
         core/src/goto.cpp
         core/inc/goto.h
+        core/src/program_arg.cpp
+        core/inc/program_arg.h
 )
 
 add_executable(ogre_scripts_LSP main.cpp)

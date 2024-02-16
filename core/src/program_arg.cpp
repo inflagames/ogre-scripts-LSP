@@ -4,7 +4,7 @@
 
 #include "../inc/program_arg.h"
 
-ProgramArg::ProgramArg(int argc, char **argv) {
+ProgramArg::ProgramArg(int argc, const char **argv) {
     programName = std::string(argv[0]);
     for (int i = 1; i < argc; i++) {
         args.emplace_back(argv[i]);

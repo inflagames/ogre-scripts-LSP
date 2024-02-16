@@ -20,7 +20,7 @@ public:
     std::string programName;
     std::vector<std::string> args;
 
-    ProgramArg(int argc, char **argv);
+    ProgramArg(int argc, const char **argv);
 
     ~ProgramArg();
 

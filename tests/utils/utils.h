@@ -317,8 +317,12 @@ namespace test_utils {
     protected:
         int uflow() override {
             while (currentChar() == WAITING_DATA) {}
-            int c = nextChar();
-            return c;
+            return nextChar();
+        }
+
+        int underflow() override {
+            while (currentChar() == WAITING_DATA) {}
+            return currentChar();
         }
 
         int nextChar() {

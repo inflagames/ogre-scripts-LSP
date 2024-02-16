@@ -140,6 +140,7 @@ void sleepOS(size_t milliseconds) {
 }
 
 TEST (LSPSyncTest, clientSync_LspServerShouldOpenCloseChangeFiles_validateLspAfterEachSync) {
+    Logs::getInstance().enableLogs();
     auto *lsp = new LspServer();
     // initialize request
     std::string inputData = test_utils::getMessageStr(

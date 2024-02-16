@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <algorithm>
 
 #define HELP "-h"
 #define HELP_LONG "--help"

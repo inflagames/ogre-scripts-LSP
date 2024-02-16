@@ -3,7 +3,7 @@
 #include "core/inc/lsp_server.h"
 #include "core/inc/program_arg.h"
 
-int main(int argc, char **argv) {
+int main(int argc, const char **argv) {
     {
         // handle application arguments
         std::unique_ptr<ProgramArg> programArg = std::make_unique<ProgramArg>(argc, argv);

@@ -18,12 +18,12 @@
 namespace OgreScriptLSP {
     class Parser {
     private:
-        Scanner *scanner;
+        std::unique_ptr<Scanner> scanner;
 
         std::vector<TokenValue> tokens;
         int currentToken = 0;
 
-        MaterialScriptAst *script = nullptr;
+        std::unique_ptr<MaterialScriptAst> script;
         std::map<std::pair<int, std::string>, TokenValue> declarations;
 
         std::vector<BaseException> exceptions;
@@ -33,9 +33,9 @@ namespace OgreScriptLSP {
 
         Parser();
 
-        ~Parser();
+        ~Parser() = default;
 
-        MaterialScriptAst *getScript() { return script; }
+        MaterialScriptAst *getScript() { return script.get(); }
 
         [[nodiscard]] std::unique_ptr<std::map<std::pair<int, std::string>, TokenValue>> getDeclarations() const {
             auto decl = std::make_unique<std::map<std::pair<int, std::string>, TokenValue>>(declarations);

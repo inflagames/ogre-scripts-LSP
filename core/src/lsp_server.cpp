@@ -67,44 +67,38 @@ void OgreScriptLSP::LspServer::initialize(OgreScriptLSP::RequestMessage *rm, std
 
 void OgreScriptLSP::LspServer::didOpen(RequestMessage *rm, std::ostream &oos) {
     try {
-        // toDo (gonzalezext)[11.02.24]: duplicated code in didChange
         auto params = (DidOpenTextDocumentParams *) rm->params;
-        auto parser = new Parser();
-        parser->loadScript(params->textDocument.uri, params->textDocument.text);
-        parser->parse();
-        updateParserByUri(params->textDocument.uri, parser);
-
-        sendDiagnostic(parser, oos);
-    } catch (...) {
-        // toDo (gonzalezext)[08.02.24]: exception
-    }
-}
-
-void OgreScriptLSP::LspServer::didClose(RequestMessage *rm) {
-    std::string uri = ((DidCloseTextDocumentParams *) rm->params)->textDocument.uri;
-    auto it = parsers.find(uri);
-    if (it != parsers.end()) {
-        delete it->second;
-        parsers.erase(it);
+        sendDiagnostic(updateParser(params->textDocument.uri, params->textDocument.text), oos);
+    } catch (std::exception &e) {
+        Logs::getInstance().log("Error to open a file", e);
     }
 }
 
 void OgreScriptLSP::LspServer::didChange(RequestMessage *rm, std::ostream &oos) {
     // toDo (gonzalezext)[10.02.24]: not support for range changes
     auto params = ((DidChangeTextDocumentParams *) rm->params);
-    auto parser = new Parser();
-    parser->loadScript(params->textDocument.uri, params->contentChanges[0].text);
-    parser->parse();
-    updateParserByUri(params->textDocument.uri, parser);
+    sendDiagnostic(updateParser(params->textDocument.uri, params->contentChanges[0].text), oos);
+}
 
-    sendDiagnostic(parser, oos);
+OgreScriptLSP::Parser *OgreScriptLSP::LspServer::updateParser(const std::string &uri, const std::string &code) {
+    auto parser = new Parser();
+    parser->loadScript(uri, code);
+    parser->parse();
+    updateParserByUri(uri, parser);
+    return parser;
+}
+
+void OgreScriptLSP::LspServer::didClose(RequestMessage *rm) {
+    std::string uri = ((DidCloseTextDocumentParams *) rm->params)->textDocument.uri;
+    parsers.erase(uri);
 }
 
 void OgreScriptLSP::LspServer::goToDefinition(RequestMessage *rm, std::ostream &oos) {
     try {
         DefinitionParams *definitionParams = ((DefinitionParams *) rm->params);
         auto parser = getParserByUri(definitionParams->textDocument.uri);
-        auto res = OgreScriptLSP::GoTo::goToDefinition(parser->getScript(), parser->getDeclarations(), definitionParams->position);
+        auto res = OgreScriptLSP::GoTo::goToDefinition(parser->getScript(), parser->getDeclarations(),
+                                                       definitionParams->position);
 
         ResponseMessage re = newResponseMessage(rm->id, res.get());
         sendResponse(nlohmann::to_string(re.toJson()), oos);
@@ -232,28 +226,15 @@ char OgreScriptLSP::LspServer::nextCharacter(std::istream &os) {
 }
 
 OgreScriptLSP::Parser *OgreScriptLSP::LspServer::getParserByUri(const std::string &uri) {
-    OgreScriptLSP::Parser *parser;
-
-    if (parsers.contains(uri)) {
-        // get existing parser
-        parser = parsers[uri];
-    } else {
-        // need to be created if not exist
-        parser = new OgreScriptLSP::Parser();
-        parsers[uri] = parser;
-        parser->parse(uri);
+    if (!parsers.contains(uri)) {
+        parsers[uri] = std::make_unique<OgreScriptLSP::Parser>();
+        parsers[uri]->parse(uri);
     }
-    return parser;
+    return parsers[uri].get();
 }
 
 void OgreScriptLSP::LspServer::updateParserByUri(const std::string &uri, OgreScriptLSP::Parser *parser) {
-    // toDo (gonzalezext)[10.02.24]: duplicated code in didClose function
-    auto it = parsers.find(uri);
-    if (it != parsers.end()) {
-        delete it->second;
-        parsers.erase(it);
-    }
-    parsers[uri] = parser;
+    parsers[uri] = std::unique_ptr<OgreScriptLSP::Parser>(parser);
 }
 
 void OgreScriptLSP::LspServer::sendDiagnostic(Parser *parser, std::ostream &oos) {

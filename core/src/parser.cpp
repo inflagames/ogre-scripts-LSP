@@ -3,12 +3,7 @@
 #include "../inc/parser.h"
 
 OgreScriptLSP::Parser::Parser() {
-    scanner = new Scanner();
-}
-
-OgreScriptLSP::Parser::~Parser() {
-    delete scanner;
-    delete script;
+    scanner = std::make_unique<Scanner>();
 }
 
 void OgreScriptLSP::Parser::loadScript(const std::string &fileUri, const std::string &code) {
@@ -18,8 +13,8 @@ void OgreScriptLSP::Parser::loadScript(const std::string &fileUri, const std::st
     tokens = scanner->parse();
     exceptions.insert(exceptions.end(), scanner->exceptions.begin(), scanner->exceptions.end());
     currentToken = 0;
-    delete script;
-    script = new MaterialScriptAst(fileUri);
+    script.reset();
+    script = std::make_unique<MaterialScriptAst>(fileUri);
 }
 
 std::string OgreScriptLSP::Parser::uriToPath(const std::string &uri) {
@@ -45,16 +40,16 @@ void OgreScriptLSP::Parser::parse() {
         try {
             if (tk.tk == fragment_program_tk || tk.tk == vertex_program_tk) {
                 recuperate = false;
-                program(script);
+                program(script.get());
             } else if (tk.tk == material_tk) {
                 recuperate = false;
-                material(script);
+                material(script.get());
             } else if (tk.tk == abstract_tk) {
                 recuperate = false;
-                abstract(script);
+                abstract(script.get());
             } else if (tk.tk == import_tk) {
                 recuperate = false;
-                importBlock(script);
+                importBlock(script.get());
             } else if (!recuperate) {
                 exceptions.push_back(ParseException(INVALID_TOKEN, tk.toRange()));
                 recuperate = true;

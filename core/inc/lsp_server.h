@@ -21,7 +21,7 @@ namespace OgreScriptLSP {
         ClientCapabilities clientCapabilities;
 
     public:
-        std::map<std::string, OgreScriptLSP::Parser *> parsers;
+        std::map<std::string, std::unique_ptr<OgreScriptLSP::Parser>> parsers;
         bool running = false;
 
         LspServer() = default;
@@ -65,6 +65,8 @@ namespace OgreScriptLSP {
         void exit();
 
         char nextCharacter(std::istream &os = std::cin);
+
+        OgreScriptLSP::Parser *updateParser(const std::string &uri, const std::string &code);
     };
 }
 

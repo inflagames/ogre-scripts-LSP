@@ -8,7 +8,7 @@ TEST (ScannerTest, scanner_ShouldOpenScriptFile) {
     std::string scriptFile = "./examples/scanner/frag_vert_declarations.material";
     scanner->loadScript(scriptFile);
 
-    auto *file = dynamic_cast<std::ifstream *>(scanner->codeStream);
+    auto *file = dynamic_cast<std::ifstream *>(scanner->codeStream.get());
     ASSERT_TRUE(file->is_open());
 }
 
@@ -17,7 +17,7 @@ TEST (ScannerTest, scanner_ShouldOpenScriptFileAndLoadTokens) {
     std::string scriptFile = "./examples/full_test_material.material";
     scanner->loadScript(scriptFile);
 
-    auto *file = dynamic_cast<std::ifstream *>(scanner->codeStream);
+    auto *file = dynamic_cast<std::ifstream *>(scanner->codeStream.get());
     ASSERT_TRUE(file->is_open());
 
     scanner->parse();

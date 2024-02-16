@@ -12,7 +12,7 @@
 namespace OgreScriptLSP {
     class Scanner {
     public:
-        std::istream *codeStream = nullptr;
+        std::unique_ptr<std::istream> codeStream = nullptr;
         char ch{};
         int lineCount = 0;
         int columnCount = 0;

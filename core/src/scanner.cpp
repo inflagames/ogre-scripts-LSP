@@ -3,23 +3,19 @@
 OgreScriptLSP::Scanner::Scanner() = default;
 
 void OgreScriptLSP::Scanner::loadScript(const std::string &scriptFile, const std::string &code) {
-    delete codeStream;
+    codeStream.reset();
     if (code.empty()) {
-        auto *file = new std::ifstream();
+        auto file = std::make_unique<std::ifstream>();
 
-        // close if needed
-        if (file->is_open()) {
-            file->close();
-        }
         file->open(scriptFile);
         if (!file->is_open()) {
             throw FileException(FILE_IS_NOT_OPEN_OR_NOT_EXIST);
         }
-        codeStream = static_cast<std::istream *>(file);
+        codeStream = std::move(file);
     } else {
         // open code from string
-        auto *codeStr = new std::stringstream(code);
-        codeStream = static_cast<std::istream *>(codeStr);
+        auto codeStr = std::make_unique<std::stringstream>(code);
+        codeStream = std::move(codeStr);
     }
     ch = ' ';
     isNewLine = false;
@@ -38,8 +34,7 @@ std::vector<OgreScriptLSP::TokenValue> OgreScriptLSP::Scanner::parse() {
         list.push_back(tk);
     }
 
-    delete codeStream;
-    codeStream = nullptr;
+    codeStream.reset();
 
     return list;
 }

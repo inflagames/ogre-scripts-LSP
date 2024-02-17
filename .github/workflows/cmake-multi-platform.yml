@@ -86,7 +86,7 @@ jobs:
       #        run: cmake -E tar cJfv ../${{ matrix.config.artifact }} .
 
 
-      - name: Upload bin
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           path: ${{ steps.strings.outputs.build-output-dir }}${{ matrix.config.bin }}
@@ -99,19 +99,14 @@ jobs:
     needs: [ build ]
 
     steps:
-      - name: Need approval
-        uses: trstringer/manual-approval@v1
-        with:
-          secret: ${{ github.token }}
-          approvers: wil92
-          minimum-approvals: 1
-
       - name: Download artifacts
         uses: actions/download-artifact@v4
 
       - name: Version number
         run: echo "::set-output name=version::$(./ogre3d-scripts-lsp_linux --version)" # calculate version here
         id: version
+
+      - run: echo "${{ steps.version.outputs.versions }}"
 
       - name: Create release
         uses: actions/create-release@v1

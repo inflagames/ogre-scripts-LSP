@@ -19,6 +19,10 @@ bool ProgramArg::shouldShowHelp() {
     return optionExists(HELP) || optionExists(HELP_LONG);
 }
 
+bool ProgramArg::shouldShowVersion() {
+    return optionExists(VERSION) || optionExists(VERSION_LONG);
+}
+
 bool ProgramArg::shouldLogging() {
     return optionExists(LOG) || optionExists(LOG_LONG);
 }
@@ -28,11 +32,14 @@ bool ProgramArg::optionExists(std::string_view option) {
 }
 
 void ProgramArg::showHelp() const {
-    // toDo (gonzalezext)[16.02.24]: need improvement
-    std::cout << std::endl <<
-              programName << " [options]\n" <<
+    std::cout << programName << " [options]\n" <<
               "Options: \n" <<
               HELP << " | " << HELP_LONG << "         - Print program help\n" <<
+              VERSION << " | " << VERSION_LONG << "      - Print program version\n" <<
               LOG << " | " << LOG_LONG
               << " [file]  - Logging to the specified file (optional) or to a random file in the system logs directory\n";
+}
+
+void ProgramArg::showVersion() const { // NOLINT(*-convert-member-functions-to-static)
+    std::cout << VERSION_V << std::endl;
 }

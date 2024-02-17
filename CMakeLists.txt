@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.26)
 project(ogre_scripts_LSP_lib)
 
+# define application version here
+add_definitions(-DAPP_VERSION="v1.0.2")
+
 include(FetchContent)
 FetchContent_Declare(
         json

@@ -41,3 +41,14 @@ TEST (ProgramOptionsTest, validateIfLogging) {
     program = new ProgramArg(5, argse);
     ASSERT_TRUE(program->shouldLogging());
 }
+
+TEST (ProgramOptionsTest, validateIfShowVersion) {
+    const char *args[] = {"myapp", LOG, "adsf", "cvxc", HELP, VERSION};
+    auto *program = new ProgramArg(6, args);
+    ASSERT_TRUE(program->shouldShowVersion());
+
+    delete program;
+    const char *argse[] = {"myapp", LOG_LONG, "adsf", "cvxc", VERSION_LONG};
+    program = new ProgramArg(6, argse);
+    ASSERT_TRUE(program->shouldShowVersion());
+}

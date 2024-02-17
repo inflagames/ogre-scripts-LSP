@@ -14,6 +14,10 @@
 #define HELP_LONG "--help"
 #define LOG "-l"
 #define LOG_LONG "--logs"
+#define VERSION "-v"
+#define VERSION_LONG "--version"
+
+#define VERSION_V APP_VERSION
 
 class ProgramArg {
 public:
@@ -28,9 +32,13 @@ public:
 
     bool shouldLogging();
 
+    bool shouldShowVersion();
+
     bool optionExists(std::string_view option);
 
     void showHelp() const;
+
+    void showVersion() const;
 };
 
 

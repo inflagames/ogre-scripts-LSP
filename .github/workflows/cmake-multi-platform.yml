@@ -103,7 +103,7 @@ jobs:
         uses: actions/download-artifact@v4
 
       - name: Version number
-        run: echo "version_bin=$(./ogre3d-scripts-lsp_linux --version)" >> $GITHUB_OUTPUT # calculate version here
+        run: echo "version_bin=$(./ogre3d-scripts-lsp_linux --version)" >> "$GITHUB_OUTPUT" # calculate version here
         id: version
 
       - run: echo "${{ steps.version.outputs.version_bin }}"

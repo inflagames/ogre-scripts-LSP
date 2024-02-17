@@ -31,7 +31,6 @@ TEST (LSPProdErrorsReproductionTest, shouldExecuteWithoutErrors) {
 }
 
 TEST (LSPProdErrorsReproductionTest, shouldExecuteWithoutErrors_newMaterialAtTheEnd) {
-    GTEST_SKIP();
     auto *lsp = new LspServer();
     // initialize request
     std::string inputData;

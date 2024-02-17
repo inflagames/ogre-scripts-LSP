@@ -457,6 +457,9 @@ void OgreScriptLSP::Parser::consumeEndLines() {
 }
 
 OgreScriptLSP::TokenValue OgreScriptLSP::Parser::getToken() {
+    if (isEof()) {
+        return {EOF_tk};
+    }
     return tokens[currentToken];
 }
 

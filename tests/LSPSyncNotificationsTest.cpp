@@ -194,7 +194,6 @@ TEST (LSPSyncTest, clientSync_LspServerShouldOpenCloseChangeFiles_validateLspAft
  * This test is replicating a bug from the integration with JetBrains plugin
  */
 TEST (LSPSyncTest, clientSync_ShouldReceiveDiagnostic) {
-    GTEST_SKIP();
     auto *lsp = new LspServer();
     // initialize request
     std::string inputData = test_utils::getMessageStr(

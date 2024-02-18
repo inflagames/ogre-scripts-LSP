@@ -77,8 +77,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
                 try {
                     return consumeMatch();
                 } catch (ScannerException &e) {
-                    exceptions.push_back(e);
-                    recuperateError();
+                    recuperateError(e.range.start.character, e.message);
                     continue;
                 }
             }

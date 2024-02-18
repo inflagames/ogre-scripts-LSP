@@ -107,6 +107,7 @@ jobs:
         id: version
 
       - run: ls -a
+      - run: ls -a ${{ env.artifact_linux_bin }}
       - run: echo "${{ steps.version.outputs.version_bin }}"
 
       - name: Create release

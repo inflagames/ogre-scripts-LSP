@@ -155,7 +155,6 @@ namespace OgreScriptLSP {
         nlohmann::json toJson() override {
             nlohmann::json array = nlohmann::json::array();
             for (auto ele: elements) {
-                std::cout << ele->toJson() << std::endl;
                 array.push_back(ele->toJson());
             }
             return array;

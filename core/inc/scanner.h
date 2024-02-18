@@ -48,7 +48,7 @@ namespace OgreScriptLSP {
 
         static bool validLiteral(char c, bool startCharacter = true);
 
-        void recuperateError(const std::string& error = "");
+        void recuperateError(int column = 0, const std::string& error = "");
 
         /**
          * Consume next character from the script file

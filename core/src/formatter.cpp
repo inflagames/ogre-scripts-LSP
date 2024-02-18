@@ -1,7 +1,8 @@
 #include "../inc/formatter.h"
 
 // toDo (gonzalezext)[07.02.24]: support for trimFinalNewLines is not implemented
-OgreScriptLSP::ResultArray *OgreScriptLSP::Formatter::formatting(Parser *parser, FormattingOptions options, Range range) {
+OgreScriptLSP::ResultArray *
+OgreScriptLSP::Formatter::formatting(Parser *parser, FormattingOptions options, Range range) {
     auto *res = new ResultArray();
 
     // initial values
@@ -14,6 +15,15 @@ OgreScriptLSP::ResultArray *OgreScriptLSP::Formatter::formatting(Parser *parser,
     TokenValue lastToken;
     while (!parser->isEof()) {
         auto tk = parser->getToken();
+
+        if (lastToken.tk != bad_tk) {
+            int col = lastToken.column + lastToken.size;
+            auto ran = Range::toRange(lastToken.line, col, tk.column - col);
+            auto ex = inException(ran, parser);
+            if (ex.has_value()) {
+                tk = {bad_tk, "", lastToken.line, ex->start.character, ex->end.character - ex->start.character};
+            }
+        }
 
         lastToken = tk;
 
@@ -29,15 +39,16 @@ OgreScriptLSP::ResultArray *OgreScriptLSP::Formatter::formatting(Parser *parser,
             level--;
         }
 
-        // Calculate position based on the tokens
-        int position = (tk.tk == endl_tk) ? previousTokenPosition : previousTokenPosition + 1;
+        int position = previousTokenPosition + tokenSpacing(tk.tk);
 
         if (firstInLine) {
             if (tk.tk != endl_tk) {
-                std::string nexText = (options.insertSpaces) ? repeatCharacter(' ', level * static_cast<int>(options.tabSize)) : repeatCharacter('\t', level);
+                std::string nexText = (options.insertSpaces) ?
+                                      repeatCharacter(' ', level * static_cast<int>(options.tabSize)) :
+                                      repeatCharacter('\t', level);
 
-                res->elements.emplace_back(new TextEdit({tk.line, previousTokenPosition},{tk.line, tk.column},
-                                                     nexText));
+                res->elements.emplace_back(new TextEdit({tk.line, previousTokenPosition},
+                                                        {tk.line, tk.column}, nexText));
             }
         } else {
             if (tk.column > position) {
@@ -48,17 +59,21 @@ OgreScriptLSP::ResultArray *OgreScriptLSP::Formatter::formatting(Parser *parser,
                 // If the current token's column is less than the expected position,
                 // calculate the necessary indentation and add it as nexText
                 std::string nexText = repeatCharacter(' ', position - tk.column);
-                res->elements.emplace_back(new TextEdit({tk.line, previousTokenPosition}, {tk.line, previousTokenPosition}, nexText));
+                res->elements.emplace_back(
+                        new TextEdit({tk.line, previousTokenPosition}, {tk.line, previousTokenPosition}, nexText));
             }
         }
 
-        parser->nextToken();
         if (tk.tk != endl_tk) {
             previousTokenPosition = tk.column + tk.size;
             firstInLine = false;
         } else {
             previousTokenPosition = 0;
             firstInLine = true;
+        }
+
+        if (tk.tk != bad_tk) {
+            parser->nextToken();
         }
 
         if (tk.tk == left_curly_bracket_tk) {
@@ -69,8 +84,8 @@ OgreScriptLSP::ResultArray *OgreScriptLSP::Formatter::formatting(Parser *parser,
     // add end line
     if (options.insertFinalNewline && lastToken.tk != endl_tk) {
         res->elements.emplace_back(new TextEdit({lastToken.line, lastToken.column + lastToken.size},
-                                             {lastToken.line, lastToken.column + lastToken.size},
-                                             "\n"));
+                                                {lastToken.line, lastToken.column + lastToken.size},
+                                                "\n"));
     }
 
     // mainly for range formatting
@@ -86,4 +101,26 @@ OgreScriptLSP::ResultArray *OgreScriptLSP::Formatter::formatting(Parser *parser,
 
 std::string OgreScriptLSP::Formatter::repeatCharacter(char c, const std::size_t times) {
     return std::string(times, c);
+}
+
+std::optional<OgreScriptLSP::Range>
+OgreScriptLSP::Formatter::inException(OgreScriptLSP::Range range, OgreScriptLSP::Parser *parser) {
+    // toDo (gonzalezext)[18.02.24]: this can be more efficient with some kind of algorithm
+    for (const auto &e: parser->getExceptions()) {
+        if (range.inRange(e.range)) {
+            return e.range;
+        }
+    }
+    return std::nullopt;
+}
+
+int OgreScriptLSP::Formatter::tokenSpacing(OgreScriptLSP::Token tk) {
+    // toDo (gonzalezext)[18.02.24]: tokens missing
+    switch (tk) {
+        case endl_tk:
+        case bad_tk:
+            return 0;
+        default:
+            return 1;
+    }
 }

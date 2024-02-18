@@ -28,12 +28,13 @@ namespace OgreScriptLSP {
         identifier, // any variable|function|class identifier
 
         // symbols
-        colon_tk, // : X
+        colon_tk, // :
         asterisk_tk, // *
-        left_curly_bracket_tk, // { X
-        right_curly_bracket_tk, // } X
+        left_curly_bracket_tk, // {
+        right_curly_bracket_tk, // }
 
         // system
+        bad_tk,
         endl_tk,
         EOF_tk,
     };

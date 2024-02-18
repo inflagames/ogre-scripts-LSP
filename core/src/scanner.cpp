@@ -53,7 +53,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
                     consumeComment();
                     continue;
                 }
-                recuperateError(SCANNER_INVALID_CHARACTER);
+                recuperateError(columnCount - 1, SCANNER_INVALID_CHARACTER);
                 continue;
             }
             case ':':
@@ -88,7 +88,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
                 if (ch == '-') {
                     nextCharacter();
                     if (!isdigit(ch)) {
-                        recuperateError(SCANNER_INVALID_CHARACTER);
+                        recuperateError(columnCount - 1, SCANNER_INVALID_CHARACTER);
                         continue;
                     }
                 }
@@ -96,7 +96,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
                 if (ch == '.') {
                     nextCharacter();
                     if (!isdigit(ch)) {
-                        recuperateError(SCANNER_INVALID_CHARACTER);
+                        recuperateError(columnCount - 1, SCANNER_INVALID_CHARACTER);
                         continue;
                     }
                     isFirstPeriod = false;
@@ -131,7 +131,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
                         continue;
                     }
                 }
-                recuperateError(SCANNER_INVALID_CHARACTER);
+                recuperateError(columnCount, SCANNER_INVALID_CHARACTER);
                 continue;
         }
     }
@@ -184,7 +184,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeString(char stringDelim
     while (!codeStream->eof()) {
         rangeLength++;
         if (ch == '\n') {
-            throw ScannerException(SCANNER_INVALID_STRING_LITERAL, Range::toRange(line, column, rangeLength));
+            throw ScannerException(SCANNER_INVALID_STRING_LITERAL, Range::toRange(line, column, rangeLength - 1));
         } else if (ch == stringDelimiter) {
             nextCharacter();
             return {string_literal, literal, line, column, (int) literal.size() + 2};
@@ -200,7 +200,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeString(char stringDelim
 OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeMatch() {
     std::string literal = "*";
     int line = lineCount;
-    int column = columnCount, rangeLength = 0;
+    int column = columnCount - 1, rangeLength = 0;
     while (!codeStream->eof()) {
         rangeLength++;
         if (isInvalidMatchDigit(ch)) {
@@ -273,8 +273,8 @@ bool OgreScriptLSP::Scanner::validLiteral(char c, bool startCharacter) {
     return isalnum(c) || c == '_' || c == '/' || c == '.';
 }
 
-void OgreScriptLSP::Scanner::recuperateError(const std::string &error) {
-    int rangeLength = 0;
+void OgreScriptLSP::Scanner::recuperateError(int column, const std::string &error) {
+    int rangeLength = column - columnCount;
     while (ch != ' ' && ch != '\t' && ch != '\n' && ch != '\f' && ch != '\v' && ch != '\r') {
         rangeLength++;
         if (!nextCharacter()) {
@@ -282,7 +282,7 @@ void OgreScriptLSP::Scanner::recuperateError(const std::string &error) {
         }
     }
     if (!error.empty()) {
-        exceptions.push_back(ScannerException(error, Range::toRange(lineCount, columnCount, rangeLength)));
+        exceptions.push_back(ScannerException(error, Range::toRange(lineCount, column, rangeLength)));
     }
     consumeEmpty();
 }

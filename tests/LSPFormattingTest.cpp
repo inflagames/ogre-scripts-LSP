@@ -134,7 +134,7 @@ TEST (LSPFormattingTest, formattingFile_ShouldFormatTheFile_withTabSizeOf4Spaces
     lsp->runServer(outMock, inMock);
 
     nlohmann::json j = nlohmann::json::parse(test_utils::extractJson(outMock.str(), 3));
-    std::cout << nlohmann::to_string(j) << std::endl;
+//    std::cout << nlohmann::to_string(j) << std::endl;
 
     ASSERT_TRUE(j.contains("id"));
     ASSERT_TRUE(j.contains("result"));
@@ -174,7 +174,7 @@ TEST (LSPFormattingTest, formattingFile_ShouldFormatWithFinalNewLine) {
     lsp->runServer(outMock, inMock);
 
     nlohmann::json j = nlohmann::json::parse(test_utils::extractJson(outMock.str(), 2));
-    std::cout << nlohmann::to_string(j) << std::endl;
+//    std::cout << nlohmann::to_string(j) << std::endl;
 
     ASSERT_TRUE(j.contains("id"));
     ASSERT_TRUE(j.contains("result"));
@@ -214,7 +214,7 @@ TEST (LSPFormattingTest, formattingFile_ShouldFormatTheFile_withoutEndLine) {
     lsp->runServer(outMock, inMock);
 
     nlohmann::json j = nlohmann::json::parse(test_utils::extractJson(outMock.str(), 2));
-    std::cout << nlohmann::to_string(j) << std::endl;
+//    std::cout << nlohmann::to_string(j) << std::endl;
 
     ASSERT_TRUE(j.contains("id"));
     ASSERT_TRUE(j.contains("result"));

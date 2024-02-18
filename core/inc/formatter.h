@@ -12,6 +12,10 @@ namespace OgreScriptLSP {
                                                                           {INT32_MAX, INT32_MAX}});
 
         static std::string repeatCharacter(char c, std::size_t times);
+
+        static std::optional<Range> inException(Range range, Parser *parser);
+
+        static int tokenSpacing(Token tk);
     };
 }
 

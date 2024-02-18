@@ -84,15 +84,18 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
             }
             case '-':
             case '.': {
+                std::string numberPrefix;
                 if (ch == '-') {
+                    numberPrefix.push_back(ch);
                     nextCharacter();
-                    if (!isdigit(ch)) {
+                    if (!isdigit(ch) && ch != '.') {
                         recuperateError(columnCount - 1, SCANNER_INVALID_CHARACTER);
                         continue;
                     }
                 }
                 bool isFirstPeriod = true;
                 if (ch == '.') {
+                    numberPrefix.push_back(ch);
                     nextCharacter();
                     if (!isdigit(ch)) {
                         recuperateError(columnCount - 1, SCANNER_INVALID_CHARACTER);
@@ -101,12 +104,11 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
                     isFirstPeriod = false;
                 }
                 try {
-                    auto tkValue = consumeNumber(isFirstPeriod);
+                    auto tkValue = consumeNumber(numberPrefix, isFirstPeriod);
                     tkValue.literal.insert(0, 1, isFirstPeriod ? '.' : '-');
                     return tkValue;
                 } catch (const ScannerException &e) {
-                    exceptions.push_back(e);
-                    recuperateError();
+                    recuperateError(e.range.start.character, e.message);
                     continue;
                 }
             }
@@ -115,8 +117,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
                     try {
                         return consumeNumber();
                     } catch (const ScannerException &e) {
-                        exceptions.push_back(e);
-                        recuperateError();
+                        recuperateError(e.range.start.character, e.message);
                         continue;
                     }
                 }
@@ -156,10 +157,10 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::symbolToken(OgreScriptLSP::Tok
     return res;
 }
 
-OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeNumber(bool isFirstPeriod) {
-    std::string literal;
-    int line = lineCount;
-    int column = columnCount, rangeLength = 0;
+OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeNumber(std::string prefix, bool isFirstPeriod) {
+    std::string literal = std::move(prefix);
+    int line = lineCount, startPos = (int) literal.size();
+    int column = columnCount - startPos, rangeLength = startPos;
     while (!codeStream->eof()) {
         literal.push_back(ch);
         if (nextCharacter() && (isdigit(ch) || (ch == '.' && isFirstPeriod))) {
@@ -273,7 +274,7 @@ bool OgreScriptLSP::Scanner::validLiteral(char c, bool startCharacter) {
 }
 
 void OgreScriptLSP::Scanner::recuperateError(int column, const std::string &error) {
-    int rangeLength = column - columnCount;
+    int rangeLength =  columnCount - column;
     while (ch != ' ' && ch != '\t' && ch != '\n' && ch != '\f' && ch != '\v' && ch != '\r') {
         rangeLength++;
         if (!nextCharacter()) {

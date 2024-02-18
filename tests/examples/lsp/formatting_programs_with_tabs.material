@@ -17,6 +17,6 @@ vertex_program Game/Floor/ShaderVp glsl {
 	default_params
 	{
     // assign samplers as required by GLSL
-		param_named normalMap int 0 "some"
+		param_named normalMap int -0. -0 -0.0 .0 -.0 -.0asdf 9879asdf345 "some"
 	}
 }

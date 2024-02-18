@@ -12,16 +12,16 @@ OgreScriptLSP::Formatter::formatting(Parser *parser, FormattingOptions options, 
     // line
     int previousTokenPosition = 0;
     bool firstInLine = true;
-    TokenValue lastToken;
+    std::optional<TokenValue> lastToken;
     while (!parser->isEof()) {
         auto tk = parser->getToken();
 
-        if (lastToken.tk != bad_tk) {
-            int col = lastToken.column + lastToken.size;
-            auto ran = Range::toRange(lastToken.line, col, tk.column - col);
+        if (lastToken.has_value()) {
+            int col = lastToken->column + lastToken->size;
+            auto ran = Range::toRange(lastToken->line, col, tk.column - col);
             auto ex = inException(ran, parser);
             if (ex.has_value()) {
-                tk = {bad_tk, "", lastToken.line, ex->start.character, ex->end.character - ex->start.character};
+                tk = {bad_tk, "", lastToken->line, ex->start.character, ex->end.character - ex->start.character};
             }
         }
 
@@ -82,9 +82,9 @@ OgreScriptLSP::Formatter::formatting(Parser *parser, FormattingOptions options, 
     }
 
     // add end line
-    if (options.insertFinalNewline && lastToken.tk != endl_tk) {
-        res->elements.emplace_back(new TextEdit({lastToken.line, lastToken.column + lastToken.size},
-                                                {lastToken.line, lastToken.column + lastToken.size},
+    if (options.insertFinalNewline && lastToken->tk != endl_tk) {
+        res->elements.emplace_back(new TextEdit({lastToken->line, lastToken->column + lastToken->size},
+                                                {lastToken->line, lastToken->column + lastToken->size},
                                                 "\n"));
     }
 

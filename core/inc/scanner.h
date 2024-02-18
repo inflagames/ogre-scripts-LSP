@@ -42,7 +42,7 @@ namespace OgreScriptLSP {
 
         TokenValue symbolToken(Token tk);
 
-        TokenValue consumeNumber(bool isFirstPeriod = true);
+        TokenValue consumeNumber(std::string prefix = "", bool isFirstPeriod = true);
 
         TokenValue nextLiteral();
 

@@ -35,7 +35,7 @@ jobs:
             c_compiler: gcc,
             cpp_compiler: g++,
             bin: "/ogre_scripts_LSP",
-            artifact_bin: ${{ env.artifact_linux_bin }},
+            artifact_bin: "${{ env.artifact_linux_bin }}",
             artifact: "ogre3d-scripts-lsp_linux.tar.xz"
           }
           - {
@@ -44,7 +44,7 @@ jobs:
             c_compiler: clang,
             cpp_compiler: clang++,
             bin: "\\Release\\ogre_scripts_LSP.exe",
-            artifact_bin: ${{ env.artifact_win_bin }},
+            artifact_bin: "${{ env.artifact_win_bin }}",
             artifact: "ogre3d-scripts-lsp_windows.tar.xz"
           }
 

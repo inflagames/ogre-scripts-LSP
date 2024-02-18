@@ -6,7 +6,9 @@ on: [ push ]
 
 env:
   artifact_linux_bin: ogre3d-scripts-lsp_linux
-  artifact_win_bin: ogre3d-scripts-lsp_windows.exe
+  artifact_win_bin: ogre3d-scripts-lsp_windows
+  linux_bin: ogre_scripts_LSP
+  win_bin: ogre_scripts_LSP.exe
 
 jobs:
   build:
@@ -33,7 +35,7 @@ jobs:
             c_compiler: gcc,
             cpp_compiler: g++,
             bin: "/ogre_scripts_LSP",
-            artifact_bin: "ogre3d-scripts-lsp_linux",
+            artifact_bin: ${{ env.artifact_linux_bin }},
             artifact: "ogre3d-scripts-lsp_linux.tar.xz"
           }
           - {
@@ -42,7 +44,7 @@ jobs:
             c_compiler: clang,
             cpp_compiler: clang++,
             bin: "\\Release\\ogre_scripts_LSP.exe",
-            artifact_bin: "ogre3d-scripts-lsp_windows.exe",
+            artifact_bin: ${{ env.artifact_win_bin }},
             artifact: "ogre3d-scripts-lsp_windows.tar.xz"
           }
 
@@ -103,11 +105,11 @@ jobs:
         uses: actions/download-artifact@v4
 
       - name: Version number
-        run: echo "version_bin=$(./ogre3d-scripts-lsp_linux --version)" >> "$GITHUB_OUTPUT" # calculate version here
+        run: echo "version_bin=$(./${{ env.artifact_linux_bin }}/${{ env.linux_bin }} --version)" >> "$GITHUB_OUTPUT" # calculate version here
         id: version
 
-      - run: ll
-      - run: ll ${{ env.artifact_linux_bin }}
+#      - run: ll
+#      - run: ll ${{ env.artifact_linux_bin }}
       - run: echo "${{ steps.version.outputs.version_bin }}"
 
       - name: Create release
@@ -129,6 +131,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./${{ env.artifact_linux_bin }}
-          asset_name: ${{ env.artifact_linux_bin }}
+          asset_path: ${{ env.artifact_linux_bin }}/${{ env.linux_bin }}
+          asset_name: ${{ env.linux_bin }}
           asset_content_type: application/x-executable

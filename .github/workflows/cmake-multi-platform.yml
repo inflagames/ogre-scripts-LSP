@@ -121,6 +121,7 @@ jobs:
           release_name: ${{ steps.version.outputs.version_bin }}
           # tag_name: ${{ steps.version.outputs.version_bin }}
           tag_name: ${{ github.ref }}
+          body_path: CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{ github.token }}
 

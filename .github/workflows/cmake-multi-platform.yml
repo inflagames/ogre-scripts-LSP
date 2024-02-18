@@ -104,6 +104,9 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
 
+      - name: Give the binary execute permission
+        run: chmod +x ${{ env.artifact_linux_bin }}/${{ env.linux_bin }}
+
       - name: Version number
         run: echo "version_bin=$(./${{ env.artifact_linux_bin }}/${{ env.linux_bin }} --version)" >> "$GITHUB_OUTPUT" # calculate version here
         id: version

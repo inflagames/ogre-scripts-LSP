@@ -75,8 +75,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
                     return tk;
                 }
                 try {
-                    auto res = consumeMatch();
-                    return {match_literal, res.literal};
+                    return consumeMatch();
                 } catch (ScannerException &e) {
                     exceptions.push_back(e);
                     recuperateError();

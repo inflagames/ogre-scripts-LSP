@@ -106,6 +106,7 @@ jobs:
         run: echo "version_bin=$(./ogre3d-scripts-lsp_linux --version)" >> "$GITHUB_OUTPUT" # calculate version here
         id: version
 
+      - run: ls -a
       - run: echo "${{ steps.version.outputs.version_bin }}"
 
       - name: Create release

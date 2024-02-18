@@ -207,7 +207,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeMatch() {
         } else if (ch == '*') {
             literal.push_back(ch);
             nextCharacter();
-            return {string_literal, literal, line, column, (int) literal.size()};
+            return {match_literal, literal, line, column, (int) literal.size()};
         } else if (ch == '\\') {
             nextCharacter();
         }

@@ -125,13 +125,13 @@ jobs:
           tag_name: ${{ github.ref }}
           body_path: CHANGELOG.md
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       # upload linux release
       - name: Upload linux binary to release
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{ env.artifact_linux_bin }}/${{ env.linux_bin }}
@@ -142,7 +142,7 @@ jobs:
       - name: Upload windows binary to release
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{ env.artifact_win_bin }}/${{ env.win_bin }}

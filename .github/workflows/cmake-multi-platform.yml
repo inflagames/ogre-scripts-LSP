@@ -127,8 +127,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
+      # upload linux release
       - name: Upload linux binary to release
-        id: upload_to_release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -137,3 +137,14 @@ jobs:
           asset_path: ${{ env.artifact_linux_bin }}/${{ env.linux_bin }}
           asset_name: ${{ env.linux_bin }}
           asset_content_type: application/x-executable
+
+      # upload win release
+      - name: Upload windows binary to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.artifact_win_bin }}/${{ env.win_bin }}
+          asset_name: ${{ env.win_bin }}
+          asset_content_type: application/x-dosexec

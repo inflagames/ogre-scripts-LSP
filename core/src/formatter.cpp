@@ -118,7 +118,6 @@ int OgreScriptLSP::Formatter::tokenSpacing(OgreScriptLSP::Token tk) {
     // toDo (gonzalezext)[18.02.24]: tokens missing
     switch (tk) {
         case endl_tk:
-        case bad_tk:
             return 0;
         default:
             return 1;

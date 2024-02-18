@@ -1,14 +1,14 @@
-asdf,zxcv
-some" 1 0 2 3
-pepe*vd 1 3 3 4
+asdf ,zxcv
+some " 1 0 2 3
+pepe *vd 1 3 3 4
 pepe *vd* 1 3 3 4
 
 fragment_program Game/Floor/ShaderFp glsl glsles {
   source FloorFp.glsl
 
-  asdf,zxcv
-  some" 1 0 2 3
-  pepe*vd 1 3 3 4
+  asdf ,zxcv
+  some " 1 0 2 3
+  pepe *vd 1 3 3 4
 }
 
 vertex_program Game/Floor/ShaderVp glsl {

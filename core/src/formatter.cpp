@@ -17,11 +17,10 @@ OgreScriptLSP::Formatter::formatting(Parser *parser, FormattingOptions options, 
         auto tk = parser->getToken();
 
         if (lastToken.has_value()) {
-            int col = lastToken->column + lastToken->size;
-            auto ran = Range::toRange(lastToken->line, col, tk.column - col);
+            auto ran = Range::toRange(tk.line, previousTokenPosition, tk.column - previousTokenPosition);
             auto ex = inException(ran, parser);
             if (ex.has_value()) {
-                tk = {bad_tk, "", lastToken->line, ex->start.character, ex->end.character - ex->start.character};
+                tk = {bad_tk, "", tk.line, ex->start.character, ex->end.character - ex->start.character};
             }
         }
 

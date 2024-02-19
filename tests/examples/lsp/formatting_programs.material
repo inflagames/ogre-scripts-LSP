@@ -1,3 +1,5 @@
+345kljh *asdf 123
+
 asdf,zxcv
 some" 1 0 2 3
 pepe*vd 1 3 3 4
@@ -10,6 +12,8 @@ asdf,zxcv
 some" 1 0 2 3
 pepe    *vd 1 3 3 4
   }
+
+345kljh *asdf 123
 
  vertex_program Game/Floor/ShaderVp glsl {    
 source FloorVp.glsl    

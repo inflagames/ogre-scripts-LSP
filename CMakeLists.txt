@@ -31,6 +31,8 @@ add_library(ogre_scripts_LSP_lib STATIC
         core/inc/goto.h
         core/src/program_arg.cpp
         core/inc/program_arg.h
+        core/src/symbols.cpp
+        core/inc/symbols.h
 )
 
 add_executable(ogre_scripts_LSP main.cpp)

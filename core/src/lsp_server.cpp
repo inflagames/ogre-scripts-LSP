@@ -43,6 +43,8 @@ void OgreScriptLSP::LspServer::runServer(std::ostream &oos, std::istream &ios) {
                     continue;
                 } else if ("textDocument/didChange" == rm->method) {
                     didChange(rm, oos);
+                } else if ("textDocument/documentSymbol" == rm->method) {
+                    documentSymbols(rm, oos);
                 }
             } else {
                 shutdown();
@@ -63,6 +65,15 @@ void OgreScriptLSP::LspServer::initialize(OgreScriptLSP::RequestMessage *rm, std
     running = true;
     ResponseMessage re = newResponseMessage(rm->id, new InitializeResult());
     sendResponse(nlohmann::to_string(re.toJson()), oos);
+}
+
+void OgreScriptLSP::LspServer::documentSymbols(RequestMessage *rm, std::ostream &oos) {
+    try {
+        auto params = (DocumentSymbolParams *) rm->params;
+//        sendDiagnostic(updateParser(params->textDocument.uri, params->textDocument.text), oos);
+    } catch (std::exception &e) {
+        Logs::getInstance().log("Error calculating symbols", e);
+    }
 }
 
 void OgreScriptLSP::LspServer::didOpen(RequestMessage *rm, std::ostream &oos) {

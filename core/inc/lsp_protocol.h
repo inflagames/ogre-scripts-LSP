@@ -183,6 +183,14 @@ namespace OgreScriptLSP {
         }
     };
 
+    struct DocumentSymbol : ResultBase {
+        std::string name;
+        uint8_t kind;
+        Range range;
+        Range selectionRange;
+        std::vector<DocumentSymbol> children;
+    };
+
     struct TextEdit : ResultBase {
         Range range;
         std::string newText;
@@ -230,7 +238,6 @@ namespace OgreScriptLSP {
     };
 
     struct CompletionClientCapabilities {
-        // toDo (gonzalezext)[07.02.24]:
     };
 
     struct TextDocumentClientCapabilities {
@@ -380,6 +387,63 @@ namespace OgreScriptLSP {
     };
 
     /**
+     * 'textDocument/semanticTokens/full'
+     */
+    struct SemanticTokensParams : PartialResultParams, WorkDoneProgressParams {
+        TextDocumentIdentifier textDocument;
+
+        void fromJson(const nlohmann::json &j) override {
+            if (j.contains("textDocument") && j.at("textDocument").contains("uri")) {
+                j.at("textDocument").at("uri").get_to(textDocument.uri);
+            }
+        }
+    };
+
+    /**
+     * 'textDocument/semanticTokens/full/delta'
+     */
+    struct SemanticTokensDeltaParams : PartialResultParams, WorkDoneProgressParams {
+        TextDocumentIdentifier textDocument;
+        std::string previousResultId;
+
+        void fromJson(const nlohmann::json &j) override {
+            if (j.contains("textDocument") && j.at("textDocument").contains("uri")) {
+                j.at("textDocument").at("uri").get_to(textDocument.uri);
+            }
+        }
+    };
+
+    /**
+     * 'textDocument/semanticTokens/range'
+     */
+    struct SemanticTokensRangeParams : PartialResultParams, WorkDoneProgressParams {
+        TextDocumentIdentifier textDocument;
+        Range range{};
+
+        void fromJson(const nlohmann::json &j) override {
+            if (j.contains("textDocument") && j.at("textDocument").contains("uri")) {
+                j.at("textDocument").at("uri").get_to(textDocument.uri);
+            }
+            if (j.contains("range")) {
+                range.fromJson(j.at("range"));
+            }
+        }
+    };
+
+    /**
+     * 'textDocument/documentSymbol'
+     */
+    struct DocumentSymbolParams : PartialResultParams, WorkDoneProgressParams {
+        TextDocumentIdentifier textDocument;
+
+        void fromJson(const nlohmann::json &j) override {
+            if (j.contains("textDocument") && j.at("textDocument").contains("uri")) {
+                j.at("textDocument").at("uri").get_to(textDocument.uri);
+            }
+        }
+    };
+
+    /**
      * 'textDocument/didOpen'
      */
     struct DidOpenTextDocumentParams : ParamsBase {
@@ -437,7 +501,7 @@ namespace OgreScriptLSP {
                 j.at("textDocument").at("version").get_to(textDocument.version);
             }
             if (j.contains("contentChanges") && j.at("contentChanges").is_array()) {
-                for (const auto& it: j.at("contentChanges")) {
+                for (const auto &it: j.at("contentChanges")) {
                     TextDocumentContentChangeEvent nv;
                     nv.fromJson(it);
                     contentChanges.push_back(nv);
@@ -456,12 +520,47 @@ namespace OgreScriptLSP {
             bool implementationProvider = false;
             bool documentFormattingProvider = true;
             bool documentRangeFormattingProvider = true;
+            bool documentSymbolProvider = false;
+
+            struct SemanticTokensOptions {
+                struct SemanticTokensLegend {
+                    std::vector<std::string> tokenTypes;
+                    std::vector<std::string> tokenModifiers;
+
+                    nlohmann::json toJson() {
+                        nlohmann::json arrayTokenTypes = nlohmann::json::array();
+                        nlohmann::json arrayTokenModifiers = nlohmann::json::array();
+                        for (const auto &v: tokenTypes) {
+                            arrayTokenTypes.push_back(v);
+                        }
+                        for (const auto &v: tokenModifiers) {
+                            arrayTokenModifiers.push_back(v);
+                        }
+                        return nlohmann::json{
+                                {"tokenTypes",     arrayTokenTypes},
+                                {"tokenModifiers", arrayTokenModifiers},
+                        };
+                    }
+                } legend;
+
+                bool workDoneProgress = false; // WorkDoneProgressOptions
+                bool range = true;
+                bool full = true;
+
+                nlohmann::json toJson() {
+                    return nlohmann::json{
+                            {"legend",           legend.toJson()},
+                            {"workDoneProgress", workDoneProgress},
+                            {"range",            range},
+                            {"full",             full},
+                    };
+                }
+            } semanticTokensProvider;
         } capabilities;
 
         struct ServerInfo {
             std::string name = "ogre-scripts-LSP";
-            // toDo (gonzalezext)[26.01.24]: version should be provide via CMAKE variable
-            std::string version = "1.0.0";
+            std::string version = APP_VERSION;
         } serverInfo;
 
         nlohmann::json toJson() override {
@@ -471,6 +570,8 @@ namespace OgreScriptLSP {
                                              {"definitionProvider", capabilities.definitionProvider},
                                              {"implementationProvider", capabilities.implementationProvider},
                                              {"documentRangeFormattingProvider", capabilities.documentRangeFormattingProvider},
+                                             {"documentSymbolProvider", capabilities.documentSymbolProvider},
+                                             {"semanticTokensProvider", capabilities.semanticTokensProvider.toJson()},
                                              {"documentFormattingProvider", capabilities.documentFormattingProvider}}
                     },
                     {"serverInfo",   {
@@ -555,6 +656,8 @@ namespace OgreScriptLSP {
                     params = new DidCloseTextDocumentParams();
                 } else if ("textDocument/didSave" == method) {
                     params = new DidSaveTextDocumentParams();
+                } else if ("textDocument/documentSymbol" == method) {
+                    params = new DocumentSymbolParams();
                 } else if ("textDocument/didChange" == method) {
                     params = new DidChangeTextDocumentParams();
                 }

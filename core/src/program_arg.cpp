@@ -41,5 +41,5 @@ void ProgramArg::showHelp() const {
 }
 
 void ProgramArg::showVersion() const { // NOLINT(*-convert-member-functions-to-static)
-    std::cout << VERSION_V << std::endl;
+    std::cout << APP_VERSION << std::endl;
 }

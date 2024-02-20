@@ -17,8 +17,6 @@
 #define VERSION "-v"
 #define VERSION_LONG "--version"
 
-#define VERSION_V APP_VERSION
-
 class ProgramArg {
 public:
     std::string programName;

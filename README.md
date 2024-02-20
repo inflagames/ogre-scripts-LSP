@@ -8,6 +8,50 @@ microsoft: https://microsoft.github.io/language-server-protocol/specifications/l
 Language specifications can be found on the ogre3d
 documentation: https://ogrecave.github.io/ogre/api/latest/_scripts.html.
 
+## IDE integration
+
+### CLion (JetBrain)
+
+For CLion you can use the plugin [Ogre3d Scripts](https://plugins.jetbrains.com/plugin/23756-ogre3d-scripts/edit)
+
+> Note: The plugin repository can be found here: https://github.com/inflagames/ogre3dscript-jetbrain-plugin
+
+### NeoVim
+
+Use the next configuration to setting up the LS in nvim:
+
+```lua
+vim.filetype.add({
+	extension = {
+		material = "material",
+	},
+})
+
+vim.api.nvim_create_autocmd('FileType', {
+	desc = 'LSP start',
+	pattern = { "material" },
+	callback = function()
+		print("Started server")
+		vim.lsp.start({
+			name = 'ogre3d-script-lsp',
+			cmd = { '~/ogre_scripts_LSP', '-l'},
+			root_dir = vim.fs.dirname(vim.fs.find({ 'resources.cfg' }, { upward = true })[1])
+		})
+	end
+})
+```
+
+> Note: the **cmd** option is pointing to the LSP binary on home.
+> Be sure you have downloaded the plugin latest release to this folder.
+
+### Visual Studio
+
+TBD
+
+### Visual Studio Code
+
+TBD
+
 ## Languages supported (so far)
 
 - [x] .material

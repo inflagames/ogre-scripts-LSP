@@ -7,6 +7,7 @@
 
 namespace OgreScriptLSP {
     class Symbols {
+    public:
         static ResultArray *getSymbols(Parser* parser);
     };
 }

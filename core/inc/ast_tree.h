@@ -149,6 +149,7 @@ namespace OgreScriptLSP {
 
     class MaterialAst : public AstObject {
     public:
+        TokenValue materialSymbol = {material_tk, ""};
         std::vector<MaterialParamAst *> params;
         std::vector<TechniqueAst *> techniques;
 

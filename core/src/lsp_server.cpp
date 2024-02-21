@@ -1,4 +1,5 @@
 #include "../inc/lsp_server.h"
+#include "../inc/symbols.h"
 
 void OgreScriptLSP::LspServer::runServer(std::ostream &oos, std::istream &ios) {
     // run server until exit or crash
@@ -33,13 +34,12 @@ void OgreScriptLSP::LspServer::runServer(std::ostream &oos, std::istream &ios) {
                 } else if ("textDocument/definition" == rm->method) {
                     goToDefinition(rm, oos);
                 } else if ("textDocument/declaration" == rm->method) {
-                    // toDo (gonzalezext)[29.01.24]:
                 } else if ("textDocument/didOpen" == rm->method) {
                     didOpen(rm, oos);
                 } else if ("textDocument/didClose" == rm->method) {
                     didClose(rm);
                 } else if ("textDocument/didSave" == rm->method) {
-                    // not needed at the moment
+                    // not used at the moment
                     continue;
                 } else if ("textDocument/didChange" == rm->method) {
                     didChange(rm, oos);
@@ -70,8 +70,11 @@ void OgreScriptLSP::LspServer::initialize(OgreScriptLSP::RequestMessage *rm, std
 void OgreScriptLSP::LspServer::documentSymbols(RequestMessage *rm, std::ostream &oos) {
     try {
         auto params = (DocumentSymbolParams *) rm->params;
-//        sendDiagnostic(updateParser(params->textDocument.uri, params->textDocument.text), oos);
+        auto parser = getParserByUri(params->textDocument.uri);
+        ResponseMessage re = newResponseMessage(rm->id, Symbols::getSymbols(parser));
+        sendResponse(nlohmann::to_string(re.toJson()), oos);
     } catch (std::exception &e) {
+        // toDo (gonzalezext)[21.02.24]: send error to client
         Logs::getInstance().log("Error calculating symbols", e);
     }
 }
@@ -81,6 +84,7 @@ void OgreScriptLSP::LspServer::didOpen(RequestMessage *rm, std::ostream &oos) {
         auto params = (DidOpenTextDocumentParams *) rm->params;
         sendDiagnostic(updateParser(params->textDocument.uri, params->textDocument.text), oos);
     } catch (std::exception &e) {
+        // toDo (gonzalezext)[21.02.24]: send error to client
         Logs::getInstance().log("Error to open a file", e);
     }
 }

@@ -220,6 +220,7 @@ void OgreScriptLSP::Parser::material(OgreScriptLSP::MaterialScriptAst *scriptAst
     material->parent = {EOF_tk, ""};
 
     // consume material_tk token
+    material->materialSymbol = getToken();
     nextToken();
 
     objectDefinition(material, MATERIAL_NAME_MISSION_ERROR, MATERIAL_INHERIT_ERROR);

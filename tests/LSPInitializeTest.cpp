@@ -56,6 +56,7 @@ TEST (LSPInitializeTest, readHeadBody_ShouldInitializeConnectionWithClient) {
     ASSERT_TRUE(j.at("result").at("capabilities").at("documentFormattingProvider").template get<bool>());
     ASSERT_TRUE(j.at("result").at("capabilities").contains("documentRangeFormattingProvider"));
     ASSERT_TRUE(j.at("result").at("capabilities").at("documentRangeFormattingProvider").template get<bool>());
+    ASSERT_FALSE(j.at("result").at("capabilities").at("documentSymbolProvider").template get<bool>());
 
     // validate semantic tokens
     ASSERT_TRUE(j.at("result").at("capabilities").contains("semanticTokensProvider"));

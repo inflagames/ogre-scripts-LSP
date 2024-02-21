@@ -183,12 +183,34 @@ namespace OgreScriptLSP {
         }
     };
 
+    enum SymbolKind {
+        File = 1, Module, Namespace, Package, Class, Method, Property, Field, Constructor, Enum, Interface, Function,
+        Variable, Constant, String, Number, Boolean, Array, Object, Key, Null, EnumMember, Struct, Event, Operator,
+        TypeParameter
+    };
+
     struct DocumentSymbol : ResultBase {
         std::string name;
-        uint8_t kind;
+        SymbolKind kind;
         Range range;
         Range selectionRange;
         std::vector<DocumentSymbol> children;
+
+        DocumentSymbol(std::string name, SymbolKind kind, Range range, Range selectionRange) : name(std::move(name)),
+                                                                                               kind(kind),
+                                                                                               range(range),
+                                                                                               selectionRange(
+                                                                                                       selectionRange) {}
+
+        nlohmann::json toJson() override {
+            return nlohmann::json{
+                    {"name", name},
+                    {"kind", kind},
+                    {"range", range.toJson()},
+                    {"selectionRange", selectionRange.toJson()},
+//                    {"children": childrenArr}
+            };
+        }
     };
 
     struct TextEdit : ResultBase {

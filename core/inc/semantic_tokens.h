@@ -6,9 +6,9 @@
 #include "parser.h"
 
 namespace OgreScriptLSP {
-    class SemanticTokens {
+    class SemanticToken {
     public:
-        static ResultArray *getSemanticTokens(Parser *parser);
+        static ResultBase *getSemanticTokens(Parser *parser);
     };
 }
 

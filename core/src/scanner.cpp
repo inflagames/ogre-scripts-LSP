@@ -236,8 +236,6 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
                 return {from_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "default_params") {
                 return {default_params_tk, literal, line, column, (int) literal.size()};
-            } else if (literal == "entry_point") {
-                return {entry_point_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "fragment_program") {
                 return {fragment_program_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "fragment_program_ref") {
@@ -246,8 +244,6 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
                 return {material_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "pass") {
                 return {pass_tk, literal, line, column, (int) literal.size()};
-            } else if (literal == "profiles") {
-                return {profiles_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "technique") {
                 return {technique_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "texture_unit") {

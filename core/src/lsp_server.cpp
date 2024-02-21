@@ -74,7 +74,7 @@ void OgreScriptLSP::LspServer::semanticTokens(RequestMessage *rm, std::ostream &
     try {
         auto params = (DocumentSymbolParams *) rm->params;
         auto parser = getParserByUri(params->textDocument.uri);
-        ResponseMessage re = newResponseMessage(rm->id, SemanticTokens::getSemanticTokens(parser));
+        ResponseMessage re = newResponseMessage(rm->id, SemanticToken::getSemanticTokens(parser));
         sendResponse(nlohmann::to_string(re.toJson()), oos);
     } catch (std::exception &e) {
         // toDo (gonzalezext)[21.02.24]: send error to client

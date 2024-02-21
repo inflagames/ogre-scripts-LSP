@@ -80,8 +80,6 @@ namespace OgreScriptLSP {
 
         void materialPass(TechniqueAst *technique);
 
-        void materialPassName(PassAst *pass);
-
         void materialPassBody(PassAst *pass);
 
         void materialTexture(PassAst *pass);

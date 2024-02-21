@@ -134,6 +134,7 @@ namespace OgreScriptLSP {
     class TechniqueAst : public AstObject {
     public:
         std::vector<PassAst *> passes;
+        std::vector<PassParamAst *> params;
 
         ~TechniqueAst() override {
             for (auto ele: passes) {

@@ -624,6 +624,14 @@ namespace OgreScriptLSP {
         std::string resultId;
         std::vector<uint32_t> data;
 
+        void addToken(uint32_t line, uint32_t startChar, uint32_t length, uint32_t tokenType, uint32_t modifiers) {
+            data.push_back(line);
+            data.push_back(startChar);
+            data.push_back(length);
+            data.push_back(tokenType);
+            data.push_back(modifiers);
+        }
+
         nlohmann::json toJson() override {
             auto jData = nlohmann::json::array();
             for (const auto &d: data) {

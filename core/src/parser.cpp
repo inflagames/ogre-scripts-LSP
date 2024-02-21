@@ -280,6 +280,12 @@ void OgreScriptLSP::Parser::materialTechniqueBody(OgreScriptLSP::TechniqueAst *t
             materialPass(technique);
             continue;
         }
+        if (tk.tk == identifier) {
+            auto *param = new PassParamAst();
+            paramsLine(param);
+            technique->params.push_back(param);
+            continue;
+        }
 
         // recuperate line
         exceptions.push_back(ParseException(NOT_VALID_MATERIAL_TECHNIQUE_BODY, tk.toRange()));
@@ -296,8 +302,6 @@ void OgreScriptLSP::Parser::materialPass(OgreScriptLSP::TechniqueAst *technique)
 
     objectDefinition(pass, PASS_NAME_MISSION_ERROR, PASS_INHERIT_ERROR, true);
 
-    materialPassName(pass);
-
     consumeOpenCurlyBracket();
 
     materialPassBody(pass);
@@ -305,25 +309,6 @@ void OgreScriptLSP::Parser::materialPass(OgreScriptLSP::TechniqueAst *technique)
     consumeCloseCurlyBracket();
 
     technique->passes.push_back(pass);
-}
-
-void OgreScriptLSP::Parser::materialPassName(OgreScriptLSP::PassAst *pass) {
-    if (getToken().tk == identifier) {
-        pass->name = getToken();
-        nextToken();
-
-        if (getToken().tk == colon_tk) {
-            nextToken();
-            pass->parent = getToken();
-            consumeToken(identifier, MATERIAL_PASS_INHERIT_ERROR, true);
-        }
-    } else if (getToken().tk == match_literal) {
-        pass->name = getToken();
-        nextTokenAndConsumeEndLines();
-    } else if (getToken().tk != left_curly_bracket_tk) {
-        auto tk = getToken();
-        throw ParseException(MATERIAL_PASS_NAME_MISSION_ERROR, tk.toRange());
-    }
 }
 
 void OgreScriptLSP::Parser::materialPassBody(OgreScriptLSP::PassAst *pass) {

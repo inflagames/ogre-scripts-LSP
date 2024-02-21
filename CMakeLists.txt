@@ -33,6 +33,8 @@ add_library(ogre_scripts_LSP_lib STATIC
         core/inc/program_arg.h
         core/src/symbols.cpp
         core/inc/symbols.h
+        core/src/semantic_tokens.cpp
+        core/inc/semantic_tokens.h
 )
 
 add_executable(ogre_scripts_LSP main.cpp)

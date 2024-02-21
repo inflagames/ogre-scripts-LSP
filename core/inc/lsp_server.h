@@ -44,6 +44,8 @@ namespace OgreScriptLSP {
 
         void goToDefinition(RequestMessage *rm, std::ostream &oos = std::cout);
 
+        void semanticTokens(RequestMessage *rm, std::ostream &oos);
+
         void documentSymbols(RequestMessage *rm, std::ostream &oos);
 
         void didOpen(RequestMessage *rm, std::ostream &oos);

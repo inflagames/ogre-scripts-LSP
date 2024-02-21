@@ -204,9 +204,9 @@ namespace OgreScriptLSP {
 
         nlohmann::json toJson() override {
             return nlohmann::json{
-                    {"name", name},
-                    {"kind", kind},
-                    {"range", range.toJson()},
+                    {"name",           name},
+                    {"kind",           kind},
+                    {"range",          range.toJson()},
                     {"selectionRange", selectionRange.toJson()},
 //                    {"children": childrenArr}
             };
@@ -432,6 +432,9 @@ namespace OgreScriptLSP {
             if (j.contains("textDocument") && j.at("textDocument").contains("uri")) {
                 j.at("textDocument").at("uri").get_to(textDocument.uri);
             }
+            if (j.contains("previousResultId")) {
+                j.at("previousResultId").get_to(previousResultId);
+            }
         }
     };
 
@@ -546,8 +549,9 @@ namespace OgreScriptLSP {
 
             struct SemanticTokensOptions {
                 struct SemanticTokensLegend {
-                    std::vector<std::string> tokenTypes;
-                    std::vector<std::string> tokenModifiers;
+                    std::vector<std::string> tokenTypes{"class", "comment", "struct", "variable", "property", "number",
+                                                        "string"};
+                    std::vector<std::string> tokenModifiers{"abstract"};
 
                     nlohmann::json toJson() {
                         nlohmann::json arrayTokenTypes = nlohmann::json::array();
@@ -616,6 +620,22 @@ namespace OgreScriptLSP {
         std::string message;
     };
 
+    struct SemanticTokens : ResultBase {
+        std::string resultId;
+        std::vector<uint32_t> data;
+
+        nlohmann::json toJson() override {
+            auto jData = nlohmann::json::array();
+            for (const auto &d: data) {
+                jData.push_back(d);
+            }
+            return nlohmann::json{
+                    {"resultId", resultId},
+                    {"data",     data},
+            };
+        }
+    };
+
     /**
      * 'textDocument/publishDiagnostics' response
      */
@@ -682,6 +702,12 @@ namespace OgreScriptLSP {
                     params = new DocumentSymbolParams();
                 } else if ("textDocument/didChange" == method) {
                     params = new DidChangeTextDocumentParams();
+                } else if ("textDocument/semanticTokens/full" == method) {
+                    params = new SemanticTokensParams();
+                } else if ("textDocument/semanticTokens/full/delta" == method) {
+                    params = new SemanticTokensDeltaParams();
+                } else if ("textDocument/semanticTokens/range" == method) {
+                    params = new SemanticTokensRangeParams();
                 }
                 if (params != nullptr) {
                     params->fromJson(j.at("params"));

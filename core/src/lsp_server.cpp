@@ -1,5 +1,6 @@
 #include "../inc/lsp_server.h"
 #include "../inc/symbols.h"
+#include "../inc/semantic_tokens.h"
 
 void OgreScriptLSP::LspServer::runServer(std::ostream &oos, std::istream &ios) {
     // run server until exit or crash
@@ -45,6 +46,8 @@ void OgreScriptLSP::LspServer::runServer(std::ostream &oos, std::istream &ios) {
                     didChange(rm, oos);
                 } else if ("textDocument/documentSymbol" == rm->method) {
                     documentSymbols(rm, oos);
+                } else if (rm->method.starts_with("textDocument/semanticTokens")) {
+                    semanticTokens(rm, oos);
                 }
             } else {
                 shutdown();
@@ -65,6 +68,18 @@ void OgreScriptLSP::LspServer::initialize(OgreScriptLSP::RequestMessage *rm, std
     running = true;
     ResponseMessage re = newResponseMessage(rm->id, new InitializeResult());
     sendResponse(nlohmann::to_string(re.toJson()), oos);
+}
+
+void OgreScriptLSP::LspServer::semanticTokens(RequestMessage *rm, std::ostream &oos) {
+    try {
+        auto params = (DocumentSymbolParams *) rm->params;
+        auto parser = getParserByUri(params->textDocument.uri);
+        ResponseMessage re = newResponseMessage(rm->id, SemanticTokens::getSemanticTokens(parser));
+        sendResponse(nlohmann::to_string(re.toJson()), oos);
+    } catch (std::exception &e) {
+        // toDo (gonzalezext)[21.02.24]: send error to client
+        Logs::getInstance().log("Error calculating semantic tokens", e);
+    }
 }
 
 void OgreScriptLSP::LspServer::documentSymbols(RequestMessage *rm, std::ostream &oos) {

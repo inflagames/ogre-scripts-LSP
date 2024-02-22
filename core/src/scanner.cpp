@@ -292,7 +292,7 @@ bool OgreScriptLSP::Scanner::validLiteral(char c, bool startCharacter) {
     if (startCharacter) {
         return isalpha(c) || c == '_' || c == '$' || c == '/' || c == '.';
     }
-    return isalnum(c) || c == '_' || c == '/' || c == '.';
+    return isalnum(c) || c == '_' || c == '/' || c == '.' || c == '&';
 }
 
 void OgreScriptLSP::Scanner::recuperateError(int column, const std::string &error) {

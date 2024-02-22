@@ -13,3 +13,4 @@ Fixed general issues related to the scripting language and not supported tokens.
 - Added: Support for missing <tessellation_domain_program>|<tessellation_domain_program_ref> blocks.
 - Added: Support for missing <compute_program>|<compute_program_ref> blocks.
 - Added: Support for missing <shadow_receiver_material>|<shadow_caster_material> blocks.
+- Fixed: Error with characters allowed in identifier tokens.

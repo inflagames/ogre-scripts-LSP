@@ -17,40 +17,32 @@ std::unique_ptr<OgreScriptLSP::ResultBase> OgreScriptLSP::GoTo::goToDefinition(O
 
 std::optional<std::pair<int, std::string>>
 OgreScriptLSP::GoTo::search(OgreScriptLSP::MaterialScriptAst *script, OgreScriptLSP::Position position) {
-    const auto materialIter = std::ranges::find_if(script->materials.begin(), script->materials.end(),
-                                                   [&](const auto &m) {
-                                                       return searchMaterial(m, position).has_value();
-                                                   });
-
-    if (materialIter != script->materials.end()) {
-        return searchMaterial(*materialIter, position);
+    for (auto m : script->materials) {
+        auto r = searchMaterial(m, position);
+        if (r.has_value()) {
+            return r;
+        }
     }
 
-    const auto abstractIter = std::ranges::find_if(script->abstracts.begin(), script->abstracts.end(),
-                                                   [&](const auto &a) {
-                                                       return searchAbstract(a, position).has_value();
-                                                   });
-
-    if (abstractIter != script->abstracts.end()) {
-        return searchAbstract(*abstractIter, position);
+    for (auto a : script->abstracts) {
+        auto r = searchAbstract(a, position);
+        if (r.has_value()) {
+            return r;
+        }
     }
 
-    const auto programIter = std::ranges::find_if(script->programs.begin(), script->programs.end(),
-                                                  [&](const auto &p) {
-                                                      return searchProgram(p, position).has_value();
-                                                  });
-
-    if (programIter != script->programs.end()) {
-        return searchProgram(*programIter, position);
+    for (auto p : script->programs) {
+        auto r = searchProgram(p, position);
+        if (r.has_value()) {
+            return r;
+        }
     }
 
-    const auto sharedParamIter = std::ranges::find_if(script->sharedParams.begin(), script->sharedParams.end(),
-                                                      [&](const auto &p) {
-                                                          return searchSharedParam(p, position).has_value();
-                                                      });
-
-    if (sharedParamIter != script->sharedParams.end()) {
-        return searchSharedParam(*sharedParamIter, position);
+    for (auto sp : script->sharedParams) {
+        auto r = searchSharedParam(sp, position);
+        if (r.has_value()) {
+            return r;
+        }
     }
 
     return std::nullopt;

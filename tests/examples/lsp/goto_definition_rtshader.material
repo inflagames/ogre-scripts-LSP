@@ -10,6 +10,10 @@ material Child {
 
             texture_unit normal {
                 texture normal_map2.jpg
+
+				rtshader_system some : ShaderDef {
+					normal_map tangent_space
+				}
             }
 
             rtshader_system : ShaderDef {

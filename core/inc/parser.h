@@ -101,7 +101,7 @@ namespace OgreScriptLSP {
 
         void materialTextureBody(TextureUnitAst *texture);
 
-        void materialRtShader(OgreScriptLSP::PassAst *pass);
+        void materialRtShader(OgreScriptLSP::RtShaderAst *shader);
 
         void materialRtShaderBody(OgreScriptLSP::RtShaderAst *shader);
 

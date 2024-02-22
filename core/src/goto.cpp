@@ -156,6 +156,12 @@ OgreScriptLSP::GoTo::searchTexture(OgreScriptLSP::TextureUnitAst *texture, OgreS
     if (o.has_value()) {
         return o;
     }
+    for (auto rt: texture->shaders) {
+        auto r = searchRtShader(rt, position);
+        if (r.has_value()) {
+            return r;
+        }
+    }
     return std::nullopt;
 }
 

@@ -173,8 +173,13 @@ TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_techni
                            {0, 35}}, "file://./examples/lsp/goto_definition_technique.material");
 }
 
-TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_rtshaderSystemDefinitionPosition) {
-    validateGoTo({14, 33}, {{0, 25},
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_passRtshaderSystemDefinitionPosition) {
+    validateGoTo({18, 33}, {{0, 25},
+                            {0, 34}}, "file://./examples/lsp/goto_definition_rtshader.material");
+}
+
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_textureUnitRtshaderSystemDefinitionPosition) {
+    validateGoTo({13, 30}, {{0, 25},
                             {0, 34}}, "file://./examples/lsp/goto_definition_rtshader.material");
 }
 

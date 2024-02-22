@@ -131,12 +131,17 @@ namespace OgreScriptLSP {
     class TextureUnitAst : public AstObject {
     public:
         std::vector<TextureUnitParamAst *> params;
+        std::vector<RtShaderAst *> shaders;
 
         ~TextureUnitAst() override {
             for (auto ele: params) {
                 delete ele;
             }
             params.clear();
+            for (auto ele: shaders) {
+                delete ele;
+            }
+            shaders.clear();
         }
     };
 
@@ -169,6 +174,10 @@ namespace OgreScriptLSP {
                 delete ele;
             }
             programsReferences.clear();
+            for (auto ele: shaders) {
+                delete ele;
+            }
+            shaders.clear();
         }
     };
 

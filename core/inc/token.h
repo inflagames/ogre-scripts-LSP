@@ -15,11 +15,11 @@ namespace OgreScriptLSP {
         technique_tk,
         texture_unit_tk,
         rtshader_system_tk,
-
         shared_params_tk,
         shared_params_ref_tk,
         shadow_caster_material_tk,
         shadow_receiver_material_tk,
+        texture_source_tk,
 
         // programs tokens
         fragment_program_tk,

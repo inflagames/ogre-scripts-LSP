@@ -25,11 +25,21 @@ namespace OgreScriptLSP {
     };
 
     class ParamProgramAst : public ParamAst {
+    };
+
+    class SharedParamsAst : public AstObject {
     public:
+        std::vector<ParamProgramAst *> params;
+
+        ~SharedParamsAst() override {
+            for (auto ele: params) {
+                delete ele;
+            }
+            params.clear();
+        }
     };
 
     class ParamProgramDefaultAst : public ParamAst {
-    public:
     };
 
     class AbstractAst {
@@ -48,16 +58,9 @@ namespace OgreScriptLSP {
         TokenValue file;
     };
 
-    class SharedParamsAst : public AstObject {
+    class MaterialProgramSharedParamAst {
     public:
-        std::vector<ParamProgramAst *> params;
-
-        ~SharedParamsAst() override {
-            for (auto ele: params) {
-                delete ele;
-            }
-            params.clear();
-        }
+        TokenValue identifier;
     };
 
     class ProgramAst : public AstObject {
@@ -66,6 +69,7 @@ namespace OgreScriptLSP {
         std::vector<ParamProgramAst *> params;
         std::vector<ParamProgramDefaultAst *> defaults;
         std::vector<TokenValue> highLevelProgramsType;
+        std::vector<MaterialProgramSharedParamAst *> sharedParams;
 
         ~ProgramAst() override {
             for (auto ele: params) {
@@ -82,11 +86,6 @@ namespace OgreScriptLSP {
 
     class MaterialProgramParamAst : public ParamAst {
     public:
-    };
-
-    class MaterialProgramSharedParamAst {
-    public:
-        TokenValue identifier;
     };
 
     class MaterialProgramAst {

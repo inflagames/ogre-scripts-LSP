@@ -251,14 +251,20 @@ void OgreScriptLSP::Parser::programDefaults(OgreScriptLSP::ProgramAst *program) 
 
     while (!isEof() && getToken().tk != right_curly_bracket_tk && !isMainStructure()) {
         auto tk = getToken();
-        if (tk.tk != identifier) {
-            exceptions.push_back(ParseException(NOT_VALID_PARAM, tk.toRange()));
-            recuperateLine();
+        if (tk.tk == shared_params_ref_tk) {
+            auto *sharedParam = new MaterialProgramSharedParamAst();
+            programSharedParams(sharedParam);
+            program->sharedParams.push_back(sharedParam);
             continue;
         }
-        auto *param = new ParamProgramDefaultAst();
-        paramsLine(param);
-        program->defaults.push_back(param);
+        if (tk.tk == identifier) {
+            auto *param = new ParamProgramDefaultAst();
+            paramsLine(param);
+            program->defaults.push_back(param);
+            continue;
+        }
+        exceptions.push_back(ParseException(NOT_VALID_PARAM, tk.toRange()));
+        recuperateLine();
     }
 
     consumeCloseCurlyBracket();
@@ -564,7 +570,9 @@ void OgreScriptLSP::Parser::materialProgramRefBody(OgreScriptLSP::MaterialProgra
             continue;
         }
         if (tk.tk == shared_params_ref_tk) {
-            materialPassSharedParams(programRef);
+            auto *sharedParam = new MaterialProgramSharedParamAst();
+            programSharedParams(sharedParam);
+            programRef->sharedParams.push_back(sharedParam);
             continue;
         }
 
@@ -575,9 +583,7 @@ void OgreScriptLSP::Parser::materialProgramRefBody(OgreScriptLSP::MaterialProgra
     consumeEndLines();
 }
 
-void OgreScriptLSP::Parser::materialPassSharedParams(OgreScriptLSP::MaterialProgramAst *programRef) {
-    auto *sharedParam = new MaterialProgramSharedParamAst();
-
+void OgreScriptLSP::Parser::programSharedParams(MaterialProgramSharedParamAst *sharedParam) {
     // consume shared_params_ref_tk
     nextToken();
 
@@ -595,7 +601,6 @@ void OgreScriptLSP::Parser::materialPassSharedParams(OgreScriptLSP::MaterialProg
         return;
     }
 
-    programRef->sharedParams.push_back(sharedParam);
     consumeEndLines();
 }
 

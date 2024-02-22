@@ -97,14 +97,12 @@ script = <script_body> | <script_body> <script>
 script_body = <program> | <material>
 
 // program definition
-program = <program_type> <identifier> <program_opt> <left_curly_bracket_tk> <program_body> <right_curly_bracket_tk>
+program = <program_type> <identifier> <identifier>* <left_curly_bracket_tk> <program_body>* <right_curly_bracket_tk>
 program_type = <fragment_program_tk> | <vertex_program_tk> | <geometry_program_tk> | <tessellation_hull_program_tk> | <tessellation_domain_program_tk> | <compute_program_tk> 
-program_opt = <identifier> | <identifier> <program_opt>
-program_body = <program_body_opt> | <program_body_opt> <program_body>
-program_body_opt = <param_line> | <program_default>
+program_body = <param_line> | <program_default>
 
-program_default = <default_params_tk> <left_curly_bracket_tk> <program_default_body> <right_curly_bracket_tk>
-program_default_body = <param_line> | <param_line> <program_default_body>
+program_default = <default_params_tk> <left_curly_bracket_tk> <program_default_body>* <right_curly_bracket_tk>
+program_default_body = <param_line> | <shared_params_ref>
 
 // import definition
 import = <import_tk> <import_opt> <from_tk> <import_source>

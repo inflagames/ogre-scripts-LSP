@@ -96,6 +96,9 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
                     numberPrefix.push_back(ch);
                     nextCharacter();
                     if (!isdigit(ch) && ch != '.') {
+                        if (validLiteral(ch)) {
+                            return nextLiteral("-");
+                        }
                         recuperateError(columnCount - 1, SCANNER_INVALID_CHARACTER);
                         continue;
                     }

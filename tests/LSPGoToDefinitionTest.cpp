@@ -185,25 +185,30 @@ TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_textur
 
 TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_shadowReceiverExample) {
     validateGoTo({8, 40}, {{0, 9},
-                            {0, 32}}, "file://./examples/lsp/goto_definition_shadow_mat.material");
+                           {0, 32}}, "file://./examples/lsp/goto_definition_shadow_mat.material");
 }
 
 TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_shadowCasterExample) {
     validateGoTo({9, 44}, {{3, 9},
-                            {3, 30}}, "file://./examples/lsp/goto_definition_shadow_mat.material");
+                           {3, 30}}, "file://./examples/lsp/goto_definition_shadow_mat.material");
 }
 
 TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_sharedParamsExample) {
-    validateGoTo({17, 40}, {{6, 14},
-                           {6, 26}}, "file://./examples/lsp/goto_definition_shared_param.material");
+    validateGoTo({20, 40}, {{0, 14},
+                            {0, 26}}, "file://./examples/lsp/goto_definition_shared_param.material");
 }
 
 TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_sharedParamsInObjectExample) {
-    validateGoTo({6, 20}, {{6, 14},
-                            {6, 26}}, "file://./examples/lsp/goto_definition_shared_param.material");
+    validateGoTo({0, 20}, {{0, 14},
+                           {0, 26}}, "file://./examples/lsp/goto_definition_shared_param.material");
+}
+
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_sharedParamsInProgramExample) {
+    validateGoTo({9, 30}, {{0, 14},
+                           {0, 26}}, "file://./examples/lsp/goto_definition_shared_param.material");
 }
 
 TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_textureSourceExample) {
     validateGoTo({15, 34}, {{0, 24},
-                           {0, 47}}, "file://./examples/lsp/goto_definition_texture_source.material");
+                            {0, 47}}, "file://./examples/lsp/goto_definition_texture_source.material");
 }

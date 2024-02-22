@@ -200,6 +200,12 @@ OgreScriptLSP::GoTo::searchProgram(OgreScriptLSP::ProgramAst *program, OgreScrip
     if (o.has_value()) {
         return o;
     }
+    for (const auto sp : program->sharedParams) {
+        auto r = searchSharedParamRef(sp, position);
+        if (r.has_value()) {
+            return r;
+        }
+    }
     return std::nullopt;
 }
 

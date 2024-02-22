@@ -114,7 +114,7 @@ namespace OgreScriptLSP {
 
         void materialProgramRefBody(MaterialProgramAst *programRef);
 
-        void materialPassSharedParams(MaterialProgramAst *programRef);
+        void programSharedParams(MaterialProgramSharedParamAst *sharedParam);
 
         // THIS IS COMMON SECTION
         void paramsLine(ParamAst *params);

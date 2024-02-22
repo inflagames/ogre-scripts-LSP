@@ -4,7 +4,7 @@
 
 TEST (ParserTest, parse_ShouldParseFileCorrectly_example002) {
     auto *parser = new OgreScriptLSP::Parser();
-    std::string scriptFile = "./examples/example002.material";
+    std::string scriptFile = "./examples/valid_examples/example002.material";
     parser->loadScript(scriptFile);
 
     parser->parse();
@@ -14,7 +14,7 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly_example002) {
 
 TEST (ParserTest, parse_ShouldParseFileCorrectly_example001) {
     auto *parser = new OgreScriptLSP::Parser();
-    std::string scriptFile = "./examples/example001.material";
+    std::string scriptFile = "./examples/valid_examples/example001.material";
     parser->loadScript(scriptFile);
 
     parser->parse();
@@ -24,7 +24,7 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly_example001) {
 
 TEST (ParserTest, parse_ShouldParseFileCorrectly_example003) {
     auto *parser = new OgreScriptLSP::Parser();
-    std::string scriptFile = "./examples/example003.material";
+    std::string scriptFile = "./examples/valid_examples/example003.material";
     parser->loadScript(scriptFile);
 
     parser->parse();
@@ -34,7 +34,7 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly_example003) {
 
 TEST (ParserTest, parse_ShouldParseFileCorrectly_example004) {
     auto *parser = new OgreScriptLSP::Parser();
-    std::string scriptFile = "./examples/example004.material";
+    std::string scriptFile = "./examples/valid_examples/example004.material";
     parser->loadScript(scriptFile);
 
     parser->parse();
@@ -44,7 +44,27 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly_example004) {
 
 TEST (ParserTest, parse_ShouldParseFileCorrectly_example005) {
     auto *parser = new OgreScriptLSP::Parser();
-    std::string scriptFile = "./examples/example005.material";
+    std::string scriptFile = "./examples/valid_examples/example005.material";
+    parser->loadScript(scriptFile);
+
+    parser->parse();
+
+    ASSERT_EQ(0, parser->getExceptions().size());
+}
+
+TEST (ParserTest, parse_ShouldParseFileCorrectly_example006) {
+    auto *parser = new OgreScriptLSP::Parser();
+    std::string scriptFile = "./examples/valid_examples/example006.material";
+    parser->loadScript(scriptFile);
+
+    parser->parse();
+
+    ASSERT_EQ(0, parser->getExceptions().size());
+}
+
+TEST (ParserTest, parse_ShouldParseFileCorrectly_example007) {
+    auto *parser = new OgreScriptLSP::Parser();
+    std::string scriptFile = "./examples/valid_examples/example007.material";
     parser->loadScript(scriptFile);
 
     parser->parse();

@@ -105,7 +105,6 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
                 }
                 try {
                     auto tkValue = consumeNumber(numberPrefix, isFirstPeriod);
-                    tkValue.literal.insert(0, 1, isFirstPeriod ? '.' : '-');
                     return tkValue;
                 } catch (const ScannerException &e) {
                     recuperateError(e.range.start.character, e.message);
@@ -161,19 +160,26 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeNumber(std::string pref
     std::string literal = std::move(prefix);
     int line = lineCount, startPos = (int) literal.size();
     int column = columnCount - startPos, rangeLength = startPos;
+    bool isFirstCharacterIndicator = true;
     while (!codeStream->eof()) {
         literal.push_back(ch);
         if (nextCharacter() && (isdigit(ch) || (ch == '.' && isFirstPeriod))) {
             if (ch == '.') {
                 isFirstPeriod = false;
             }
-        } else if (ch == '\n' || ch == ' ' || ch == '\t' || ch == '\v' || ch == '\f' || ch == '\r') {
+        } else if (isFirstCharacterIndicator && validNumberTypeIndicator(ch)) {
+            isFirstCharacterIndicator = false;
+        } else if (ch == '\n' || ch == ' ' || ch == '\t' || ch == '\v' || ch == '\f' || ch == '\r' || ch == ',') {
             return {number_literal, literal, line, column, (int) literal.size()};
         } else {
             throw ScannerException(SCANNER_INVALID_NUMBER, Range::toRange(line, column, rangeLength));
         }
     }
     throw ScannerException(SCANNER_EOF_ERROR, Range::toRange(line, column, rangeLength));
+}
+
+bool OgreScriptLSP::Scanner::validNumberTypeIndicator(char ch) {
+    return ch == 'f';
 }
 
 OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeString(char stringDelimiter) {

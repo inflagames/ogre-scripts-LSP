@@ -45,6 +45,8 @@ namespace OgreScriptLSP {
 
         TokenValue consumeNumber(std::string prefix = "", bool isFirstPeriod = true);
 
+        static bool validNumberTypeIndicator(char ch);
+
         TokenValue nextLiteral();
 
         static bool validLiteral(char c, bool startCharacter = true);

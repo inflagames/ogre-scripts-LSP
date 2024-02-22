@@ -1,8 +1,8 @@
 #include "../inc/goto.h"
 
 std::unique_ptr<OgreScriptLSP::ResultBase> OgreScriptLSP::GoTo::goToDefinition(OgreScriptLSP::MaterialScriptAst *script,
-                                                               std::unique_ptr<std::map<std::pair<int, std::string>, TokenValue>> declarations,
-                                                               const Position position) {
+                                                                               std::unique_ptr<std::map<std::pair<int, std::string>, TokenValue>> declarations,
+                                                                               const Position position) {
     auto el = search(script, position);
     if (el.has_value() && declarations->contains(el.value())) {
         return std::make_unique<Location>(script->uri, declarations->at(el.value()).toRange());
@@ -16,23 +16,29 @@ std::unique_ptr<OgreScriptLSP::ResultBase> OgreScriptLSP::GoTo::goToDefinition(O
 }
 
 std::optional<std::pair<int, std::string>>
-OgreScriptLSP::GoTo::search(OgreScriptLSP::MaterialScriptAst* script, OgreScriptLSP::Position position) {
+OgreScriptLSP::GoTo::search(OgreScriptLSP::MaterialScriptAst *script, OgreScriptLSP::Position position) {
     const auto materialIter = std::ranges::find_if(script->materials.begin(), script->materials.end(),
-            [&](const auto& m) { return searchMaterial(m, position).has_value(); });
+                                                   [&](const auto &m) {
+                                                       return searchMaterial(m, position).has_value();
+                                                   });
 
     if (materialIter != script->materials.end()) {
         return searchMaterial(*materialIter, position);
     }
 
     const auto abstractIter = std::ranges::find_if(script->abstracts.begin(), script->abstracts.end(),
-        [&](const auto& a) { return searchAbstract(a, position).has_value(); });
+                                                   [&](const auto &a) {
+                                                       return searchAbstract(a, position).has_value();
+                                                   });
 
     if (abstractIter != script->abstracts.end()) {
         return searchAbstract(*abstractIter, position);
     }
 
     const auto programIter = std::ranges::find_if(script->programs.begin(), script->programs.end(),
-        [&](const auto& p) { return searchProgram(p, position).has_value(); });
+                                                  [&](const auto &p) {
+                                                      return searchProgram(p, position).has_value();
+                                                  });
 
     if (programIter != script->programs.end()) {
         return searchProgram(*programIter, position);
@@ -141,7 +147,7 @@ OgreScriptLSP::GoTo::searchRtShader(OgreScriptLSP::RtShaderAst *shader, OgreScri
 
 std::optional<std::pair<int, std::string>>
 OgreScriptLSP::GoTo::searchProgram(OgreScriptLSP::ProgramAst *program, OgreScriptLSP::Position position) {
-    int type = program->type == ProgramAst::vertex ? PROGRAM_VERTEX_BLOCK : PROGRAM_FRAGMENT_BLOCK;
+    int type = Parser::getProgramBlockIdk(program->type.tk);
     auto o = searchInObject(program, position, type);
     if (o.has_value()) {
         return o;
@@ -151,7 +157,8 @@ OgreScriptLSP::GoTo::searchProgram(OgreScriptLSP::ProgramAst *program, OgreScrip
 
 std::optional<std::pair<int, std::string>>
 OgreScriptLSP::GoTo::searchProgramRef(OgreScriptLSP::MaterialProgramAst *programRef, OgreScriptLSP::Position position) {
-    int type = programRef->type.tk == vertex_program_ref_tk ? PROGRAM_VERTEX_BLOCK : PROGRAM_FRAGMENT_BLOCK;
+    int type = Parser::getProgramBlockIdk(programRef->type.tk);
+    //programRef->type.tk == vertex_program_ref_tk ? PROGRAM_VERTEX_BLOCK : PROGRAM_FRAGMENT_BLOCK;
     if (programRef->name.toRange().inRange(position)) {
         return std::make_pair(type, programRef->name.literal);
     }

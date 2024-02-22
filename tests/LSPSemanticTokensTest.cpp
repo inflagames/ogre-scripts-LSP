@@ -7,8 +7,6 @@
 using namespace OgreScriptLSP;
 
 TEST (LSPSemanticTokensTest, semanticTokens_ShouldGetAllTheDocumentSemanticTokens) {
-    GTEST_SKIP();
-    // toDo (gonzalezext)[21.02.24]: finish this test
     auto *lsp = new LspServer();
     // initialize request
     std::string inputData = test_utils::getMessageStr(
@@ -32,5 +30,6 @@ TEST (LSPSemanticTokensTest, semanticTokens_ShouldGetAllTheDocumentSemanticToken
 
     ASSERT_TRUE(j.contains("id"));
     ASSERT_TRUE(j.contains("result"));
-    ASSERT_TRUE(j.at("result").is_array());
+    ASSERT_TRUE(j.at("result").contains("data"));
+    ASSERT_TRUE(j.at("result").at("data").is_array());
 }

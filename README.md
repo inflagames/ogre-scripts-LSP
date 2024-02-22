@@ -22,22 +22,22 @@ Use the next configuration to setting up the LS in nvim:
 
 ```lua
 vim.filetype.add({
-	extension = {
-		material = "material",
-	},
+    extension = {
+        material = "material",
+    },
 })
 
 vim.api.nvim_create_autocmd('FileType', {
-	desc = 'LSP start',
-	pattern = { "material" },
-	callback = function()
-		print("Started server")
-		vim.lsp.start({
-			name = 'ogre3d-script-lsp',
-			cmd = { '~/ogre_scripts_LSP', '-l'},
-			root_dir = vim.fs.dirname(vim.fs.find({ 'resources.cfg' }, { upward = true })[1])
-		})
-	end
+    desc = 'LSP start',
+    pattern = { "material" },
+    callback = function()
+        print("Started server")
+        vim.lsp.start({
+            name = 'ogre3d-script-lsp',
+            cmd = { '~/ogre_scripts_LSP', '-l' },
+            root_dir = vim.fs.dirname(vim.fs.find({ 'resources.cfg' }, { upward = true })[1])
+        })
+    end
 })
 ```
 
@@ -98,7 +98,7 @@ script_body = <program> | <material>
 
 // program definition
 program = <program_type> <identifier> <program_opt> <left_curly_bracket_tk> <program_body> <right_curly_bracket_tk>
-program_type = <fragment_program_tk> | <vertex_program_tk>
+program_type = <fragment_program_tk> | <vertex_program_tk> | <geometry_program_tk> | <tessellation_hull_program_tk> | <tessellation_domain_program_tk> | <compute_program_tk> 
 program_opt = <identifier> | <identifier> <program_opt>
 program_body = <program_body_opt> | <program_body_opt> <program_body>
 program_body_opt = <param_line> | <program_default>
@@ -135,7 +135,7 @@ material_rtshader = <rtshader_system_tk> <object_definition>? <left_curly_bracke
 material_rtshader_body = <param_line>
 
 material_program = <material_progarm_type> <identifier> <left_curly_bracket_tk> <material_program_body>* <right_curly_bracket_tk>
-material_program_type = <vertex_program_ref_tk> | <fragment_program_ref_tk>
+material_program_type = <vertex_program_ref_tk> | <fragment_program_ref_tk> | <geometry_program_ref_tk> | <tessellation_hull_program_ref_tk> | <tessellation_domain_program_ref_tk> | <compute_program_ref_tk>
 material_program_body = <param_line>
 
 

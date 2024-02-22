@@ -28,6 +28,12 @@ fragment_program Examples/BumpMapFPShadowRcv unified
 	delegate Examples/BumpMapFPShadowRcvGLSL
 }
 
+fragment_program Ogre/Compositor/B&W_Cg_FP hlsl
+{
+	source GrayScale.cg
+	entry_point GrayScale_ps
+}
+
 abstract material Game/BumpMapping/MultiLight/Rcv
 {
 	technique

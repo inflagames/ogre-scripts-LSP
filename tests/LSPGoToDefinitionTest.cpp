@@ -139,21 +139,41 @@ TEST (LSPGoToDefinitionTest, definitionMaterial_ShouldReturnGoToDefinition_byDef
 }
 
 TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_validaDefinition) {
-    validateGoTo({27, 44}, {{0, 17},
+    validateGoTo({66, 44}, {{0, 17},
                             {0, 36}}, "file://./examples/lsp/goto_definition_program.material");
 }
 
 TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_sameMaterialDefinition) {
-    validateGoTo({10, 29}, {{10, 15},
+    validateGoTo({59, 40}, {{10, 15},
                             {10, 34}}, "file://./examples/lsp/goto_definition_program.material");
+}
+
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_geometryExample) {
+    validateGoTo({70, 40}, {{14, 17},
+                            {14, 36}}, "file://./examples/lsp/goto_definition_program.material");
+}
+
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_hullExample) {
+    validateGoTo({74, 60}, {{18, 26},
+                            {18, 77}}, "file://./examples/lsp/goto_definition_program.material");
+}
+
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_domainExample) {
+    validateGoTo({77, 55}, {{30, 28},
+                            {30, 79}}, "file://./examples/lsp/goto_definition_program.material");
+}
+
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_computedProgramExample) {
+    validateGoTo({80, 50}, {{45, 16},
+                            {45, 68}}, "file://./examples/lsp/goto_definition_program.material");
 }
 
 TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_techniqueDefinitionPosition) {
     validateGoTo({0, 20}, {{0, 19},
-                            {0, 35}}, "file://./examples/lsp/goto_definition_technique.material");
+                           {0, 35}}, "file://./examples/lsp/goto_definition_technique.material");
 }
 
 TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_rtshaderSystemDefinitionPosition) {
     validateGoTo({14, 33}, {{0, 25},
-                           {0, 34}}, "file://./examples/lsp/goto_definition_rtshader.material");
+                            {0, 34}}, "file://./examples/lsp/goto_definition_rtshader.material");
 }

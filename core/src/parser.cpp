@@ -1,5 +1,3 @@
-#include <utility>
-
 #include "../inc/parser.h"
 
 OgreScriptLSP::Parser::Parser() {
@@ -38,7 +36,9 @@ void OgreScriptLSP::Parser::parse() {
         consumeEndLines();
         TokenValue tk = getToken();
         try {
-            if (tk.tk == fragment_program_tk || tk.tk == vertex_program_tk) {
+            if (tk.tk == fragment_program_tk || tk.tk == vertex_program_tk || tk.tk == geometry_program_tk ||
+                tk.tk == tessellation_hull_program_tk || tk.tk == tessellation_domain_program_tk ||
+                tk.tk == compute_program_tk) {
                 recuperate = false;
                 program(script.get());
             } else if (tk.tk == material_tk) {
@@ -143,18 +143,12 @@ void OgreScriptLSP::Parser::abstract(MaterialScriptAst *scriptAst) {
 void OgreScriptLSP::Parser::program(MaterialScriptAst *scriptAst) {
     auto *program = new ProgramAst();
 
-    if (getToken().tk == fragment_program_tk) {
-        program->type = ProgramAst::fragment;
-    } else {
-        program->type = ProgramAst::vertex;
-    }
-    program->symbol = getToken();
+    program->type = getToken();
     nextToken();
 
     program->name = getToken();
     consumeToken(identifier, PROGRAM_NAME_MISSING);
-    declarations[std::make_pair(program->type == ProgramAst::vertex ? PROGRAM_VERTEX_BLOCK : PROGRAM_FRAGMENT_BLOCK,
-                                program->name.literal)] = program->name;
+    declarations[std::make_pair(getProgramBlockIdk(program->type.tk), program->name.literal)] = program->name;
 
     programOpt(program);
 
@@ -327,7 +321,9 @@ void OgreScriptLSP::Parser::materialPassBody(OgreScriptLSP::PassAst *pass) {
             materialRtShader(pass);
             continue;
         }
-        if (tk.tk == vertex_program_ref_tk || tk.tk == fragment_program_ref_tk) {
+        if (tk.tk == vertex_program_ref_tk || tk.tk == fragment_program_ref_tk || tk.tk == geometry_program_ref_tk ||
+            tk.tk == tessellation_hull_program_ref_tk || tk.tk == tessellation_domain_program_ref_tk ||
+            tk.tk ==  compute_program_ref_tk) {
             materialProgramRef(pass);
             continue;
         }
@@ -416,7 +412,7 @@ void OgreScriptLSP::Parser::materialRtShaderBody(OgreScriptLSP::RtShaderAst *sha
 void OgreScriptLSP::Parser::materialProgramRef(OgreScriptLSP::PassAst *pass) {
     auto *programRef = new MaterialProgramAst();
 
-    // consume [fragment_program_tk|vertex_program_tk] token
+    // consume [program_ref_tk] token
     programRef->type = getToken();
     nextTokenAndConsumeEndLines();
 

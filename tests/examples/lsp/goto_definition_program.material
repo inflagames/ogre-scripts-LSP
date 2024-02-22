@@ -12,6 +12,44 @@ vertex_program Game/Floor/ShaderVp glsl glsles {
     source FloorVp.glsl
 }
 
+geometry_program Game/Floor/Geometry glsl glsles {
+    source Geometry.glsl
+}
+
+tessellation_hull_program Ogre/PNTrianglesTessellation/simple_tessellation_hs hlsl
+{
+	source simple_tessellation.hlsl
+	entry_point simple_tessellation_hs
+	target hs_5_0
+
+	default_params
+	{
+		param_named g_tessellationAmount float 1
+	}
+}
+
+tessellation_domain_program Ogre/PNTrianglesTessellation/simple_tessellation_ds hlsl
+{
+	source simple_tessellation.hlsl
+	entry_point simple_tessellation_ds
+	target ds_5_0
+
+	default_params
+	{
+		param_named_auto g_WorldViewprojMatrix worldviewproj_matrix
+		param_named_auto g_WorldMatrix world_matrix
+		param_named_auto g_ViewMatrix view_matrix
+		param_named_auto g_ProjectionMatrix projection_matrix
+	}
+}
+
+compute_program Ogre/PNTrianglesTessellation/simple_computed_program hlsl
+{
+	source simple_tessellation.hlsl
+	entry_point simple_tessellation_ds
+	target ds_5_0
+}
+
 material level_floor {
     receive_shadows on
     technique {
@@ -25,8 +63,22 @@ material level_floor {
 				param_named_auto worldMatrix world_matrix
 				param_named_auto texViewProj texture_viewproj_matrix
             }
+
             fragment_program_ref Game/Floor/ShaderFp {
                 param_named_auto lightDiffuse light_diffuse_colour 0
+            }
+
+            geometry_program_ref Game/Floor/Geometry {
+                param_named_auto lightDiffuse light_diffuse_colour 0
+            }
+
+            tessellation_hull_program_ref Ogre/PNTrianglesTessellation/simple_tessellation_hs {
+            }
+
+            tessellation_domain_program_ref Ogre/PNTrianglesTessellation/simple_tessellation_ds {
+            }
+
+            compute_program_ref Ogre/PNTrianglesTessellation/simple_computed_program {
             }
 
 			texture_unit shadowmap

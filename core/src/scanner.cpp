@@ -255,6 +255,30 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
                 return {vertex_program_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "vertex_program_ref") {
                 return {vertex_program_ref_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "shared_params") {
+                return {shared_params_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "shared_params_ref") {
+                return {shared_params_ref_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "shadow_caster_material") {
+                return {shadow_caster_material_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "shadow_receiver_material") {
+                return {shadow_receiver_material_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "geometry_program") {
+                return {geometry_program_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "geometry_program_ref") {
+                return {geometry_program_ref_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "tessellation_hull_program") {
+                return {tessellation_hull_program_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "tessellation_hull_program_ref") {
+                return {tessellation_hull_program_ref_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "tessellation_domain_program") {
+                return {tessellation_domain_program_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "tessellation_domain_program_ref") {
+                return {tessellation_domain_program_ref_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "compute_program") {
+                return {compute_program_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "compute_program_ref") {
+                return {compute_program_ref_tk, literal, line, column, (int) literal.size()};
             } else if (literal.starts_with('$')) {
                 return {variable, literal, line, column, (int) literal.size()};
             }

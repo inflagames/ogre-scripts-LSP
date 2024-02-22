@@ -14,6 +14,10 @@ OgreScriptLSP::SemanticToken::getSemanticTokens(OgreScriptLSP::Parser *parser, R
             case technique_tk:
             case vertex_program_ref_tk:
             case fragment_program_ref_tk:
+            case tessellation_hull_program_ref_tk:
+            case compute_program_ref_tk:
+            case geometry_program_ref_tk:
+            case tessellation_domain_program_ref_tk:
             case texture_unit_tk:
             case rtshader_system_tk:
             case pass_tk: {
@@ -26,6 +30,10 @@ OgreScriptLSP::SemanticToken::getSemanticTokens(OgreScriptLSP::Parser *parser, R
                                      (uint32_t) tk.size, 5, 0});
                 break;
             case vertex_program_tk:
+            case geometry_program_tk:
+            case tessellation_hull_program_tk:
+            case tessellation_domain_program_tk:
+            case compute_program_tk:
             case fragment_program_tk: {
                 res->data.push_back({(uint32_t) tk.line, (uint32_t) tk.column,
                                      (uint32_t) tk.size, 2, 0});

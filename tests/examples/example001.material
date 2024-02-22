@@ -6,6 +6,14 @@ vertex_program Examples/BumpMapVPHLSL hlsl
 	target vs_2_0
 }
 
+geometry_program Ogre/GPTest/Swizzle_GP_GLSL glsl
+{
+    source SwizzleGP.glsl
+    input_operation_type triangle_list
+    output_operation_type line_strip
+    max_output_vertices 6
+}
+
 vertex_program Examples/BumpMapVPGLSL glsl glsles
 {
 	source Example_BumpMappingVp.glsl
@@ -87,10 +95,15 @@ fragment_program Examples/BumpMapFPShadowRcv unified
 	delegate Examples/BumpMapFPShadowRcvCg
 }
 
+shared_params YourSharedParamsName
+{
+    shared_param_named mySharedParam1 float4 0.1 0.2 0.3 0.4
+}
 
 material Game/BumpMapping/MultiLight {
     technique {
 		shadow_receiver_material Game/BumpMapping/MultiLight/Rcv
+		shadow_caster_material Game/BumpMapping/MultiLight/Rcv
 
 		// Base ambient pass
 		pass ambient {
@@ -110,11 +123,15 @@ material Game/BumpMapping/MultiLight {
             // to lighting pass categorisation routine
             ambient 0 0 0
 
+            geometry_program_ref Ogre/GPTest/Swizzle_GP_GLSL {
+            }
+
             // Vertex program reference
             vertex_program_ref Examples/BumpMapVP
             {
                 param_named_auto lightPosition light_position_object_space 0
                 param_named_auto worldViewProj worldviewproj_matrix
+                shared_params_ref YourSharedParamsName
             }
 
             // Fragment program

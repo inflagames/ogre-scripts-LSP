@@ -3,6 +3,7 @@
 
 #include <utility>
 #include <vector>
+#include "token.h"
 
 namespace OgreScriptLSP {
 
@@ -49,15 +50,10 @@ namespace OgreScriptLSP {
 
     class ProgramAst : public AstObject {
     public:
-        TokenValue symbol = {EOF_tk, ""};
+        TokenValue type;
         std::vector<ParamProgramAst *> params;
         std::vector<ParamProgramDefaultAst *> defaults;
         std::vector<TokenValue> highLevelProgramsType;
-
-        enum ProgramType {
-            fragment,
-            vertex,
-        } type;
 
         ~ProgramAst() override {
             for (auto ele: params) {

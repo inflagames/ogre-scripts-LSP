@@ -49,6 +49,7 @@ namespace OgreScriptLSP {
 
     class ProgramAst : public AstObject {
     public:
+        TokenValue symbol = {EOF_tk, ""};
         std::vector<ParamProgramAst *> params;
         std::vector<ParamProgramDefaultAst *> defaults;
         std::vector<TokenValue> highLevelProgramsType;
@@ -89,6 +90,22 @@ namespace OgreScriptLSP {
         }
     };
 
+    class RtShaderParamAst : public ParamAst {
+    public:
+    };
+
+    class RtShaderAst : public AstObject {
+    public:
+        std::vector<RtShaderParamAst *> params;
+
+        ~RtShaderAst() override {
+            for (auto ele: params) {
+                delete ele;
+            }
+            params.clear();
+        }
+    };
+
     class TextureUnitParamAst : public ParamAst {
     public:
     };
@@ -113,6 +130,7 @@ namespace OgreScriptLSP {
     public:
         std::vector<PassParamAst *> params;
         std::vector<TextureUnitAst *> textures;
+        std::vector<RtShaderAst *> shaders;
         std::vector<MaterialProgramAst *> programsReferences;
 
         ~PassAst() override {
@@ -150,7 +168,7 @@ namespace OgreScriptLSP {
 
     class MaterialAst : public AstObject {
     public:
-        TokenValue materialSymbol = {material_tk, ""};
+        TokenValue symbol = {material_tk, ""};
         std::vector<MaterialParamAst *> params;
         std::vector<TechniqueAst *> techniques;
 

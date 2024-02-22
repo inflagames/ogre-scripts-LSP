@@ -107,6 +107,8 @@ namespace OgreScriptLSP {
          */
         static std::optional<std::pair<int, std::string>> searchTexture(TextureUnitAst *texture, Position position);
 
+        static std::optional<std::pair<int, std::string>> searchRtShader(RtShaderAst *shader, Position position);
+
         /**
          * @brief Searches for a token at the given position in a program script abstract syntax tree (AST).
          *

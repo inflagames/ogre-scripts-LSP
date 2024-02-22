@@ -19,6 +19,7 @@ namespace OgreScriptLSP {
         bool isNewLine = false;
 
         std::vector<BaseException> exceptions;
+        std::vector<tokenValue> comments;
 
         Scanner();
 

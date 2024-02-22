@@ -1,0 +1,20 @@
+abstract rtshader_system ShaderDef {
+    lighting_stage normal_map normal_map.jpg
+}
+
+material Child {
+    receive_shadows on
+    technique {
+        pass some {
+            diffuse_color 1 1 0 1
+
+            texture_unit normal {
+                texture normal_map2.jpg
+            }
+
+            rtshader_system : ShaderDef {
+                // empty definition
+            }
+        }
+    }
+}

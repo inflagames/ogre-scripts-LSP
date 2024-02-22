@@ -8,7 +8,8 @@
 namespace OgreScriptLSP {
     class SemanticToken {
     public:
-        static ResultBase *getSemanticTokens(Parser *parser);
+        static ResultBase *getSemanticTokens(Parser *parser, Range range = {{0, 0},
+                                                                            {INT32_MAX, INT32_MAX}});
     };
 }
 

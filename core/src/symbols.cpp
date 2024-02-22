@@ -4,8 +4,8 @@ OgreScriptLSP::ResultArray *OgreScriptLSP::Symbols::getSymbols(OgreScriptLSP::Pa
     auto *res = new ResultArray();
 
     for (const auto &m: parser->getScript()->materials) {
-        res->elements.push_back(new DocumentSymbol(m->materialSymbol.literal, Class,
-                                                   m->materialSymbol.toRange(), m->materialSymbol.toRange()));
+        res->elements.push_back(new DocumentSymbol(m->symbol.literal, Class,
+                                                   m->symbol.toRange(), m->symbol.toRange()));
     }
 
     return res;

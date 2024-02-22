@@ -94,38 +94,42 @@ void OgreScriptLSP::Parser::abstract(MaterialScriptAst *scriptAst) {
     abstract->type = getToken();
     switch (getToken().tk) {
         case material_tk: {
-            auto *scriptTmp = new MaterialScriptAst("");
-            material(scriptTmp);
+            auto scriptTmp = std::make_unique<MaterialScriptAst>("");
+            material(scriptTmp.get());
             abstract->body = scriptTmp->materials[0];
             scriptTmp->materials.clear();
-            delete scriptTmp;
             break;
         }
         case technique_tk: {
-            auto *materialTmp = new MaterialAst();
-            materialTechnique(materialTmp);
+            auto materialTmp = std::make_unique<MaterialAst>();
+            materialTechnique(materialTmp.get());
             registerDeclaration(materialTmp->techniques[0], TECHNIQUE_BLOCK);
             abstract->body = materialTmp->techniques[0];
             materialTmp->techniques.clear();
-            delete materialTmp;
             break;
         }
         case pass_tk: {
-            auto *techniqueTmp = new TechniqueAst();
-            materialPass(techniqueTmp);
+            auto techniqueTmp = std::make_unique<TechniqueAst>();
+            materialPass(techniqueTmp.get());
             registerDeclaration(techniqueTmp->passes[0], PASS_BLOCK);
             abstract->body = techniqueTmp->passes[0];
             techniqueTmp->passes.clear();
-            delete techniqueTmp;
             break;
         }
         case texture_unit_tk: {
-            auto *passTmp = new PassAst();
-            materialTexture(passTmp);
+            auto passTmp = std::make_unique<PassAst>();
+            materialTexture(passTmp.get());
             registerDeclaration(passTmp->textures[0], TEXTURE_UNIT_BLOCK);
             abstract->body = passTmp->textures[0];
             passTmp->textures.clear();
-            delete passTmp;
+            break;
+        }
+        case rtshader_system_tk: {
+            auto passTmp = std::make_unique<PassAst>();
+            materialRtShader(passTmp.get());
+            registerDeclaration(passTmp->shaders[0], RTSHADER_BLOCK);
+            abstract->body = passTmp->shaders[0];
+            passTmp->shaders.clear();
             break;
         }
         default:
@@ -144,6 +148,7 @@ void OgreScriptLSP::Parser::program(MaterialScriptAst *scriptAst) {
     } else {
         program->type = ProgramAst::vertex;
     }
+    program->symbol = getToken();
     nextToken();
 
     program->name = getToken();
@@ -220,7 +225,7 @@ void OgreScriptLSP::Parser::material(OgreScriptLSP::MaterialScriptAst *scriptAst
     material->parent = {EOF_tk, ""};
 
     // consume material_tk token
-    material->materialSymbol = getToken();
+    material->symbol = getToken();
     nextToken();
 
     objectDefinition(material, MATERIAL_NAME_MISSION_ERROR, MATERIAL_INHERIT_ERROR);
@@ -318,6 +323,10 @@ void OgreScriptLSP::Parser::materialPassBody(OgreScriptLSP::PassAst *pass) {
             materialTexture(pass);
             continue;
         }
+        if (tk.tk == rtshader_system_tk) {
+            materialRtShader(pass);
+            continue;
+        }
         if (tk.tk == vertex_program_ref_tk || tk.tk == fragment_program_ref_tk) {
             materialProgramRef(pass);
             continue;
@@ -365,6 +374,40 @@ void OgreScriptLSP::Parser::materialTextureBody(OgreScriptLSP::TextureUnitAst *t
 
         // recuperate line
         exceptions.push_back(ParseException(NOT_VALID_MATERIAL_TEXTURE_PARAM, tk.toRange()));
+        recuperateLine();
+    }
+    consumeEndLines();
+}
+
+void OgreScriptLSP::Parser::materialRtShader(OgreScriptLSP::PassAst *pass) {
+    auto *shader = new RtShaderAst();
+
+    // consume rtshader_system_tk token
+    nextToken();
+
+    objectDefinition(shader, RTSHADER_MISSING_ERROR, RTSHADER_INHERIT_ERROR, true);
+
+    consumeOpenCurlyBracket();
+
+    materialRtShaderBody(shader);
+
+    consumeCloseCurlyBracket();
+
+    pass->shaders.push_back(shader);
+}
+
+void OgreScriptLSP::Parser::materialRtShaderBody(OgreScriptLSP::RtShaderAst *shader) {
+    while (!isEof() && getToken().tk != right_curly_bracket_tk && !isMainStructure()) {
+        TokenValue tk = getToken();
+        if (tk.tk == identifier) {
+            auto *param = new RtShaderParamAst();
+            paramsLine(param);
+            shader->params.push_back(param);
+            continue;
+        }
+
+        // recuperate line
+        exceptions.push_back(ParseException(NOT_VALID_MATERIAL_RTSHADER_PARAM, tk.toRange()));
         recuperateLine();
     }
     consumeEndLines();
@@ -523,4 +566,8 @@ void OgreScriptLSP::Parser::initSwap() {
 
 void OgreScriptLSP::Parser::registerDeclaration(OgreScriptLSP::AstObject *object, int type) {
     declarations[std::make_pair(type, object->name.literal)] = object->name;
+}
+
+const OgreScriptLSP::Scanner *OgreScriptLSP::Parser::getScanner() const {
+    return scanner.get();
 }

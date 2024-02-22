@@ -18,6 +18,7 @@ namespace OgreScriptLSP {
         texture_unit_tk,
         vertex_program_tk,
         vertex_program_ref_tk,
+        rtshader_system_tk,
 
         variable, // $variable_example
         string_literal, // "string literal"

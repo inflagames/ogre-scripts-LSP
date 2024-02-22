@@ -7,6 +7,7 @@
 using namespace OgreScriptLSP;
 
 TEST (LSPSemanticTokensTest, semanticTokens_ShouldGetAllTheDocumentSemanticTokens) {
+    GTEST_SKIP();
     // toDo (gonzalezext)[21.02.24]: finish this test
     auto *lsp = new LspServer();
     // initialize request

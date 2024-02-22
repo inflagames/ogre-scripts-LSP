@@ -4,6 +4,7 @@
 #include <iostream>
 #include <utility>
 #include <vector>
+#include <algorithm>
 
 #include "nlohmann/json.hpp"
 #include "logs.h"
@@ -424,14 +425,11 @@ namespace OgreScriptLSP {
     /**
      * 'textDocument/semanticTokens/full/delta'
      */
-    struct SemanticTokensDeltaParams : PartialResultParams, WorkDoneProgressParams {
-        TextDocumentIdentifier textDocument;
+    struct SemanticTokensDeltaParams : SemanticTokensParams {
         std::string previousResultId;
 
         void fromJson(const nlohmann::json &j) override {
-            if (j.contains("textDocument") && j.at("textDocument").contains("uri")) {
-                j.at("textDocument").at("uri").get_to(textDocument.uri);
-            }
+            SemanticTokensParams::fromJson(j);
             if (j.contains("previousResultId")) {
                 j.at("previousResultId").get_to(previousResultId);
             }
@@ -441,14 +439,11 @@ namespace OgreScriptLSP {
     /**
      * 'textDocument/semanticTokens/range'
      */
-    struct SemanticTokensRangeParams : PartialResultParams, WorkDoneProgressParams {
-        TextDocumentIdentifier textDocument;
+    struct SemanticTokensRangeParams : SemanticTokensParams {
         Range range{};
 
         void fromJson(const nlohmann::json &j) override {
-            if (j.contains("textDocument") && j.at("textDocument").contains("uri")) {
-                j.at("textDocument").at("uri").get_to(textDocument.uri);
-            }
+            SemanticTokensParams::fromJson(j);
             if (j.contains("range")) {
                 range.fromJson(j.at("range"));
             }
@@ -571,14 +566,16 @@ namespace OgreScriptLSP {
 
                 bool workDoneProgress = false; // WorkDoneProgressOptions
                 bool range = true;
-                bool full = true;
+                struct {
+                    bool delta = false;
+                } full;
 
                 nlohmann::json toJson() {
                     return nlohmann::json{
                             {"legend",           legend.toJson()},
                             {"workDoneProgress", workDoneProgress},
                             {"range",            range},
-                            {"full",             full},
+                            {"full",             {{"delta", full.delta}}},
                     };
                 }
             } semanticTokensProvider;
@@ -620,26 +617,46 @@ namespace OgreScriptLSP {
         std::string message;
     };
 
+    struct tokenValue {
+        uint32_t line;
+        uint32_t startChar;
+        uint32_t length;
+        uint32_t tokenType;
+        uint32_t modifiers;
+
+        bool operator<(tokenValue o) const {
+            return std::make_pair(line, std::make_pair(startChar, std::make_pair(
+                    length, std::make_pair(tokenType, modifiers)))) <
+                   std::make_pair(o.line, std::make_pair(o.startChar, std::make_pair(
+                           o.length, std::make_pair(o.tokenType, o.modifiers))));
+        }
+    };
+
     struct SemanticTokens : ResultBase {
         std::string resultId;
-        std::vector<uint32_t> data;
-
-        void addToken(uint32_t line, uint32_t startChar, uint32_t length, uint32_t tokenType, uint32_t modifiers) {
-            data.push_back(line);
-            data.push_back(startChar);
-            data.push_back(length);
-            data.push_back(tokenType);
-            data.push_back(modifiers);
-        }
+        std::vector<tokenValue> data;
 
         nlohmann::json toJson() override {
             auto jData = nlohmann::json::array();
+
+            // sort tokens before calculate relative position
+            std::sort(data.begin(), data.end());
+
+            uint32_t pLine = 0, pChar = 0;
             for (const auto &d: data) {
-                jData.push_back(d);
+                jData.push_back(d.line - pLine);
+                jData.push_back(d.startChar - pChar);
+                jData.push_back(d.length);
+                jData.push_back(d.tokenType);
+                jData.push_back(d.modifiers);
+                if (pLine != d.line) {
+                    pChar = 0;
+                    pLine = d.line;
+                }
             }
             return nlohmann::json{
                     {"resultId", resultId},
-                    {"data",     data},
+                    {"data",     jData},
             };
         }
     };

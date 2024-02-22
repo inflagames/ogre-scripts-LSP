@@ -72,9 +72,16 @@ void OgreScriptLSP::LspServer::initialize(OgreScriptLSP::RequestMessage *rm, std
 
 void OgreScriptLSP::LspServer::semanticTokens(RequestMessage *rm, std::ostream &oos) {
     try {
-        auto params = (DocumentSymbolParams *) rm->params;
+        auto params = (SemanticTokensParams *) rm->params;
         auto parser = getParserByUri(params->textDocument.uri);
-        ResponseMessage re = newResponseMessage(rm->id, SemanticToken::getSemanticTokens(parser));
+        Range range = {{0, 0},
+                       {INT32_MAX, INT32_MAX}};
+        if (rm->method.ends_with("/delta")) {
+            // toDo: not supported yet
+        } else if (rm->method.ends_with("/range")) {
+            range = ((SemanticTokensRangeParams *) params)->range;
+        }
+        ResponseMessage re = newResponseMessage(rm->id, SemanticToken::getSemanticTokens(parser, range));
         sendResponse(nlohmann::to_string(re.toJson()), oos);
     } catch (std::exception &e) {
         // toDo (gonzalezext)[21.02.24]: send error to client

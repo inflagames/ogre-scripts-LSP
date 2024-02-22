@@ -14,6 +14,7 @@
 #define TECHNIQUE_BLOCK 4
 #define PASS_BLOCK 5
 #define TEXTURE_UNIT_BLOCK 6
+#define RTSHADER_BLOCK 7
 
 namespace OgreScriptLSP {
     class Parser {
@@ -36,6 +37,8 @@ namespace OgreScriptLSP {
         ~Parser() = default;
 
         MaterialScriptAst *getScript() { return script.get(); }
+
+        [[nodiscard]] const Scanner *getScanner() const;
 
         [[nodiscard]] std::unique_ptr<std::map<std::pair<int, std::string>, TokenValue>> getDeclarations() const {
             auto decl = std::make_unique<std::map<std::pair<int, std::string>, TokenValue>>(declarations);
@@ -85,6 +88,10 @@ namespace OgreScriptLSP {
         void materialTexture(PassAst *pass);
 
         void materialTextureBody(TextureUnitAst *texture);
+
+        void materialRtShader(OgreScriptLSP::PassAst *pass);
+
+        void materialRtShaderBody(OgreScriptLSP::RtShaderAst *shader);
 
         void materialProgramRef(PassAst *pass);
 

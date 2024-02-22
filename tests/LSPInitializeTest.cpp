@@ -61,13 +61,14 @@ TEST (LSPInitializeTest, readHeadBody_ShouldInitializeConnectionWithClient) {
     // validate semantic tokens
     ASSERT_TRUE(j.at("result").at("capabilities").contains("semanticTokensProvider"));
     ASSERT_TRUE(j.at("result").at("capabilities").at("semanticTokensProvider").contains("full"));
-    ASSERT_TRUE(j.at("result").at("capabilities").at("semanticTokensProvider").at("full"));
+    ASSERT_TRUE(j.at("result").at("capabilities").at("semanticTokensProvider").at("full").contains("delta"));
+    ASSERT_FALSE(j.at("result").at("capabilities").at("semanticTokensProvider").at("full").at("delta"));
     ASSERT_TRUE(j.at("result").at("capabilities").at("semanticTokensProvider").contains("range"));
     ASSERT_TRUE(j.at("result").at("capabilities").at("semanticTokensProvider").at("range"));
     ASSERT_TRUE(j.at("result").at("capabilities").at("semanticTokensProvider").contains("workDoneProgress"));
     ASSERT_FALSE(j.at("result").at("capabilities").at("semanticTokensProvider").at("workDoneProgress"));
     ASSERT_TRUE(j.at("result").at("capabilities").at("semanticTokensProvider").contains("legend"));
-    auto legend =j.at("result").at("capabilities").at("semanticTokensProvider").at("legend");
+    auto legend = j.at("result").at("capabilities").at("semanticTokensProvider").at("legend");
     ASSERT_TRUE(legend.contains("tokenTypes"));
     ASSERT_TRUE(legend.contains("tokenModifiers"));
 

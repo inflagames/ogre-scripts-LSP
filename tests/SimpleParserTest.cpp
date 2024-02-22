@@ -2,6 +2,16 @@
 
 #include "../core/inc/parser.h"
 
+TEST (ParserTest, parse_ShouldParseFileCorrectly_example001) {
+    auto *parser = new OgreScriptLSP::Parser();
+    std::string scriptFile = "./examples/example001.material";
+    parser->loadScript(scriptFile);
+
+    parser->parse();
+
+    ASSERT_EQ(0, parser->getExceptions().size());
+}
+
 TEST (ParserTest, parse_ShouldParseFileCorrectly) {
     auto *parser = new OgreScriptLSP::Parser();
     std::string scriptFile = "./examples/full_test_material.material";

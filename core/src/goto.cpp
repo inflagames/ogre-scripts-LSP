@@ -56,6 +56,9 @@ OgreScriptLSP::GoTo::searchAbstract(OgreScriptLSP::AbstractAst *abstract, OgreSc
         case texture_unit_tk: {
             return searchTexture(dynamic_cast<TextureUnitAst *>(abstract->body), position);
         }
+        case rtshader_system_tk: {
+            return searchRtShader(dynamic_cast<RtShaderAst *>(abstract->body), position);
+        }
         default:
             return std::nullopt;
     }
@@ -109,12 +112,27 @@ OgreScriptLSP::GoTo::searchPass(OgreScriptLSP::PassAst *pass, OgreScriptLSP::Pos
             return r;
         }
     }
+    for (auto rt: pass->shaders) {
+        auto r = searchRtShader(rt, position);
+        if (r.has_value()) {
+            return r;
+        }
+    }
     return std::nullopt;
 }
 
 std::optional<std::pair<int, std::string>>
 OgreScriptLSP::GoTo::searchTexture(OgreScriptLSP::TextureUnitAst *texture, OgreScriptLSP::Position position) {
     auto o = searchInObject(texture, position, TEXTURE_UNIT_BLOCK);
+    if (o.has_value()) {
+        return o;
+    }
+    return std::nullopt;
+}
+
+std::optional<std::pair<int, std::string>>
+OgreScriptLSP::GoTo::searchRtShader(OgreScriptLSP::RtShaderAst *shader, OgreScriptLSP::Position position) {
+    auto o = searchInObject(shader, position, RTSHADER_BLOCK);
     if (o.has_value()) {
         return o;
     }

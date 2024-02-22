@@ -131,6 +131,9 @@ material_pass_body = <param_line> | <material_texture> | <material_program>
 material_texture = <texture_unit_tk> <object_definition>? <left_curly_bracket_tk> <material_texture_body>* <right_curly_bracket_tk>
 material_texture_body = <param_line>
 
+material_rtshader = <rtshader_system_tk> <object_definition>? <left_curly_bracket_tk> <material_rtshader_body>* <right_curly_bracket_tk>
+material_rtshader_body = <param_line>
+
 material_program = <material_progarm_type> <identifier> <left_curly_bracket_tk> <material_program_body>* <right_curly_bracket_tk>
 material_program_type = <vertex_program_ref_tk> | <fragment_program_ref_tk>
 material_program_body = <param_line>

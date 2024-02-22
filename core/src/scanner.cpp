@@ -25,6 +25,7 @@ void OgreScriptLSP::Scanner::loadScript(const std::string &scriptFile, const std
 
 std::vector<OgreScriptLSP::TokenValue> OgreScriptLSP::Scanner::parse() {
     exceptions.clear();
+    comments.clear();
     std::vector<OgreScriptLSP::TokenValue> list;
     while (true) {
         auto tk = nextToken();
@@ -139,14 +140,14 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
 }
 
 void OgreScriptLSP::Scanner::consumeComment(bool lineComment) {
-    nextCharacter(); // consume second ch in comment
-    nextCharacter(); // consume first ch after comment definition
-    char pCh = ch;
+    int line = lineCount;
+    int column = columnCount - 1;
+    nextCharacter(); // consume second /
     do {
-        if ((lineComment && ch == '\n') || (!lineComment && pCh == '*' && ch == '/')) {
+        if (lineComment && ch == '\n') {
+            comments.push_back({(uint32_t) line, (uint32_t) column, (uint32_t) columnCount - column, 1, 0});
             return;
         }
-        pCh = ch;
     } while (nextCharacter());
 }
 
@@ -244,6 +245,8 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
                 return {material_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "pass") {
                 return {pass_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "rtshader_system") {
+                return {rtshader_system_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "technique") {
                 return {technique_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "texture_unit") {
@@ -269,7 +272,7 @@ bool OgreScriptLSP::Scanner::validLiteral(char c, bool startCharacter) {
 }
 
 void OgreScriptLSP::Scanner::recuperateError(int column, const std::string &error) {
-    int rangeLength =  columnCount - column;
+    int rangeLength = columnCount - column;
     while (ch != ' ' && ch != '\t' && ch != '\n' && ch != '\f' && ch != '\v' && ch != '\r') {
         rangeLength++;
         if (!nextCharacter()) {

@@ -29,6 +29,7 @@
 #define NOT_VALID_MATERIAL_RTSHADER_PARAM "Not valid material rtshader param"
 #define NOT_VALID_MATERIAL_PROGRAM_PARAM "Not valid material program param"
 #define NOT_VALID_MATERIAL_TECHNIQUE_BODY "Not valid material technique body"
+#define NOT_VALID_SHADOW_MATERIAL_REF "Not valid shadow (caster/receiver) material reference"
 #define NOT_VALID_PARAM "Not valid param"
 #define NOT_VALID_IMPORT "Invalid import declaration"
 

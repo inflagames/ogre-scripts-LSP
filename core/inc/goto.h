@@ -81,6 +81,8 @@ namespace OgreScriptLSP {
          */
         static std::optional<std::pair<int, std::string>> searchTechnique(TechniqueAst *script, Position position);
 
+        static std::optional<std::pair<int, std::string>> searchShadowMat(ShadowMaterialAst *shadowMat, Position position);
+
         /**
          * @brief Searches for a token at the given position in a pass script abstract syntax tree (AST).
          *

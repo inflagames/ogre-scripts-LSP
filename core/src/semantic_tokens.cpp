@@ -25,6 +25,12 @@ OgreScriptLSP::SemanticToken::getSemanticTokens(OgreScriptLSP::Parser *parser, R
                                      (uint32_t) tk.size, 0, 0});
                 break;
             }
+            case shadow_caster_material_tk:
+            case shadow_receiver_material_tk: {
+                res->data.push_back({(uint32_t) tk.line, (uint32_t) tk.column,
+                                     (uint32_t) tk.size, 4, 0});
+                break;
+            }
             case number_literal:
                 res->data.push_back({(uint32_t) tk.line, (uint32_t) tk.column,
                                      (uint32_t) tk.size, 5, 0});

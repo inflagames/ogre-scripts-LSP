@@ -177,3 +177,13 @@ TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_rtshad
     validateGoTo({14, 33}, {{0, 25},
                             {0, 34}}, "file://./examples/lsp/goto_definition_rtshader.material");
 }
+
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_shadowReceiverExample) {
+    validateGoTo({8, 40}, {{0, 9},
+                            {0, 32}}, "file://./examples/lsp/goto_definition_shadow_mat.material");
+}
+
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_shadowCasterExample) {
+    validateGoTo({9, 44}, {{3, 9},
+                            {3, 30}}, "file://./examples/lsp/goto_definition_shadow_mat.material");
+}

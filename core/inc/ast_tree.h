@@ -118,8 +118,13 @@ namespace OgreScriptLSP {
         }
     };
 
-    class PassParamAst : public ParamAst {
+    class ShadowMaterialAst {
     public:
+        TokenValue type = {EOF_tk, ""};
+        TokenValue reference = {EOF_tk, ""};
+    };
+
+    class PassParamAst : public ParamAst {
     };
 
     class PassAst : public AstObject {
@@ -149,6 +154,7 @@ namespace OgreScriptLSP {
     public:
         std::vector<PassAst *> passes;
         std::vector<PassParamAst *> params;
+        std::vector<ShadowMaterialAst *> shadowMaterials;
 
         ~TechniqueAst() override {
             for (auto ele: passes) {

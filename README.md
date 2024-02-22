@@ -124,6 +124,8 @@ material_body = <material_technique> | <param_line>
 
 material_technique = <technique_tk> <object_definition>? <left_curly_bracket_tk> <material_technique_body>* <right_curly_bracket_tk>
 material_technique_body = <material_pass> | <param_line>
+technique_shadow_material = <technique_shadow_material_type> <idendifier>
+technique_shadow_material_type = <shadow_receiver_material_tk> | <shadow_caster_material_tk>
 
 material_pass = <pass_tk> <object_definition>? <left_curly_bracket_tk> <material_pass_body>* <right_curly_bracket_tk>
 material_pass_body = <param_line> | <material_texture> | <material_program>

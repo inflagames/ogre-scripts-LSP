@@ -279,6 +279,10 @@ void OgreScriptLSP::Parser::materialTechniqueBody(OgreScriptLSP::TechniqueAst *t
             materialPass(technique);
             continue;
         }
+        if (tk.tk == shadow_receiver_material_tk || tk.tk == shadow_caster_material_tk) {
+            techniqueShadowMaterial(technique);
+            continue;
+        }
         if (tk.tk == identifier) {
             auto *param = new PassParamAst();
             paramsLine(param);
@@ -290,6 +294,31 @@ void OgreScriptLSP::Parser::materialTechniqueBody(OgreScriptLSP::TechniqueAst *t
         exceptions.push_back(ParseException(NOT_VALID_MATERIAL_TECHNIQUE_BODY, tk.toRange()));
         recuperateLine();
     }
+    consumeEndLines();
+}
+
+void OgreScriptLSP::Parser::techniqueShadowMaterial(OgreScriptLSP::TechniqueAst *technique) {
+    auto *shadowMat = new ShadowMaterialAst();
+
+    // consume shadow_caster_material_tk|shadow_receiver_material_tk token
+    shadowMat->type = getToken();
+    nextToken();
+
+    if (getToken().tk != identifier && getToken().tk != string_literal) {
+        exceptions.push_back(ParseException(NOT_VALID_SHADOW_MATERIAL_REF, getToken().toRange()));
+        recuperateLine();
+        return;
+    }
+    shadowMat->reference = getToken();
+    nextToken();
+
+    if (getToken().tk != endl_tk) {
+        exceptions.push_back(ParseException(NOT_VALID_SHADOW_MATERIAL_REF, getToken().toRange()));
+        recuperateLine();
+        return;
+    }
+
+    technique->shadowMaterials.push_back(shadowMat);
     consumeEndLines();
 }
 
@@ -323,7 +352,7 @@ void OgreScriptLSP::Parser::materialPassBody(OgreScriptLSP::PassAst *pass) {
         }
         if (tk.tk == vertex_program_ref_tk || tk.tk == fragment_program_ref_tk || tk.tk == geometry_program_ref_tk ||
             tk.tk == tessellation_hull_program_ref_tk || tk.tk == tessellation_domain_program_ref_tk ||
-            tk.tk ==  compute_program_ref_tk) {
+            tk.tk == compute_program_ref_tk) {
             materialProgramRef(pass);
             continue;
         }

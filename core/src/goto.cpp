@@ -97,6 +97,20 @@ OgreScriptLSP::GoTo::searchTechnique(OgreScriptLSP::TechniqueAst *technique, Ogr
             return r;
         }
     }
+    for (auto s : technique->shadowMaterials) {
+        auto r = searchShadowMat(s, position);
+        if (r.has_value()) {
+            return r;
+        }
+    }
+    return std::nullopt;
+}
+
+std::optional<std::pair<int, std::string>>
+OgreScriptLSP::GoTo::searchShadowMat(OgreScriptLSP::ShadowMaterialAst *shadowMat, OgreScriptLSP::Position position) {
+    if (shadowMat->reference.toRange().inRange(position)) {
+        return std::make_pair(MATERIAL_BLOCK, shadowMat->reference.literal);
+    }
     return std::nullopt;
 }
 

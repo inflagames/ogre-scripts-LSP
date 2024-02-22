@@ -32,6 +32,26 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly_example003) {
     ASSERT_EQ(0, parser->getExceptions().size());
 }
 
+TEST (ParserTest, parse_ShouldParseFileCorrectly_example004) {
+    auto *parser = new OgreScriptLSP::Parser();
+    std::string scriptFile = "./examples/example004.material";
+    parser->loadScript(scriptFile);
+
+    parser->parse();
+
+    ASSERT_EQ(0, parser->getExceptions().size());
+}
+
+TEST (ParserTest, parse_ShouldParseFileCorrectly_example005) {
+    auto *parser = new OgreScriptLSP::Parser();
+    std::string scriptFile = "./examples/example005.material";
+    parser->loadScript(scriptFile);
+
+    parser->parse();
+
+    ASSERT_EQ(0, parser->getExceptions().size());
+}
+
 TEST (ParserTest, parse_ShouldParseFileCorrectly) {
     auto *parser = new OgreScriptLSP::Parser();
     std::string scriptFile = "./examples/full_test_material.material";

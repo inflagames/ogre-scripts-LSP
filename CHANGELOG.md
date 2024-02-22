@@ -19,3 +19,4 @@ Fixed general issues related to the scripting language and not supported tokens.
 - Fixed: Issue with imports source token.
 - Fixed: Issue with identifiers that start with digits.
 - Added: Support for missing <texture_source> blocks.
+- Added: Multiline comments.

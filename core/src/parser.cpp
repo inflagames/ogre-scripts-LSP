@@ -603,7 +603,8 @@ void OgreScriptLSP::Parser::materialPassSharedParams(OgreScriptLSP::MaterialProg
 void OgreScriptLSP::Parser::paramsLine(ParamAst *params) {
     while (!isEof() && getToken().tk != endl_tk && !isMainStructure()) {
         TokenValue tk = getToken();
-        if (tk.tk != identifier && tk.tk != string_literal && tk.tk != number_literal && tk.tk != variable) {
+        if (tk.tk != identifier && tk.tk != string_literal && tk.tk != number_literal &&
+            tk.tk != variable && tk.tk != comma_tk) {
             exceptions.push_back(ParseException(NOT_VALID_PARAM, tk.toRange()));
             recuperateLine();
             return;

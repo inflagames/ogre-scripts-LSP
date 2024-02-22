@@ -54,9 +54,16 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
                     consumeComment();
                     continue;
                 }
+                if (ch == '*') {
+                    // consume multiline comment
+                    consumeComment(false);
+                    continue;
+                }
                 recuperateError(columnCount - 1, SCANNER_INVALID_CHARACTER);
                 continue;
             }
+            case ',':
+                return symbolToken(comma_tk);
             case ':':
                 return symbolToken(colon_tk);
             case '{':
@@ -138,15 +145,35 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
 }
 
 void OgreScriptLSP::Scanner::consumeComment(bool lineComment) {
-    int line = lineCount;
-    int column = columnCount - 1;
-    nextCharacter(); // consume second /
+    int pLine = lineCount;
+    int pColumn = columnCount - 1;
+    nextCharacter(); // consume second comment character (* | /)
+    char pCh = ' ';
+    bool newLine = false;
     do {
-        if (lineComment && ch == '\n') {
-            comments.push_back({(uint32_t) line, (uint32_t) column, (uint32_t) columnCount - column, 1, 0});
-            return;
+        if (newLine) {
+            newLine = false;
+            pLine = lineCount;
+            pColumn = columnCount;
         }
+        if ((lineComment && ch == '\n') || (!lineComment && pCh == '*' && ch == '/')) {
+            if (!lineComment) {
+                nextCharacter();
+            }
+            comments.push_back({
+                (uint32_t) pLine,
+                (uint32_t) pColumn,
+                (uint32_t) columnCount - pColumn,
+                1, 0
+            });
+            return;
+        } else if (!lineComment && ch == '\n') {
+            comments.push_back({(uint32_t) pLine, (uint32_t) pColumn, (uint32_t) columnCount - pColumn, 1, 0});
+            newLine = true;
+        }
+        pCh = ch;
     } while (nextCharacter());
+    comments.push_back({(uint32_t) pLine, (uint32_t) pColumn, (uint32_t) columnCount - pColumn, 1, 0});
 }
 
 OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::symbolToken(OgreScriptLSP::Token tk) {
@@ -299,9 +326,9 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral(std::string prefix
 
 bool OgreScriptLSP::Scanner::validLiteral(char c, bool startCharacter) {
     if (startCharacter) {
-        return isalnum(c) || c == '_' || c == '$' || c == '/' || c == '.';
+        return isalnum(c) || c == '-' || c == '_' || c == '$' || c == '/' || c == '.';
     }
-    return isalnum(c) || c == '_' || c == '/' || c == '.' || c == '&';
+    return isalnum(c) || c == '-' || c == '_' || c == '/' || c == '.' || c == '&' || c == '=';
 }
 
 void OgreScriptLSP::Scanner::recuperateError(int column, const std::string &error) {

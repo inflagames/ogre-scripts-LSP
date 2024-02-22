@@ -2,6 +2,13 @@ import * from "parent.material"
 import glTF2/PBR from glTF2_PBR.material
 import Filament from filament.material
 
+/*
+vertex_program Examples/BumpMapVPShadowRcvGLSL glsl glsles
+{
+	source Example_BumpMappingShadowRcvVp.glsl
+}
+*/
+
 // Bump map vertex program shadow receiver
 vertex_program Examples/BumpMapVPShadowRcvGLSL glsl glsles
 {

@@ -44,6 +44,7 @@ namespace OgreScriptLSP {
         // symbols
         colon_tk, // :
         asterisk_tk, // *
+        comma_tk, // ,
         left_curly_bracket_tk, // {
         right_curly_bracket_tk, // }
 

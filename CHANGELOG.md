@@ -16,3 +16,5 @@ Fixed general issues related to the scripting language and not supported tokens.
 - Fixed: Error with characters allowed in identifier tokens.
 - Fixed: Issue with float numbers that ends with the character 'f'.
 - Added: Support for missing <shared_params> block.
+- Fixed: Issue with imports source token.
+- Fixed: Issue with identifiers that start with digits.

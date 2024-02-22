@@ -107,8 +107,13 @@ program_default = <default_params_tk> <left_curly_bracket_tk> <program_default_b
 program_default_body = <param_line> | <param_line> <program_default_body>
 
 // import definition
-import = <import_tk> <import_opt> <identifier> <string_literal>
-import_opt = <asterisk_tk> <identifier>
+import = <import_tk> <import_opt> <from_tk> <import_source>
+import_opt = <asterisk_tk> | <identifier>
+import_source = <string_literal> | <identifier>
+
+// shared params definition
+shared_params = <shared_params_tk> <identifier> <left_curly_bracket_tk> <shared_params_body>* <right_curly_bracket_tk>
+shared_params_body = <param_line>
 
 // abstract block
 abstract = <abstract_tk> <abstract_opt>
@@ -130,19 +135,16 @@ technique_shadow_material_type = <shadow_receiver_material_tk> | <shadow_caster_
 material_pass = <pass_tk> <object_definition>? <left_curly_bracket_tk> <material_pass_body>* <right_curly_bracket_tk>
 material_pass_body = <param_line> | <material_texture> | <material_program>
 
-shared_params = <shared_params_tk> <identifier> <left_curly_bracket_tk> <shared_params_body>* <right_curly_bracket_tk>
-shared_params_body = <param_line>
-
 material_texture = <texture_unit_tk> <object_definition>? <left_curly_bracket_tk> <material_texture_body>* <right_curly_bracket_tk>
-material_texture_body = <param_line>
+material_texture_body = <param_line> | <material_rtshader>
 
 material_rtshader = <rtshader_system_tk> <object_definition>? <left_curly_bracket_tk> <material_rtshader_body>* <right_curly_bracket_tk>
 material_rtshader_body = <param_line>
 
 material_program = <material_progarm_type> <identifier> <left_curly_bracket_tk> <material_program_body>* <right_curly_bracket_tk>
 material_program_type = <vertex_program_ref_tk> | <fragment_program_ref_tk> | <geometry_program_ref_tk> | <tessellation_hull_program_ref_tk> | <tessellation_domain_program_ref_tk> | <compute_program_ref_tk>
-material_program_body = <param_line>
-
+material_program_body = <param_line> | <shared_params_ref>
+shared_params_ref = <shared_params_ref_tk> <identifier>
 
 // common implementations
 param_line = <param><endl_tk> | <param> <param_line>

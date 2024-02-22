@@ -72,7 +72,7 @@ void OgreScriptLSP::Parser::parse() {
 void OgreScriptLSP::Parser::importBlock(MaterialScriptAst *scriptAst) {
     auto *importAst = new ImportAst();
 
-    consumeToken(import_tk, "");
+    consumeToken(import_tk);
 
     importAst->imported = getToken();
     if (getToken().tk == asterisk_tk) {
@@ -83,10 +83,13 @@ void OgreScriptLSP::Parser::importBlock(MaterialScriptAst *scriptAst) {
 
     consumeToken(from_tk, NOT_VALID_IMPORT);
 
-    importAst->file = getToken();
-    consumeToken(string_literal, NOT_VALID_IMPORT, true);
+    if (getToken().tk != string_literal && getToken().tk != identifier) {
+        throw ParseException(NOT_VALID_IMPORT, getToken().toRange());
+    }
 
+    importAst->file = getToken();
     scriptAst->imports.push_back(importAst);
+    nextTokenAndConsumeEndLines();
 }
 
 // ABSTRACT STATEMENT

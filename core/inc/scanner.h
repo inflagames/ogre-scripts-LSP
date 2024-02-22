@@ -47,7 +47,7 @@ namespace OgreScriptLSP {
 
         static bool validNumberTypeIndicator(char ch);
 
-        TokenValue nextLiteral();
+        TokenValue nextLiteral(std::string prefix = "");
 
         static bool validLiteral(char c, bool startCharacter = true);
 

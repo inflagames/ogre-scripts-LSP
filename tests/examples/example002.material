@@ -53,7 +53,7 @@ fragment_program Ogre/PerLightNoTessellation_ps hlsl
 		param_named_auto g_LightDiffuseColour light_diffuse_colour 0
 		param_named_auto g_DiffuseColour surface_diffuse_colour
 		param_named_auto g_SpecularColor surface_specular_colour
-		param_named g_FresnelColor float3 0.172f, 0.172f, 0.172f
+		param_named g_FresnelColor float3 0.172f 0.172f 0.172f
 		param_named g_SpecularPower float 10.0f
 		param_named g_FresnelPower float 10.0f
 	}

@@ -136,7 +136,7 @@ namespace OgreScriptLSP {
 
         void consumeCloseCurlyBracket();
 
-        void consumeToken(Token token, std::string errorMessage, bool consumeEndLines = false);
+        void consumeToken(Token token, std::string errorMessage = "", bool consumeEndLines = false);
 
         void nextToken();
 

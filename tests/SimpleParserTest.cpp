@@ -33,7 +33,7 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly) {
     ASSERT_EQ(7, parser->getScript()->programs.size());
     ASSERT_EQ(4, parser->getScript()->materials.size());
     ASSERT_EQ(4, parser->getScript()->abstracts.size());
-    ASSERT_EQ(1, parser->getScript()->imports.size());
+    ASSERT_EQ(3, parser->getScript()->imports.size());
 }
 
 TEST (ParserTest, parse_ShouldParseFileCorrectly_withBadTokens) {

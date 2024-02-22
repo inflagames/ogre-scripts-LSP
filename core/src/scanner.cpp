@@ -104,8 +104,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
                     isFirstPeriod = false;
                 }
                 try {
-                    auto tkValue = consumeNumber(numberPrefix, isFirstPeriod);
-                    return tkValue;
+                    return consumeNumber(numberPrefix, isFirstPeriod);
                 } catch (const ScannerException &e) {
                     recuperateError(e.range.start.character, e.message);
                     continue;
@@ -163,7 +162,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeNumber(std::string pref
     bool isFirstCharacterIndicator = true;
     while (!codeStream->eof()) {
         literal.push_back(ch);
-        if (nextCharacter() && (isdigit(ch) || (ch == '.' && isFirstPeriod))) {
+        if (nextCharacter() && isFirstCharacterIndicator && (isdigit(ch) || (ch == '.' && isFirstPeriod))) {
             if (ch == '.') {
                 isFirstPeriod = false;
             }
@@ -171,6 +170,8 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeNumber(std::string pref
             isFirstCharacterIndicator = false;
         } else if (ch == '\n' || ch == ' ' || ch == '\t' || ch == '\v' || ch == '\f' || ch == '\r' || ch == ',') {
             return {number_literal, literal, line, column, (int) literal.size()};
+        } else if (validLiteral(ch, false)) {
+            return nextLiteral(literal);
         } else {
             throw ScannerException(SCANNER_INVALID_NUMBER, Range::toRange(line, column, rangeLength));
         }
@@ -228,10 +229,10 @@ bool OgreScriptLSP::Scanner::isInvalidMatchDigit(char c) {
     return c == '\n' || c == '\t' || c == ' ' || c == '\v' || c == '\r' || c == '\f';
 }
 
-OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
-    std::string literal;
+OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral(std::string prefix) {
+    std::string literal = prefix;
     int line = lineCount;
-    int column = columnCount;
+    int column = columnCount - (int) prefix.size();
     while (!codeStream->eof()) {
         literal.push_back(ch);
         if (!nextCharacter() || !validLiteral(ch, false)) {
@@ -296,7 +297,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
 
 bool OgreScriptLSP::Scanner::validLiteral(char c, bool startCharacter) {
     if (startCharacter) {
-        return isalpha(c) || c == '_' || c == '$' || c == '/' || c == '.';
+        return isalnum(c) || c == '_' || c == '$' || c == '/' || c == '.';
     }
     return isalnum(c) || c == '_' || c == '/' || c == '.' || c == '&';
 }

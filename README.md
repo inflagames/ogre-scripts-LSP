@@ -130,6 +130,9 @@ technique_shadow_material_type = <shadow_receiver_material_tk> | <shadow_caster_
 material_pass = <pass_tk> <object_definition>? <left_curly_bracket_tk> <material_pass_body>* <right_curly_bracket_tk>
 material_pass_body = <param_line> | <material_texture> | <material_program>
 
+shared_params = <shared_params_tk> <identifier> <left_curly_bracket_tk> <shared_params_body>* <right_curly_bracket_tk>
+shared_params_body = <param_line>
+
 material_texture = <texture_unit_tk> <object_definition>? <left_curly_bracket_tk> <material_texture_body>* <right_curly_bracket_tk>
 material_texture_body = <param_line>
 

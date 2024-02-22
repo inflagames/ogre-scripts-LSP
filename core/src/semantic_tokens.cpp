@@ -11,6 +11,7 @@ OgreScriptLSP::SemanticToken::getSemanticTokens(OgreScriptLSP::Parser *parser, R
         auto tk = parser->getToken();
         switch (parser->getToken().tk) {
             case material_tk:
+            case shared_params_tk:
             case technique_tk:
             case vertex_program_ref_tk:
             case fragment_program_ref_tk:
@@ -25,6 +26,7 @@ OgreScriptLSP::SemanticToken::getSemanticTokens(OgreScriptLSP::Parser *parser, R
                                      (uint32_t) tk.size, 0, 0});
                 break;
             }
+            case shared_params_ref_tk:
             case shadow_caster_material_tk:
             case shadow_receiver_material_tk: {
                 res->data.push_back({(uint32_t) tk.line, (uint32_t) tk.column,

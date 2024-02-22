@@ -34,8 +34,7 @@ fragment_program Ogre/Compositor/B&W_Cg_FP hlsl
 	entry_point GrayScale_ps
 }
 
-abstract material Game/BumpMapping/MultiLight/Rcv
-{
+abstract material Game/BumpMapping/MultiLight/Rcv{
 	technique
 	{
 		pass

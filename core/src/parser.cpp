@@ -50,6 +50,9 @@ void OgreScriptLSP::Parser::parse() {
             } else if (tk.tk == import_tk) {
                 recuperate = false;
                 importBlock(script.get());
+            } else if (tk.tk == shared_params_tk) {
+                recuperate = false;
+                sharedParams(script.get());
             } else if (!recuperate) {
                 exceptions.push_back(ParseException(INVALID_TOKEN, tk.toRange()));
                 recuperate = true;
@@ -137,6 +140,44 @@ void OgreScriptLSP::Parser::abstract(MaterialScriptAst *scriptAst) {
     }
 
     scriptAst->abstracts.push_back(abstract);
+}
+
+// SHARED PARAMS STATEMENT
+void OgreScriptLSP::Parser::sharedParams(MaterialScriptAst *scriptAst) {
+    auto *sharedParam = new SharedParamsAst();
+
+    // consume shared_params_tk token
+    nextToken();
+
+    sharedParam->name = getToken();
+    consumeToken(identifier, SHARED_PARAMS_NAME_MISSING);
+    declarations[std::make_pair(SHARED_PARAMS_BLOCK, sharedParam->name.literal)] = sharedParam->name;
+    consumeEndLines();
+
+    consumeOpenCurlyBracket();
+
+    sharedParamsBody(sharedParam);
+
+    consumeCloseCurlyBracket();
+
+    scriptAst->sharedParams.push_back(sharedParam);
+}
+
+void OgreScriptLSP::Parser::sharedParamsBody(OgreScriptLSP::SharedParamsAst *sharedParams) {
+    while (!isEof() && getToken().tk != right_curly_bracket_tk && !isMainStructure()) {
+        TokenValue tk = getToken();
+        if (tk.tk == identifier) {
+            auto *param = new ParamProgramAst();
+            paramsLine(param);
+            sharedParams->params.push_back(param);
+            continue;
+        }
+
+        // recuperate line
+        exceptions.push_back(ParseException(NOT_VALID_SHARED_PARAMS_PARAM, tk.toRange()));
+        recuperateLine();
+    }
+    consumeEndLines();
 }
 
 // PROGRAM STATEMENT
@@ -471,11 +512,39 @@ void OgreScriptLSP::Parser::materialProgramRefBody(OgreScriptLSP::MaterialProgra
             programRef->params.push_back(param);
             continue;
         }
+        if (tk.tk == shared_params_ref_tk) {
+            materialPassSharedParams(programRef);
+            continue;
+        }
 
         // recuperate line
         exceptions.push_back(ParseException(NOT_VALID_MATERIAL_PROGRAM_PARAM, tk.toRange()));
         recuperateLine();
     }
+    consumeEndLines();
+}
+
+void OgreScriptLSP::Parser::materialPassSharedParams(OgreScriptLSP::MaterialProgramAst *programRef) {
+    auto *sharedParam = new MaterialProgramSharedParamAst();
+
+    // consume shared_params_ref_tk
+    nextToken();
+
+    if (getToken().tk != identifier) {
+        exceptions.push_back(ParseException(NOT_VALID_MATERIAL_PASS_PARAM, getToken().toRange()));
+        recuperateLine();
+        return;
+    }
+    sharedParam->identifier = getToken();
+    nextToken();
+
+    if (getToken().tk != endl_tk) {
+        exceptions.push_back(ParseException(NOT_VALID_MATERIAL_PASS_PARAM, getToken().toRange()));
+        recuperateLine();
+        return;
+    }
+
+    programRef->sharedParams.push_back(sharedParam);
     consumeEndLines();
 }
 

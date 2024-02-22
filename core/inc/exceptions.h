@@ -6,6 +6,7 @@
 
 #define INVALID_TOKEN "Invalid main token"
 #define PROGRAM_NAME_MISSING "Error with program name identifier"
+#define SHARED_PARAMS_NAME_MISSING "Error with shared_params name identifier"
 #define MATERIAL_NAME_MISSION_ERROR "Error with material name identifier"
 #define TECHNIQUE_NAME_MISSION_ERROR "Error with technique name identifier"
 #define PASS_NAME_MISSION_ERROR "Error with pass name identifier"
@@ -23,6 +24,7 @@
 #define CURLY_BRACKET_END_MISSING "Missing curly bracket"
 #define PROGRAM_HIGH_LEVEL_MISSING "Missing high level program definition"
 #define NOT_VALID_PROGRAM_PARAM "Not valid program param"
+#define NOT_VALID_SHARED_PARAMS_PARAM "Not valid shared_params param"
 #define NOT_VALID_MATERIAL_PARAM "Not valid material param"
 #define NOT_VALID_MATERIAL_PASS_PARAM "Not valid material pass param"
 #define NOT_VALID_MATERIAL_TEXTURE_PARAM "Not valid material texture param"
@@ -32,6 +34,7 @@
 #define NOT_VALID_SHADOW_MATERIAL_REF "Not valid shadow (caster/receiver) material reference"
 #define NOT_VALID_PARAM "Not valid param"
 #define NOT_VALID_IMPORT "Invalid import declaration"
+#define NOT_VALID_SHARED_PARAM_REF_IDENTIFIER "Invalid shared param ref identifier"
 
 // Scanner error messages
 #define SCANNER_INVALID_CHARACTER "Invalid character"

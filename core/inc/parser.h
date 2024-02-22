@@ -19,6 +19,7 @@
 #define PASS_BLOCK 9
 #define TEXTURE_UNIT_BLOCK 10
 #define RTSHADER_BLOCK 11
+#define SHARED_PARAMS_BLOCK 12
 
 namespace OgreScriptLSP {
     class Parser {
@@ -67,6 +68,11 @@ namespace OgreScriptLSP {
         // ABSTRACT STATEMENT
         void abstract(MaterialScriptAst *scriptAst);
 
+        // SHARED PARAMS STATEMENT
+        void sharedParams(MaterialScriptAst *scriptAst);
+
+        void sharedParamsBody(SharedParamsAst *sharedParams);
+
         // PROGRAM STATEMENT
         void program(MaterialScriptAst *scriptAst);
 
@@ -102,6 +108,8 @@ namespace OgreScriptLSP {
         void materialProgramRef(PassAst *pass);
 
         void materialProgramRefBody(MaterialProgramAst *programRef);
+
+        void materialPassSharedParams(OgreScriptLSP::MaterialProgramAst *programRef);
 
         // THIS IS COMMON SECTION
         void paramsLine(ParamAst *params);

@@ -130,6 +130,14 @@ void OgreScriptLSP::Parser::abstract(MaterialScriptAst *scriptAst) {
             passTmp->textures.clear();
             break;
         }
+        case texture_source_tk: {
+            auto textureUnit = std::make_unique<TextureUnitAst>();
+            materialTextureSource(textureUnit.get());
+            registerDeclaration(textureUnit->textureSources[0], TEXTURE_SOURCE_BLOCK);
+            abstract->body = textureUnit->textureSources[0];
+            textureUnit->textureSources.clear();
+            break;
+        }
         case rtshader_system_tk: {
             auto shader = new RtShaderAst();
             materialRtShader(shader);
@@ -441,6 +449,10 @@ void OgreScriptLSP::Parser::materialTextureBody(OgreScriptLSP::TextureUnitAst *t
             texture->shaders.push_back(shader);
             continue;
         }
+        if (tk.tk == texture_source_tk) {
+            materialTextureSource(texture);
+            continue;
+        }
         if (tk.tk == identifier) {
             auto *param = new TextureUnitParamAst();
             paramsLine(param);
@@ -450,6 +462,39 @@ void OgreScriptLSP::Parser::materialTextureBody(OgreScriptLSP::TextureUnitAst *t
 
         // recuperate line
         exceptions.push_back(ParseException(NOT_VALID_MATERIAL_TEXTURE_PARAM, tk.toRange()));
+        recuperateLine();
+    }
+    consumeEndLines();
+}
+
+void OgreScriptLSP::Parser::materialTextureSource(OgreScriptLSP::TextureUnitAst *texture) {
+    auto *textureSource = new TextureSourceAst();
+
+    // consume texture_source_tk token
+    nextToken();
+
+    objectDefinition(textureSource, TEXTURE_SOURCE_MISSING_ERROR, TEXTURE_SOURCE_INHERIT_ERROR, true);
+
+    consumeOpenCurlyBracket();
+
+    materialTextureSourceBody(textureSource);
+
+    consumeCloseCurlyBracket();
+    texture->textureSources.push_back(textureSource);
+}
+
+void OgreScriptLSP::Parser::materialTextureSourceBody(OgreScriptLSP::TextureSourceAst *shader) {
+    while (!isEof() && getToken().tk != right_curly_bracket_tk && !isMainStructure()) {
+        TokenValue tk = getToken();
+        if (tk.tk == identifier) {
+            auto *param = new RtShaderParamAst();
+            paramsLine(param);
+            shader->params.push_back(param);
+            continue;
+        }
+
+        // recuperate line
+        exceptions.push_back(ParseException(NOT_VALID_MATERIAL_TEXTURE_SOURCE_PARAM, tk.toRange()));
         recuperateLine();
     }
     consumeEndLines();

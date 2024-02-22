@@ -20,6 +20,7 @@
 #define TEXTURE_UNIT_BLOCK 10
 #define RTSHADER_BLOCK 11
 #define SHARED_PARAMS_BLOCK 12
+#define TEXTURE_SOURCE_BLOCK 13
 
 namespace OgreScriptLSP {
     class Parser {
@@ -101,15 +102,19 @@ namespace OgreScriptLSP {
 
         void materialTextureBody(TextureUnitAst *texture);
 
-        void materialRtShader(OgreScriptLSP::RtShaderAst *shader);
+        void materialRtShader(RtShaderAst *shader);
 
-        void materialRtShaderBody(OgreScriptLSP::RtShaderAst *shader);
+        void materialRtShaderBody(RtShaderAst *shader);
+
+        void materialTextureSource(TextureUnitAst *texture);
+
+        void materialTextureSourceBody(TextureSourceAst *shader);
 
         void materialProgramRef(PassAst *pass);
 
         void materialProgramRefBody(MaterialProgramAst *programRef);
 
-        void materialPassSharedParams(OgreScriptLSP::MaterialProgramAst *programRef);
+        void materialPassSharedParams(MaterialProgramAst *programRef);
 
         // THIS IS COMMON SECTION
         void paramsLine(ParamAst *params);
@@ -126,7 +131,8 @@ namespace OgreScriptLSP {
                    tk == vertex_program_tk || tk == vertex_program_ref_tk ? PROGRAM_VERTEX_BLOCK :
                    tk == geometry_program_tk || tk == geometry_program_ref_tk ? PROGRAM_GEOMETRY_BLOCK :
                    tk == tessellation_hull_program_tk || tk == tessellation_hull_program_ref_tk ? PROGRAM_HULL_BLOCK :
-                   tk == tessellation_domain_program_tk || tk == tessellation_domain_program_ref_tk ? PROGRAM_DOMAIN_BLOCK :
+                   tk == tessellation_domain_program_tk || tk == tessellation_domain_program_ref_tk
+                   ? PROGRAM_DOMAIN_BLOCK :
                    PROGRAM_COMPUTE_BLOCK;
         }
 

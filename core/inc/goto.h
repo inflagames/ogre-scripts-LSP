@@ -90,6 +90,9 @@ namespace OgreScriptLSP {
         static std::optional<std::pair<int, std::string>>
         searchSharedParamRef(MaterialProgramSharedParamAst *sharedParam, Position position);
 
+        static std::optional<std::pair<int, std::string>>
+        searchTextureSource(TextureSourceAst *textureSource, Position position);
+
         /**
          * @brief Searches for a token at the given position in a pass script abstract syntax tree (AST).
          *

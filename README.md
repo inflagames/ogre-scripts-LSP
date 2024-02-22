@@ -136,10 +136,13 @@ material_pass = <pass_tk> <object_definition>? <left_curly_bracket_tk> <material
 material_pass_body = <param_line> | <material_texture> | <material_program>
 
 material_texture = <texture_unit_tk> <object_definition>? <left_curly_bracket_tk> <material_texture_body>* <right_curly_bracket_tk>
-material_texture_body = <param_line> | <material_rtshader>
+material_texture_body = <param_line> | <material_rtshader> | <material_texture_source>
 
 material_rtshader = <rtshader_system_tk> <object_definition>? <left_curly_bracket_tk> <material_rtshader_body>* <right_curly_bracket_tk>
 material_rtshader_body = <param_line>
+
+material_texture_source = <texture_source_tk> <object_definition>? <left_curly_bracket_tk> <material_texture_source_body>* <right_curly_bracket_tk>
+material_texture_source_body = <param_line>
 
 material_program = <material_progarm_type> <identifier> <left_curly_bracket_tk> <material_program_body>* <right_curly_bracket_tk>
 material_program_type = <vertex_program_ref_tk> | <fragment_program_ref_tk> | <geometry_program_ref_tk> | <tessellation_hull_program_ref_tk> | <tessellation_domain_program_ref_tk> | <compute_program_ref_tk>

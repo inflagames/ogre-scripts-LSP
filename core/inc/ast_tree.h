@@ -112,6 +112,18 @@ namespace OgreScriptLSP {
     public:
     };
 
+    class TextureSourceAst : public AstObject {
+    public:
+        std::vector<RtShaderParamAst *> params;
+
+        ~TextureSourceAst() override {
+            for (auto ele: params) {
+                delete ele;
+            }
+            params.clear();
+        }
+    };
+
     class RtShaderAst : public AstObject {
     public:
         std::vector<RtShaderParamAst *> params;
@@ -132,6 +144,7 @@ namespace OgreScriptLSP {
     public:
         std::vector<TextureUnitParamAst *> params;
         std::vector<RtShaderAst *> shaders;
+        std::vector<TextureSourceAst *> textureSources;
 
         ~TextureUnitAst() override {
             for (auto ele: params) {
@@ -142,6 +155,10 @@ namespace OgreScriptLSP {
                 delete ele;
             }
             shaders.clear();
+            for (auto ele: textureSources) {
+                delete ele;
+            }
+            textureSources.clear();
         }
     };
 

@@ -138,7 +138,9 @@ material_pass = <pass_tk> <object_definition>? <left_curly_bracket_tk> <material
 material_pass_body = <param_line> | <material_texture> | <material_program>
 
 material_texture = <texture_unit_tk> <object_definition>? <left_curly_bracket_tk> <material_texture_body>* <right_curly_bracket_tk>
-material_texture_body = <param_line> | <material_rtshader> | <material_texture_source>
+material_texture_body = <param_line> | <sampler_ref> | <material_rtshader> | <material_texture_source>
+
+sampler_ref = <sampler_ref> <identifier>
 
 material_rtshader = <rtshader_system_tk> <object_definition>? <left_curly_bracket_tk> <material_rtshader_body>* <right_curly_bracket_tk>
 material_rtshader_body = <param_line>

@@ -21,6 +21,7 @@
 #define RTSHADER_BLOCK 11
 #define SHARED_PARAMS_BLOCK 12
 #define TEXTURE_SOURCE_BLOCK 13
+#define SAMPLER_BLOCK 14
 
 namespace OgreScriptLSP {
     class Parser {
@@ -74,6 +75,11 @@ namespace OgreScriptLSP {
 
         void sharedParamsBody(SharedParamsAst *sharedParams);
 
+        // SAMPLER STATEMENT
+        void sampler(MaterialScriptAst *scriptAst);
+
+        void samplerBody(SamplerAst *sampler);
+
         // PROGRAM STATEMENT
         void program(MaterialScriptAst *scriptAst);
 
@@ -101,6 +107,8 @@ namespace OgreScriptLSP {
         void materialTexture(PassAst *pass);
 
         void materialTextureBody(TextureUnitAst *texture);
+
+        void samplerRef(TextureUnitAst *textureUnit);
 
         void materialRtShader(RtShaderAst *shader);
 

@@ -22,12 +22,14 @@ OgreScriptLSP::SemanticToken::getSemanticTokens(OgreScriptLSP::Parser *parser, R
             case texture_unit_tk:
             case rtshader_system_tk:
             case texture_source_tk:
+            case sampler_tk:
             case pass_tk: {
                 res->data.push_back({(uint32_t) tk.line, (uint32_t) tk.column,
                                      (uint32_t) tk.size, 0, 0});
                 break;
             }
             case shared_params_ref_tk:
+            case sampler_ref_tk:
             case shadow_caster_material_tk:
             case shadow_receiver_material_tk: {
                 res->data.push_back({(uint32_t) tk.line, (uint32_t) tk.column,

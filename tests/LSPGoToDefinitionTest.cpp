@@ -212,3 +212,13 @@ TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_textur
     validateGoTo({15, 34}, {{0, 24},
                             {0, 47}}, "file://./examples/lsp/goto_definition_texture_source.material");
 }
+
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_samplerExample) {
+    validateGoTo({14, 32}, {{0, 8},
+                            {0, 23}}, "file://./examples/lsp/goto_definition_sampler.material");
+}
+
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_samplerInObjectExample) {
+    validateGoTo({0, 10}, {{0, 8},
+                           {0, 23}}, "file://./examples/lsp/goto_definition_sampler.material");
+}

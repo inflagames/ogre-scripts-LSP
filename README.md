@@ -113,6 +113,10 @@ import_source = <string_literal> | <identifier>
 shared_params = <shared_params_tk> <identifier> <left_curly_bracket_tk> <shared_params_body>* <right_curly_bracket_tk>
 shared_params_body = <param_line>
 
+// sampler definition
+sampler = <sampler_tk> <identifier> <left_curly_bracket_tk> <sampler_body>* <right_curly_bracket_tk>
+sampler_body = <param_line>
+
 // abstract block
 abstract = <abstract_tk> <abstract_opt>
 abstract_opt = <abstract_pass> | <abstract_technique> | <abstract_texture> | <abstract_material>
@@ -151,7 +155,7 @@ shared_params_ref = <shared_params_ref_tk> <identifier>
 param_line = <param><endl_tk> | <param> <param_line>
 param = <identifier> | <string_literal> | <number_literal> | <variable> | <comma_tk>
 
-object_definition = <top_object_definition> | <match_literal>
+object_definition = <top_object_definition> | <match_literal> | <numer_literal>
 top_object_definition = <definition_opt> | <definition_opt> <colon_tk> <definition_opt>
 definition_opt = <identifier> | <string_literal>
 ```

@@ -20,6 +20,8 @@ namespace OgreScriptLSP {
         shadow_caster_material_tk,
         shadow_receiver_material_tk,
         texture_source_tk,
+        sampler_tk,
+        sampler_ref_tk,
 
         // programs tokens
         fragment_program_tk,

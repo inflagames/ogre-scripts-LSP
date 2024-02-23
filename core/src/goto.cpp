@@ -17,34 +17,49 @@ std::unique_ptr<OgreScriptLSP::ResultBase> OgreScriptLSP::GoTo::goToDefinition(O
 
 std::optional<std::pair<int, std::string>>
 OgreScriptLSP::GoTo::search(OgreScriptLSP::MaterialScriptAst *script, OgreScriptLSP::Position position) {
-    for (auto m : script->materials) {
+    for (auto m: script->materials) {
         auto r = searchMaterial(m, position);
         if (r.has_value()) {
             return r;
         }
     }
 
-    for (auto a : script->abstracts) {
+    for (auto a: script->abstracts) {
         auto r = searchAbstract(a, position);
         if (r.has_value()) {
             return r;
         }
     }
 
-    for (auto p : script->programs) {
+    for (auto p: script->programs) {
         auto r = searchProgram(p, position);
         if (r.has_value()) {
             return r;
         }
     }
 
-    for (auto sp : script->sharedParams) {
+    for (auto sp: script->sharedParams) {
         auto r = searchSharedParam(sp, position);
         if (r.has_value()) {
             return r;
         }
     }
 
+    for (auto s: script->sampler) {
+        auto r = searchSampler(s, position);
+        if (r.has_value()) {
+            return r;
+        }
+    }
+
+    return std::nullopt;
+}
+
+std::optional<std::pair<int, std::string>> OgreScriptLSP::GoTo::searchSampler(SamplerAst *sampler, Position position) {
+    auto r = searchInObject(sampler, position, SAMPLER_BLOCK);
+    if (r.has_value()) {
+        return r;
+    }
     return std::nullopt;
 }
 
@@ -163,11 +178,26 @@ OgreScriptLSP::GoTo::searchTexture(OgreScriptLSP::TextureUnitAst *texture, OgreS
             return r;
         }
     }
+    for (auto s: texture->sampleReferences) {
+        auto r = searchSamplerRef(s, position);
+        if (r.has_value()) {
+            return r;
+        }
+    }
     return std::nullopt;
 }
 
 std::optional<std::pair<int, std::string>>
-OgreScriptLSP::GoTo::searchTextureSource(OgreScriptLSP::TextureSourceAst *textureSource, OgreScriptLSP::Position position) {
+OgreScriptLSP::GoTo::searchSamplerRef(SamplerRefAst *samplerRef, Position position) {
+    if (samplerRef->identifier.toRange().inRange(position)) {
+        return std::make_pair(SAMPLER_BLOCK, samplerRef->identifier.literal);
+    }
+    return std::nullopt;
+}
+
+std::optional<std::pair<int, std::string>>
+OgreScriptLSP::GoTo::searchTextureSource(OgreScriptLSP::TextureSourceAst *textureSource,
+                                         OgreScriptLSP::Position position) {
     auto o = searchInObject(textureSource, position, TEXTURE_SOURCE_BLOCK);
     if (o.has_value()) {
         return o;
@@ -200,7 +230,7 @@ OgreScriptLSP::GoTo::searchProgram(OgreScriptLSP::ProgramAst *program, OgreScrip
     if (o.has_value()) {
         return o;
     }
-    for (const auto sp : program->sharedParams) {
+    for (const auto sp: program->sharedParams) {
         auto r = searchSharedParamRef(sp, position);
         if (r.has_value()) {
             return r;
@@ -215,7 +245,7 @@ OgreScriptLSP::GoTo::searchProgramRef(OgreScriptLSP::MaterialProgramAst *program
     if (programRef->name.toRange().inRange(position)) {
         return std::make_pair(type, programRef->name.literal);
     }
-    for (const auto sp : programRef->sharedParams) {
+    for (const auto sp: programRef->sharedParams) {
         auto r = searchSharedParamRef(sp, position);
         if (r.has_value()) {
             return r;

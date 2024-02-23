@@ -47,6 +47,9 @@ void OgreScriptLSP::Parser::parse() {
             } else if (tk.tk == abstract_tk) {
                 recuperate = false;
                 abstract(script.get());
+            } else if (tk.tk == sampler_tk) {
+                recuperate = false;
+                sampler(script.get());
             } else if (tk.tk == import_tk) {
                 recuperate = false;
                 importBlock(script.get());
@@ -185,6 +188,43 @@ void OgreScriptLSP::Parser::sharedParamsBody(OgreScriptLSP::SharedParamsAst *sha
 
         // recuperate line
         exceptions.push_back(ParseException(NOT_VALID_SHARED_PARAMS_PARAM, tk.toRange()));
+        recuperateLine();
+    }
+    consumeEndLines();
+}
+
+// SAMPLER STATEMENT
+void OgreScriptLSP::Parser::sampler(MaterialScriptAst *scriptAst) {
+    auto *sampler = new SamplerAst();
+
+    // consume sampler_tk token
+    nextToken();
+
+    sampler->name = getToken();
+    consumeToken(identifier, PROGRAM_NAME_MISSING, true);
+    declarations[std::make_pair(SAMPLER_BLOCK, sampler->name.literal)] = sampler->name;
+
+    consumeOpenCurlyBracket();
+
+    samplerBody(sampler);
+
+    consumeCloseCurlyBracket();
+
+    scriptAst->sampler.push_back(sampler);
+}
+
+void OgreScriptLSP::Parser::samplerBody(SamplerAst *sampler) {
+    while (!isEof() && getToken().tk != right_curly_bracket_tk && !isMainStructure()) {
+        TokenValue tk = getToken();
+        if (tk.tk == identifier) {
+            auto *param = new SamplerParamAst();
+            paramsLine(param);
+            sampler->params.push_back(param);
+            continue;
+        }
+
+        // recuperate line
+        exceptions.push_back(ParseException(NOT_VALID_SAMPLER_PARAM, tk.toRange()));
         recuperateLine();
     }
     consumeEndLines();
@@ -459,6 +499,10 @@ void OgreScriptLSP::Parser::materialTextureBody(OgreScriptLSP::TextureUnitAst *t
             materialTextureSource(texture);
             continue;
         }
+        if (tk.tk == sampler_ref_tk) {
+            samplerRef(texture);
+            continue;
+        }
         if (tk.tk == identifier) {
             auto *param = new TextureUnitParamAst();
             paramsLine(param);
@@ -470,6 +514,30 @@ void OgreScriptLSP::Parser::materialTextureBody(OgreScriptLSP::TextureUnitAst *t
         exceptions.push_back(ParseException(NOT_VALID_MATERIAL_TEXTURE_PARAM, tk.toRange()));
         recuperateLine();
     }
+    consumeEndLines();
+}
+
+void OgreScriptLSP::Parser::samplerRef(TextureUnitAst *textureUnit) {
+    auto *samplerRef = new SamplerRefAst();
+
+    // consume shadow_caster_material_tk|shadow_receiver_material_tk token
+    nextToken();
+
+    if (getToken().tk != identifier && getToken().tk != string_literal) {
+        exceptions.push_back(ParseException(NOT_VALID_SAMPLER_REF, getToken().toRange()));
+        recuperateLine();
+        return;
+    }
+    samplerRef->identifier = getToken();
+    nextToken();
+
+    if (getToken().tk != endl_tk) {
+        exceptions.push_back(ParseException(NOT_VALID_SAMPLER_REF, getToken().toRange()));
+        recuperateLine();
+        return;
+    }
+
+    textureUnit->sampleReferences.push_back(samplerRef);
     consumeEndLines();
 }
 
@@ -658,7 +726,7 @@ void OgreScriptLSP::Parser::objectDefinition(AstObject *astObject, std::string e
     }
 
     if (!notTopLevelObject || getToken().tk != colon_tk) {
-        if (getToken().tk != identifier && getToken().tk != string_literal) {
+        if (getToken().tk != identifier && getToken().tk != string_literal && getToken().tk != number_literal) {
             throw ParseException(std::move(error1), getToken().toRange());
         }
         astObject->name = getToken();

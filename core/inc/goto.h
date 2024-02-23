@@ -93,6 +93,11 @@ namespace OgreScriptLSP {
         static std::optional<std::pair<int, std::string>>
         searchTextureSource(TextureSourceAst *textureSource, Position position);
 
+        static std::optional<std::pair<int, std::string>>
+        searchSamplerRef(SamplerRefAst *samplerRef, Position position);
+
+        static std::optional<std::pair<int, std::string>> searchSampler(SamplerAst *sampler, Position position);
+
         /**
          * @brief Searches for a token at the given position in a pass script abstract syntax tree (AST).
          *

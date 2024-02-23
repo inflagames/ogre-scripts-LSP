@@ -318,6 +318,10 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral(std::string prefix
                 return {compute_program_ref_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "texture_source") {
                 return {texture_source_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "sampler") {
+                return {sampler_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "sampler_ref") {
+                return {sampler_ref_tk, literal, line, column, (int) literal.size()};
             } else if (literal.starts_with('$')) {
                 return {variable, literal, line, column, (int) literal.size()};
             }

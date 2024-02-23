@@ -20,3 +20,5 @@ Fixed general issues related to the scripting language and not supported tokens.
 - Fixed: Issue with identifiers that start with digits.
 - Added: Support for missing <texture_source> blocks.
 - Added: Multiline comments.
+- Added: Support for missing <sampler|sampler_ref> block.
+- Fixed: Allow objects identifier be a number_literal.

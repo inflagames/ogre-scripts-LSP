@@ -135,6 +135,11 @@ namespace OgreScriptLSP {
         }
     };
 
+    class SamplerRefAst {
+    public:
+        TokenValue identifier;
+    };
+
     class TextureUnitParamAst : public ParamAst {
     public:
     };
@@ -144,6 +149,7 @@ namespace OgreScriptLSP {
         std::vector<TextureUnitParamAst *> params;
         std::vector<RtShaderAst *> shaders;
         std::vector<TextureSourceAst *> textureSources;
+        std::vector<SamplerRefAst *> sampleReferences;
 
         ~TextureUnitAst() override {
             for (auto ele: params) {
@@ -212,7 +218,6 @@ namespace OgreScriptLSP {
     };
 
     class MaterialParamAst : public ParamAst {
-    public:
     };
 
     class MaterialAst : public AstObject {
@@ -233,6 +238,21 @@ namespace OgreScriptLSP {
         }
     };
 
+    class SamplerParamAst : public ParamAst {
+    };
+
+    class SamplerAst : public AstObject {
+    public:
+        std::vector<SamplerParamAst *> params;
+
+        ~SamplerAst() override {
+            for (auto ele: params) {
+                delete ele;
+            }
+            params.clear();
+        }
+    };
+
     class MaterialScriptAst {
     public:
         std::string uri;
@@ -241,6 +261,7 @@ namespace OgreScriptLSP {
         std::vector<AbstractAst *> abstracts;
         std::vector<ImportAst *> imports;
         std::vector<SharedParamsAst *> sharedParams;
+        std::vector<SamplerAst *> sampler;
 
         explicit MaterialScriptAst(std::string uri) {
             this->uri = std::move(uri);
@@ -267,6 +288,10 @@ namespace OgreScriptLSP {
                 delete ele;
             }
             sharedParams.clear();
+            for (auto ele: sampler) {
+                delete ele;
+            }
+            sampler.clear();
         }
 
         std::vector<MaterialAst *> allMaterials() {

@@ -1,0 +1,12 @@
+material Example/Shadow/Receiver {
+}
+
+material Example/Shadow/Caster {
+}
+
+material BaseMat {
+    technique {
+        shadow_receiver_material Example/Shadow/Receiver
+        shadow_caster_material Example/Shadow/Caster
+    }
+}

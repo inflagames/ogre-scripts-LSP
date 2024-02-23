@@ -29,6 +29,8 @@ add_executable(test_run
         LSPDiagnosticsTest.cpp
         LSPProdErrorsReproductionTest.cpp
         ProgramOptionsTest.cpp
+        LSPDocumentSymbolsTest.cpp
+        LSPSemanticTokensTest.cpp
 )
 
 target_link_libraries(test_run PUBLIC gtest gtest_main nlohmann_json::nlohmann_json ogre_scripts_LSP_lib test_utils)

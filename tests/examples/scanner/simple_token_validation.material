@@ -1,2 +1,8 @@
 // number example
-.34 345.34 234 0.34 .34 -345.34 -234 -0.34
+.34 345.34 234 0.34 .34 -345.34 -234 -0.34 -.34
+
+// float numbers example
+.34f 345.34f 234f 0.34f .34f -345.34f -234f -0.34f -.34f
+
+// identifiers example
+10points.png PF_BYTE_RGBA asdf&asdfv adsf234/asdf/asdf asdf.asdf 1234.0f34df

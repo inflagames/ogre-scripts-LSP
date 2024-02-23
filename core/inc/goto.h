@@ -81,6 +81,23 @@ namespace OgreScriptLSP {
          */
         static std::optional<std::pair<int, std::string>> searchTechnique(TechniqueAst *script, Position position);
 
+        static std::optional<std::pair<int, std::string>>
+        searchShadowMat(ShadowMaterialAst *shadowMat, Position position);
+
+        static std::optional<std::pair<int, std::string>>
+        searchSharedParam(SharedParamsAst *sharedParam, Position position);
+
+        static std::optional<std::pair<int, std::string>>
+        searchSharedParamRef(MaterialProgramSharedParamAst *sharedParam, Position position);
+
+        static std::optional<std::pair<int, std::string>>
+        searchTextureSource(TextureSourceAst *textureSource, Position position);
+
+        static std::optional<std::pair<int, std::string>>
+        searchSamplerRef(SamplerRefAst *samplerRef, Position position);
+
+        static std::optional<std::pair<int, std::string>> searchSampler(SamplerAst *sampler, Position position);
+
         /**
          * @brief Searches for a token at the given position in a pass script abstract syntax tree (AST).
          *
@@ -106,6 +123,8 @@ namespace OgreScriptLSP {
          * If no token is found at the given position, an empty optional is returned.
          */
         static std::optional<std::pair<int, std::string>> searchTexture(TextureUnitAst *texture, Position position);
+
+        static std::optional<std::pair<int, std::string>> searchRtShader(RtShaderAst *shader, Position position);
 
         /**
          * @brief Searches for a token at the given position in a program script abstract syntax tree (AST).

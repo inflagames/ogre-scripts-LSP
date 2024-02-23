@@ -1,4 +1,6 @@
 #include "../inc/lsp_server.h"
+#include "../inc/symbols.h"
+#include "../inc/semantic_tokens.h"
 
 void OgreScriptLSP::LspServer::runServer(std::ostream &oos, std::istream &ios) {
     // run server until exit or crash
@@ -33,16 +35,19 @@ void OgreScriptLSP::LspServer::runServer(std::ostream &oos, std::istream &ios) {
                 } else if ("textDocument/definition" == rm->method) {
                     goToDefinition(rm, oos);
                 } else if ("textDocument/declaration" == rm->method) {
-                    // toDo (gonzalezext)[29.01.24]:
                 } else if ("textDocument/didOpen" == rm->method) {
                     didOpen(rm, oos);
                 } else if ("textDocument/didClose" == rm->method) {
                     didClose(rm);
                 } else if ("textDocument/didSave" == rm->method) {
-                    // not needed at the moment
+                    // not used at the moment
                     continue;
                 } else if ("textDocument/didChange" == rm->method) {
                     didChange(rm, oos);
+                } else if ("textDocument/documentSymbol" == rm->method) {
+                    documentSymbols(rm, oos);
+                } else if (rm->method.starts_with("textDocument/semanticTokens")) {
+                    semanticTokens(rm, oos);
                 }
             } else {
                 shutdown();
@@ -65,11 +70,43 @@ void OgreScriptLSP::LspServer::initialize(OgreScriptLSP::RequestMessage *rm, std
     sendResponse(nlohmann::to_string(re.toJson()), oos);
 }
 
+void OgreScriptLSP::LspServer::semanticTokens(RequestMessage *rm, std::ostream &oos) {
+    try {
+        auto params = (SemanticTokensParams *) rm->params;
+        auto parser = getParserByUri(params->textDocument.uri);
+        Range range = {{0, 0},
+                       {INT32_MAX, INT32_MAX}};
+        if (rm->method.ends_with("/delta")) {
+            // toDo: not supported yet
+        } else if (rm->method.ends_with("/range")) {
+            range = ((SemanticTokensRangeParams *) params)->range;
+        }
+        ResponseMessage re = newResponseMessage(rm->id, SemanticToken::getSemanticTokens(parser, range));
+        sendResponse(nlohmann::to_string(re.toJson()), oos);
+    } catch (std::exception &e) {
+        // toDo (gonzalezext)[21.02.24]: send error to client
+        Logs::getInstance().log("Error calculating semantic tokens", e);
+    }
+}
+
+void OgreScriptLSP::LspServer::documentSymbols(RequestMessage *rm, std::ostream &oos) {
+    try {
+        auto params = (DocumentSymbolParams *) rm->params;
+        auto parser = getParserByUri(params->textDocument.uri);
+        ResponseMessage re = newResponseMessage(rm->id, Symbols::getSymbols(parser));
+        sendResponse(nlohmann::to_string(re.toJson()), oos);
+    } catch (std::exception &e) {
+        // toDo (gonzalezext)[21.02.24]: send error to client
+        Logs::getInstance().log("Error calculating symbols", e);
+    }
+}
+
 void OgreScriptLSP::LspServer::didOpen(RequestMessage *rm, std::ostream &oos) {
     try {
         auto params = (DidOpenTextDocumentParams *) rm->params;
         sendDiagnostic(updateParser(params->textDocument.uri, params->textDocument.text), oos);
     } catch (std::exception &e) {
+        // toDo (gonzalezext)[21.02.24]: send error to client
         Logs::getInstance().log("Error to open a file", e);
     }
 }

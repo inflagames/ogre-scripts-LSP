@@ -1,0 +1,25 @@
+shared_params SharedParams {
+    shared_param_named myParam float4 0 0 0 0.1
+}
+
+vertex_program Examples/BumpMapVP unified
+{
+	delegate Examples/BumpMapVPGLSL
+	delegate Examples/BumpMapVPHLSL
+	default_params {
+        shared_params_ref SharedParams
+	}
+}
+
+material BaseMat {
+    technique {
+        pass {
+            vertex_program_ref Examples/BumpMapVP
+            {
+                param_named_auto lightPosition light_position_object_space 0
+                param_named_auto worldViewProj worldviewproj_matrix
+                shared_params_ref SharedParams
+            }
+        }
+    }
+}

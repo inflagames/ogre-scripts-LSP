@@ -4,6 +4,7 @@
 #include <iostream>
 #include <utility>
 #include <vector>
+#include <algorithm>
 
 #include "nlohmann/json.hpp"
 #include "logs.h"
@@ -183,6 +184,36 @@ namespace OgreScriptLSP {
         }
     };
 
+    enum SymbolKind {
+        File = 1, Module, Namespace, Package, Class, Method, Property, Field, Constructor, Enum, Interface, Function,
+        Variable, Constant, String, Number, Boolean, Array, Object, Key, Null, EnumMember, Struct, Event, Operator,
+        TypeParameter
+    };
+
+    struct DocumentSymbol : ResultBase {
+        std::string name;
+        SymbolKind kind;
+        Range range;
+        Range selectionRange;
+        std::vector<DocumentSymbol> children;
+
+        DocumentSymbol(std::string name, SymbolKind kind, Range range, Range selectionRange) : name(std::move(name)),
+                                                                                               kind(kind),
+                                                                                               range(range),
+                                                                                               selectionRange(
+                                                                                                       selectionRange) {}
+
+        nlohmann::json toJson() override {
+            return nlohmann::json{
+                    {"name",           name},
+                    {"kind",           kind},
+                    {"range",          range.toJson()},
+                    {"selectionRange", selectionRange.toJson()},
+//                    {"children": childrenArr}
+            };
+        }
+    };
+
     struct TextEdit : ResultBase {
         Range range;
         std::string newText;
@@ -230,7 +261,6 @@ namespace OgreScriptLSP {
     };
 
     struct CompletionClientCapabilities {
-        // toDo (gonzalezext)[07.02.24]:
     };
 
     struct TextDocumentClientCapabilities {
@@ -380,6 +410,60 @@ namespace OgreScriptLSP {
     };
 
     /**
+     * 'textDocument/semanticTokens/full'
+     */
+    struct SemanticTokensParams : PartialResultParams, WorkDoneProgressParams {
+        TextDocumentIdentifier textDocument;
+
+        void fromJson(const nlohmann::json &j) override {
+            if (j.contains("textDocument") && j.at("textDocument").contains("uri")) {
+                j.at("textDocument").at("uri").get_to(textDocument.uri);
+            }
+        }
+    };
+
+    /**
+     * 'textDocument/semanticTokens/full/delta'
+     */
+    struct SemanticTokensDeltaParams : SemanticTokensParams {
+        std::string previousResultId;
+
+        void fromJson(const nlohmann::json &j) override {
+            SemanticTokensParams::fromJson(j);
+            if (j.contains("previousResultId")) {
+                j.at("previousResultId").get_to(previousResultId);
+            }
+        }
+    };
+
+    /**
+     * 'textDocument/semanticTokens/range'
+     */
+    struct SemanticTokensRangeParams : SemanticTokensParams {
+        Range range{};
+
+        void fromJson(const nlohmann::json &j) override {
+            SemanticTokensParams::fromJson(j);
+            if (j.contains("range")) {
+                range.fromJson(j.at("range"));
+            }
+        }
+    };
+
+    /**
+     * 'textDocument/documentSymbol'
+     */
+    struct DocumentSymbolParams : PartialResultParams, WorkDoneProgressParams {
+        TextDocumentIdentifier textDocument;
+
+        void fromJson(const nlohmann::json &j) override {
+            if (j.contains("textDocument") && j.at("textDocument").contains("uri")) {
+                j.at("textDocument").at("uri").get_to(textDocument.uri);
+            }
+        }
+    };
+
+    /**
      * 'textDocument/didOpen'
      */
     struct DidOpenTextDocumentParams : ParamsBase {
@@ -437,7 +521,7 @@ namespace OgreScriptLSP {
                 j.at("textDocument").at("version").get_to(textDocument.version);
             }
             if (j.contains("contentChanges") && j.at("contentChanges").is_array()) {
-                for (const auto& it: j.at("contentChanges")) {
+                for (const auto &it: j.at("contentChanges")) {
                     TextDocumentContentChangeEvent nv;
                     nv.fromJson(it);
                     contentChanges.push_back(nv);
@@ -456,12 +540,50 @@ namespace OgreScriptLSP {
             bool implementationProvider = false;
             bool documentFormattingProvider = true;
             bool documentRangeFormattingProvider = true;
+            bool documentSymbolProvider = false;
+
+            struct SemanticTokensOptions {
+                struct SemanticTokensLegend {
+                    std::vector<std::string> tokenTypes{"class", "comment", "struct", "variable", "property", "number",
+                                                        "string"};
+                    std::vector<std::string> tokenModifiers{"abstract"};
+
+                    nlohmann::json toJson() {
+                        nlohmann::json arrayTokenTypes = nlohmann::json::array();
+                        nlohmann::json arrayTokenModifiers = nlohmann::json::array();
+                        for (const auto &v: tokenTypes) {
+                            arrayTokenTypes.push_back(v);
+                        }
+                        for (const auto &v: tokenModifiers) {
+                            arrayTokenModifiers.push_back(v);
+                        }
+                        return nlohmann::json{
+                                {"tokenTypes",     arrayTokenTypes},
+                                {"tokenModifiers", arrayTokenModifiers},
+                        };
+                    }
+                } legend;
+
+                bool workDoneProgress = false; // WorkDoneProgressOptions
+                bool range = true;
+                struct {
+                    bool delta = false;
+                } full;
+
+                nlohmann::json toJson() {
+                    return nlohmann::json{
+                            {"legend",           legend.toJson()},
+                            {"workDoneProgress", workDoneProgress},
+                            {"range",            range},
+                            {"full",             {{"delta", full.delta}}},
+                    };
+                }
+            } semanticTokensProvider;
         } capabilities;
 
         struct ServerInfo {
             std::string name = "ogre-scripts-LSP";
-            // toDo (gonzalezext)[26.01.24]: version should be provide via CMAKE variable
-            std::string version = "1.0.0";
+            std::string version = APP_VERSION;
         } serverInfo;
 
         nlohmann::json toJson() override {
@@ -471,6 +593,8 @@ namespace OgreScriptLSP {
                                              {"definitionProvider", capabilities.definitionProvider},
                                              {"implementationProvider", capabilities.implementationProvider},
                                              {"documentRangeFormattingProvider", capabilities.documentRangeFormattingProvider},
+                                             {"documentSymbolProvider", capabilities.documentSymbolProvider},
+                                             {"semanticTokensProvider", capabilities.semanticTokensProvider.toJson()},
                                              {"documentFormattingProvider", capabilities.documentFormattingProvider}}
                     },
                     {"serverInfo",   {
@@ -491,6 +615,50 @@ namespace OgreScriptLSP {
         uint8_t severity;
         Range range;
         std::string message;
+    };
+
+    struct tokenValue {
+        uint32_t line;
+        uint32_t startChar;
+        uint32_t length;
+        uint32_t tokenType;
+        uint32_t modifiers;
+
+        bool operator<(tokenValue o) const {
+            return std::make_pair(line, std::make_pair(startChar, std::make_pair(
+                    length, std::make_pair(tokenType, modifiers)))) <
+                   std::make_pair(o.line, std::make_pair(o.startChar, std::make_pair(
+                           o.length, std::make_pair(o.tokenType, o.modifiers))));
+        }
+    };
+
+    struct SemanticTokens : ResultBase {
+        std::string resultId;
+        std::vector<tokenValue> data;
+
+        nlohmann::json toJson() override {
+            auto jData = nlohmann::json::array();
+
+            // sort tokens before calculate relative position
+            std::sort(data.begin(), data.end());
+
+            uint32_t pLine = 0, pChar = 0;
+            for (const auto &d: data) {
+                jData.push_back(d.line - pLine);
+                jData.push_back(d.startChar - pChar);
+                jData.push_back(d.length);
+                jData.push_back(d.tokenType);
+                jData.push_back(d.modifiers);
+                if (pLine != d.line) {
+                    pChar = 0;
+                    pLine = d.line;
+                }
+            }
+            return nlohmann::json{
+                    {"resultId", resultId},
+                    {"data",     jData},
+            };
+        }
     };
 
     /**
@@ -555,8 +723,16 @@ namespace OgreScriptLSP {
                     params = new DidCloseTextDocumentParams();
                 } else if ("textDocument/didSave" == method) {
                     params = new DidSaveTextDocumentParams();
+                } else if ("textDocument/documentSymbol" == method) {
+                    params = new DocumentSymbolParams();
                 } else if ("textDocument/didChange" == method) {
                     params = new DidChangeTextDocumentParams();
+                } else if ("textDocument/semanticTokens/full" == method) {
+                    params = new SemanticTokensParams();
+                } else if ("textDocument/semanticTokens/full/delta" == method) {
+                    params = new SemanticTokensDeltaParams();
+                } else if ("textDocument/semanticTokens/range" == method) {
+                    params = new SemanticTokensRangeParams();
                 }
                 if (params != nullptr) {
                     params->fromJson(j.at("params"));

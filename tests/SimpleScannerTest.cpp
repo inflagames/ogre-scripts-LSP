@@ -42,7 +42,31 @@ TEST (ScannerTest, scanner_ShouldReadCorrectlyTheListOfTokens) {
             // line 2
             OgreScriptLSP::number_literal, OgreScriptLSP::number_literal, OgreScriptLSP::number_literal,
             OgreScriptLSP::number_literal, OgreScriptLSP::number_literal, OgreScriptLSP::number_literal,
-            OgreScriptLSP::number_literal, OgreScriptLSP::number_literal, OgreScriptLSP::endl_tk,
+            OgreScriptLSP::number_literal, OgreScriptLSP::number_literal, OgreScriptLSP::number_literal,
+            OgreScriptLSP::endl_tk,
+            // line 3
+            OgreScriptLSP::endl_tk,
+            // line 4
+            OgreScriptLSP::endl_tk,
+            // line 5
+            OgreScriptLSP::number_literal, OgreScriptLSP::number_literal, OgreScriptLSP::number_literal,
+            OgreScriptLSP::number_literal, OgreScriptLSP::number_literal, OgreScriptLSP::number_literal,
+            OgreScriptLSP::number_literal, OgreScriptLSP::number_literal, OgreScriptLSP::number_literal,
+            OgreScriptLSP::endl_tk,
+            // line 6
+            OgreScriptLSP::endl_tk,
+            // line 7
+            OgreScriptLSP::endl_tk,
+            // line 8
+            OgreScriptLSP::identifier, OgreScriptLSP::identifier, OgreScriptLSP::identifier, OgreScriptLSP::identifier,
+            OgreScriptLSP::identifier, OgreScriptLSP::identifier, OgreScriptLSP::endl_tk,
+    };
+    std::vector<std::string> numbers = {
+            ".34", "345.34", "234", "0.34", ".34", "-345.34", "-234", "-0.34", "-.34",
+            ".34f", "345.34f", "234f", "0.34f", ".34f", "-345.34f", "-234f", "-0.34f", "-.34f"
+    };
+    std::vector<std::string> identifiers = {
+            "10points.png", "PF_BYTE_RGBA", "asdf&asdfv", "adsf234/asdf/asdf", "asdf.asdf", "1234.0f34df"
     };
 
     std::vector<OgreScriptLSP::TokenValue> result = scanner->parse();
@@ -53,6 +77,20 @@ TEST (ScannerTest, scanner_ShouldReadCorrectlyTheListOfTokens) {
     ASSERT_EQ(tokens.size(), result.size());
     for (int i = 0; i < tokens.size(); ++i) {
         ASSERT_EQ(tokens[i], result[i].tk);
+    }
+
+    // validate number literals
+    for (int i = 0, j = 0; i < tokens.size(); ++i) {
+        if (result[i].tk == OgreScriptLSP::number_literal) {
+            ASSERT_EQ(numbers[j++], result[i].literal);
+        }
+    }
+
+    // validate identifiers
+    for (int i = 0, j = 0; i < tokens.size(); ++i) {
+        if (result[i].tk == OgreScriptLSP::identifier) {
+            ASSERT_EQ(identifiers[j++], result[i].literal);
+        }
     }
 }
 

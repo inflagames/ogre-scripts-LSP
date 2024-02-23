@@ -54,11 +54,28 @@ TEST (LSPInitializeTest, readHeadBody_ShouldInitializeConnectionWithClient) {
     ASSERT_TRUE(j.at("result").contains("capabilities"));
     ASSERT_TRUE(j.at("result").at("capabilities").contains("documentFormattingProvider"));
     ASSERT_TRUE(j.at("result").at("capabilities").at("documentFormattingProvider").template get<bool>());
+    ASSERT_TRUE(j.at("result").at("capabilities").contains("documentRangeFormattingProvider"));
+    ASSERT_TRUE(j.at("result").at("capabilities").at("documentRangeFormattingProvider").template get<bool>());
+    ASSERT_FALSE(j.at("result").at("capabilities").at("documentSymbolProvider").template get<bool>());
+
+    // validate semantic tokens
+    ASSERT_TRUE(j.at("result").at("capabilities").contains("semanticTokensProvider"));
+    ASSERT_TRUE(j.at("result").at("capabilities").at("semanticTokensProvider").contains("full"));
+    ASSERT_TRUE(j.at("result").at("capabilities").at("semanticTokensProvider").at("full").contains("delta"));
+    ASSERT_FALSE(j.at("result").at("capabilities").at("semanticTokensProvider").at("full").at("delta"));
+    ASSERT_TRUE(j.at("result").at("capabilities").at("semanticTokensProvider").contains("range"));
+    ASSERT_TRUE(j.at("result").at("capabilities").at("semanticTokensProvider").at("range"));
+    ASSERT_TRUE(j.at("result").at("capabilities").at("semanticTokensProvider").contains("workDoneProgress"));
+    ASSERT_FALSE(j.at("result").at("capabilities").at("semanticTokensProvider").at("workDoneProgress"));
+    ASSERT_TRUE(j.at("result").at("capabilities").at("semanticTokensProvider").contains("legend"));
+    auto legend = j.at("result").at("capabilities").at("semanticTokensProvider").at("legend");
+    ASSERT_TRUE(legend.contains("tokenTypes"));
+    ASSERT_TRUE(legend.contains("tokenModifiers"));
 
     ASSERT_TRUE(j.contains("result"));
     ASSERT_TRUE(j.at("result").contains("serverInfo"));
     ASSERT_TRUE(j.at("result").at("serverInfo").contains("name"));
     ASSERT_EQ("ogre-scripts-LSP", j.at("result").at("serverInfo").at("name").template get<std::string>());
     ASSERT_TRUE(j.at("result").at("serverInfo").contains("version"));
-    ASSERT_EQ("1.0.0", j.at("result").at("serverInfo").at("version").template get<std::string>());
+    ASSERT_EQ(APP_VERSION, j.at("result").at("serverInfo").at("version").template get<std::string>());
 }

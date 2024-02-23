@@ -25,6 +25,7 @@ void OgreScriptLSP::Scanner::loadScript(const std::string &scriptFile, const std
 
 std::vector<OgreScriptLSP::TokenValue> OgreScriptLSP::Scanner::parse() {
     exceptions.clear();
+    comments.clear();
     std::vector<OgreScriptLSP::TokenValue> list;
     while (true) {
         auto tk = nextToken();
@@ -53,9 +54,16 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
                     consumeComment();
                     continue;
                 }
+                if (ch == '*') {
+                    // consume multiline comment
+                    consumeComment(false);
+                    continue;
+                }
                 recuperateError(columnCount - 1, SCANNER_INVALID_CHARACTER);
                 continue;
             }
+            case ',':
+                return symbolToken(comma_tk);
             case ':':
                 return symbolToken(colon_tk);
             case '{':
@@ -88,6 +96,9 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
                     numberPrefix.push_back(ch);
                     nextCharacter();
                     if (!isdigit(ch) && ch != '.') {
+                        if (validLiteral(ch)) {
+                            return nextLiteral("-");
+                        }
                         recuperateError(columnCount - 1, SCANNER_INVALID_CHARACTER);
                         continue;
                     }
@@ -103,9 +114,7 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
                     isFirstPeriod = false;
                 }
                 try {
-                    auto tkValue = consumeNumber(numberPrefix, isFirstPeriod);
-                    tkValue.literal.insert(0, 1, isFirstPeriod ? '.' : '-');
-                    return tkValue;
+                    return consumeNumber(numberPrefix, isFirstPeriod);
                 } catch (const ScannerException &e) {
                     recuperateError(e.range.start.character, e.message);
                     continue;
@@ -139,15 +148,35 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextToken() {
 }
 
 void OgreScriptLSP::Scanner::consumeComment(bool lineComment) {
-    nextCharacter(); // consume second ch in comment
-    nextCharacter(); // consume first ch after comment definition
-    char pCh = ch;
+    int pLine = lineCount;
+    int pColumn = columnCount - 1;
+    nextCharacter(); // consume second comment character (* | /)
+    char pCh = ' ';
+    bool newLine = false;
     do {
+        if (newLine) {
+            newLine = false;
+            pLine = lineCount;
+            pColumn = columnCount;
+        }
         if ((lineComment && ch == '\n') || (!lineComment && pCh == '*' && ch == '/')) {
+            if (!lineComment) {
+                nextCharacter();
+            }
+            comments.push_back({
+                (uint32_t) pLine,
+                (uint32_t) pColumn,
+                (uint32_t) columnCount - pColumn,
+                1, 0
+            });
             return;
+        } else if (!lineComment && ch == '\n') {
+            comments.push_back({(uint32_t) pLine, (uint32_t) pColumn, (uint32_t) columnCount - pColumn, 1, 0});
+            newLine = true;
         }
         pCh = ch;
     } while (nextCharacter());
+    comments.push_back({(uint32_t) pLine, (uint32_t) pColumn, (uint32_t) columnCount - pColumn, 1, 0});
 }
 
 OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::symbolToken(OgreScriptLSP::Token tk) {
@@ -160,19 +189,28 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeNumber(std::string pref
     std::string literal = std::move(prefix);
     int line = lineCount, startPos = (int) literal.size();
     int column = columnCount - startPos, rangeLength = startPos;
+    bool isFirstCharacterIndicator = true;
     while (!codeStream->eof()) {
         literal.push_back(ch);
-        if (nextCharacter() && (isdigit(ch) || (ch == '.' && isFirstPeriod))) {
+        if (nextCharacter() && isFirstCharacterIndicator && (isdigit(ch) || (ch == '.' && isFirstPeriod))) {
             if (ch == '.') {
                 isFirstPeriod = false;
             }
-        } else if (ch == '\n' || ch == ' ' || ch == '\t' || ch == '\v' || ch == '\f' || ch == '\r') {
+        } else if (isFirstCharacterIndicator && validNumberTypeIndicator(ch)) {
+            isFirstCharacterIndicator = false;
+        } else if (ch == '\n' || ch == ' ' || ch == '\t' || ch == '\v' || ch == '\f' || ch == '\r' || ch == ',') {
             return {number_literal, literal, line, column, (int) literal.size()};
+        } else if (validLiteral(ch, false)) {
+            return nextLiteral(literal);
         } else {
             throw ScannerException(SCANNER_INVALID_NUMBER, Range::toRange(line, column, rangeLength));
         }
     }
     throw ScannerException(SCANNER_EOF_ERROR, Range::toRange(line, column, rangeLength));
+}
+
+bool OgreScriptLSP::Scanner::validNumberTypeIndicator(char ch) {
+    return ch == 'f';
 }
 
 OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::consumeString(char stringDelimiter) {
@@ -221,10 +259,10 @@ bool OgreScriptLSP::Scanner::isInvalidMatchDigit(char c) {
     return c == '\n' || c == '\t' || c == ' ' || c == '\v' || c == '\r' || c == '\f';
 }
 
-OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
-    std::string literal;
+OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral(std::string prefix) {
+    std::string literal = prefix;
     int line = lineCount;
-    int column = columnCount;
+    int column = columnCount - (int) prefix.size();
     while (!codeStream->eof()) {
         literal.push_back(ch);
         if (!nextCharacter() || !validLiteral(ch, false)) {
@@ -236,8 +274,6 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
                 return {from_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "default_params") {
                 return {default_params_tk, literal, line, column, (int) literal.size()};
-            } else if (literal == "entry_point") {
-                return {entry_point_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "fragment_program") {
                 return {fragment_program_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "fragment_program_ref") {
@@ -246,8 +282,8 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
                 return {material_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "pass") {
                 return {pass_tk, literal, line, column, (int) literal.size()};
-            } else if (literal == "profiles") {
-                return {profiles_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "rtshader_system") {
+                return {rtshader_system_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "technique") {
                 return {technique_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "texture_unit") {
@@ -256,6 +292,36 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
                 return {vertex_program_tk, literal, line, column, (int) literal.size()};
             } else if (literal == "vertex_program_ref") {
                 return {vertex_program_ref_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "shared_params") {
+                return {shared_params_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "shared_params_ref") {
+                return {shared_params_ref_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "shadow_caster_material") {
+                return {shadow_caster_material_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "shadow_receiver_material") {
+                return {shadow_receiver_material_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "geometry_program") {
+                return {geometry_program_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "geometry_program_ref") {
+                return {geometry_program_ref_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "tessellation_hull_program") {
+                return {tessellation_hull_program_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "tessellation_hull_program_ref") {
+                return {tessellation_hull_program_ref_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "tessellation_domain_program") {
+                return {tessellation_domain_program_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "tessellation_domain_program_ref") {
+                return {tessellation_domain_program_ref_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "compute_program") {
+                return {compute_program_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "compute_program_ref") {
+                return {compute_program_ref_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "texture_source") {
+                return {texture_source_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "sampler") {
+                return {sampler_tk, literal, line, column, (int) literal.size()};
+            } else if (literal == "sampler_ref") {
+                return {sampler_ref_tk, literal, line, column, (int) literal.size()};
             } else if (literal.starts_with('$')) {
                 return {variable, literal, line, column, (int) literal.size()};
             }
@@ -267,13 +333,13 @@ OgreScriptLSP::TokenValue OgreScriptLSP::Scanner::nextLiteral() {
 
 bool OgreScriptLSP::Scanner::validLiteral(char c, bool startCharacter) {
     if (startCharacter) {
-        return isalpha(c) || c == '_' || c == '$' || c == '/' || c == '.';
+        return isalnum(c) || c == '-' || c == '_' || c == '$' || c == '/' || c == '.';
     }
-    return isalnum(c) || c == '_' || c == '/' || c == '.';
+    return isalnum(c) || c == '-' || c == '_' || c == '/' || c == '.' || c == '&' || c == '=';
 }
 
 void OgreScriptLSP::Scanner::recuperateError(int column, const std::string &error) {
-    int rangeLength =  columnCount - column;
+    int rangeLength = columnCount - column;
     while (ch != ' ' && ch != '\t' && ch != '\n' && ch != '\f' && ch != '\v' && ch != '\r') {
         rangeLength++;
         if (!nextCharacter()) {

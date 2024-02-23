@@ -19,6 +19,7 @@ namespace OgreScriptLSP {
         bool isNewLine = false;
 
         std::vector<BaseException> exceptions;
+        std::vector<tokenValue> comments;
 
         Scanner();
 
@@ -44,7 +45,9 @@ namespace OgreScriptLSP {
 
         TokenValue consumeNumber(std::string prefix = "", bool isFirstPeriod = true);
 
-        TokenValue nextLiteral();
+        static bool validNumberTypeIndicator(char ch);
+
+        TokenValue nextLiteral(std::string prefix = "");
 
         static bool validLiteral(char c, bool startCharacter = true);
 

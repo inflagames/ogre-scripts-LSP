@@ -1,4 +1,13 @@
 import * from "parent.material"
+import glTF2/PBR from glTF2_PBR.material
+import Filament from filament.material
+
+/*
+vertex_program Examples/BumpMapVPShadowRcvGLSL glsl glsles
+{
+	source Example_BumpMappingShadowRcvVp.glsl
+}
+*/
 
 // Bump map vertex program shadow receiver
 vertex_program Examples/BumpMapVPShadowRcvGLSL glsl glsles
@@ -28,8 +37,13 @@ fragment_program Examples/BumpMapFPShadowRcv unified
 	delegate Examples/BumpMapFPShadowRcvGLSL
 }
 
-abstract material Game/BumpMapping/MultiLight/Rcv
+fragment_program Ogre/Compositor/B&W_Cg_FP hlsl
 {
+	source GrayScale.cg
+	entry_point GrayScale_ps
+}
+
+abstract material Game/BumpMapping/MultiLight/Rcv{
 	technique
 	{
 		pass
@@ -184,6 +198,12 @@ material female.texture : Game/BumpMapping/MultiLight/Rcv {
                 texture male.texture.jpeg
                 tex_address_mode wrap
                 colour_op modulate
+            }
+
+            rtshader_system normalmap
+            {
+                lighting_stage normal_map normal_map.jpg
+                //lighting_stage metal_roughness texture color_specular.jpg
             }
         }
     }

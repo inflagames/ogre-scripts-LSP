@@ -11,9 +11,17 @@
 #define MATERIAL_BLOCK 1
 #define PROGRAM_VERTEX_BLOCK 2
 #define PROGRAM_FRAGMENT_BLOCK 3
-#define TECHNIQUE_BLOCK 4
-#define PASS_BLOCK 5
-#define TEXTURE_UNIT_BLOCK 6
+#define PROGRAM_GEOMETRY_BLOCK 4
+#define PROGRAM_HULL_BLOCK 5
+#define PROGRAM_DOMAIN_BLOCK 6
+#define PROGRAM_COMPUTE_BLOCK 7
+#define TECHNIQUE_BLOCK 8
+#define PASS_BLOCK 9
+#define TEXTURE_UNIT_BLOCK 10
+#define RTSHADER_BLOCK 11
+#define SHARED_PARAMS_BLOCK 12
+#define TEXTURE_SOURCE_BLOCK 13
+#define SAMPLER_BLOCK 14
 
 namespace OgreScriptLSP {
     class Parser {
@@ -36,6 +44,8 @@ namespace OgreScriptLSP {
         ~Parser() = default;
 
         MaterialScriptAst *getScript() { return script.get(); }
+
+        [[nodiscard]] const Scanner *getScanner() const;
 
         [[nodiscard]] std::unique_ptr<std::map<std::pair<int, std::string>, TokenValue>> getDeclarations() const {
             auto decl = std::make_unique<std::map<std::pair<int, std::string>, TokenValue>>(declarations);
@@ -60,6 +70,16 @@ namespace OgreScriptLSP {
         // ABSTRACT STATEMENT
         void abstract(MaterialScriptAst *scriptAst);
 
+        // SHARED PARAMS STATEMENT
+        void sharedParams(MaterialScriptAst *scriptAst);
+
+        void sharedParamsBody(SharedParamsAst *sharedParams);
+
+        // SAMPLER STATEMENT
+        void sampler(MaterialScriptAst *scriptAst);
+
+        void samplerBody(SamplerAst *sampler);
+
         // PROGRAM STATEMENT
         void program(MaterialScriptAst *scriptAst);
 
@@ -78,9 +98,9 @@ namespace OgreScriptLSP {
 
         void materialTechniqueBody(TechniqueAst *technique);
 
-        void materialPass(TechniqueAst *technique);
+        void techniqueShadowMaterial(TechniqueAst *technique);
 
-        void materialPassName(PassAst *pass);
+        void materialPass(TechniqueAst *technique);
 
         void materialPassBody(PassAst *pass);
 
@@ -88,9 +108,21 @@ namespace OgreScriptLSP {
 
         void materialTextureBody(TextureUnitAst *texture);
 
+        void samplerRef(TextureUnitAst *textureUnit);
+
+        void materialRtShader(RtShaderAst *shader);
+
+        void materialRtShaderBody(RtShaderAst *shader);
+
+        void materialTextureSource(TextureUnitAst *texture);
+
+        void materialTextureSourceBody(TextureSourceAst *shader);
+
         void materialProgramRef(PassAst *pass);
 
         void materialProgramRefBody(MaterialProgramAst *programRef);
+
+        void programSharedParams(MaterialProgramSharedParamAst *sharedParam);
 
         // THIS IS COMMON SECTION
         void paramsLine(ParamAst *params);
@@ -102,13 +134,23 @@ namespace OgreScriptLSP {
 
         void recuperateLine();
 
+        static int getProgramBlockIdk(Token tk) {
+            return tk == fragment_program_tk || tk == fragment_program_ref_tk ? PROGRAM_FRAGMENT_BLOCK :
+                   tk == vertex_program_tk || tk == vertex_program_ref_tk ? PROGRAM_VERTEX_BLOCK :
+                   tk == geometry_program_tk || tk == geometry_program_ref_tk ? PROGRAM_GEOMETRY_BLOCK :
+                   tk == tessellation_hull_program_tk || tk == tessellation_hull_program_ref_tk ? PROGRAM_HULL_BLOCK :
+                   tk == tessellation_domain_program_tk || tk == tessellation_domain_program_ref_tk
+                   ? PROGRAM_DOMAIN_BLOCK :
+                   PROGRAM_COMPUTE_BLOCK;
+        }
+
         void nextTokenAndConsumeEndLines();
 
         void consumeOpenCurlyBracket();
 
         void consumeCloseCurlyBracket();
 
-        void consumeToken(Token token, std::string errorMessage, bool consumeEndLines = false);
+        void consumeToken(Token token, std::string errorMessage = "", bool consumeEndLines = false);
 
         void nextToken();
 

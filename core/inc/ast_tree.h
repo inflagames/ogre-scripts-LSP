@@ -3,6 +3,7 @@
 
 #include <utility>
 #include <vector>
+#include "token.h"
 
 namespace OgreScriptLSP {
 
@@ -24,11 +25,21 @@ namespace OgreScriptLSP {
     };
 
     class ParamProgramAst : public ParamAst {
+    };
+
+    class SharedParamsAst : public AstObject {
     public:
+        std::vector<ParamProgramAst *> params;
+
+        ~SharedParamsAst() override {
+            for (auto ele: params) {
+                delete ele;
+            }
+            params.clear();
+        }
     };
 
     class ParamProgramDefaultAst : public ParamAst {
-    public:
     };
 
     class AbstractAst {
@@ -47,16 +58,18 @@ namespace OgreScriptLSP {
         TokenValue file;
     };
 
+    class MaterialProgramSharedParamAst {
+    public:
+        TokenValue identifier;
+    };
+
     class ProgramAst : public AstObject {
     public:
+        TokenValue type;
         std::vector<ParamProgramAst *> params;
         std::vector<ParamProgramDefaultAst *> defaults;
         std::vector<TokenValue> highLevelProgramsType;
-
-        enum ProgramType {
-            fragment,
-            vertex,
-        } type;
+        std::vector<MaterialProgramSharedParamAst *> sharedParams;
 
         ~ProgramAst() override {
             for (auto ele: params) {
@@ -80,13 +93,51 @@ namespace OgreScriptLSP {
         TokenValue name;
         TokenValue type;
         std::vector<MaterialProgramParamAst *> params;
+        std::vector<MaterialProgramSharedParamAst *> sharedParams;
 
         ~MaterialProgramAst() {
             for (auto ele: params) {
                 delete ele;
             }
             params.clear();
+            for (auto ele: sharedParams) {
+                delete ele;
+            }
+            sharedParams.clear();
         }
+    };
+
+    class RtShaderParamAst : public ParamAst {
+    public:
+    };
+
+    class TextureSourceAst : public AstObject {
+    public:
+        std::vector<RtShaderParamAst *> params;
+
+        ~TextureSourceAst() override {
+            for (auto ele: params) {
+                delete ele;
+            }
+            params.clear();
+        }
+    };
+
+    class RtShaderAst : public AstObject {
+    public:
+        std::vector<RtShaderParamAst *> params;
+
+        ~RtShaderAst() override {
+            for (auto ele: params) {
+                delete ele;
+            }
+            params.clear();
+        }
+    };
+
+    class SamplerRefAst {
+    public:
+        TokenValue identifier;
     };
 
     class TextureUnitParamAst : public ParamAst {
@@ -96,23 +147,40 @@ namespace OgreScriptLSP {
     class TextureUnitAst : public AstObject {
     public:
         std::vector<TextureUnitParamAst *> params;
+        std::vector<RtShaderAst *> shaders;
+        std::vector<TextureSourceAst *> textureSources;
+        std::vector<SamplerRefAst *> sampleReferences;
 
         ~TextureUnitAst() override {
             for (auto ele: params) {
                 delete ele;
             }
             params.clear();
+            for (auto ele: shaders) {
+                delete ele;
+            }
+            shaders.clear();
+            for (auto ele: textureSources) {
+                delete ele;
+            }
+            textureSources.clear();
         }
     };
 
-    class PassParamAst : public ParamAst {
+    class ShadowMaterialAst {
     public:
+        TokenValue type = {EOF_tk, ""};
+        TokenValue reference = {EOF_tk, ""};
+    };
+
+    class PassParamAst : public ParamAst {
     };
 
     class PassAst : public AstObject {
     public:
         std::vector<PassParamAst *> params;
         std::vector<TextureUnitAst *> textures;
+        std::vector<RtShaderAst *> shaders;
         std::vector<MaterialProgramAst *> programsReferences;
 
         ~PassAst() override {
@@ -128,12 +196,18 @@ namespace OgreScriptLSP {
                 delete ele;
             }
             programsReferences.clear();
+            for (auto ele: shaders) {
+                delete ele;
+            }
+            shaders.clear();
         }
     };
 
     class TechniqueAst : public AstObject {
     public:
         std::vector<PassAst *> passes;
+        std::vector<PassParamAst *> params;
+        std::vector<ShadowMaterialAst *> shadowMaterials;
 
         ~TechniqueAst() override {
             for (auto ele: passes) {
@@ -144,11 +218,11 @@ namespace OgreScriptLSP {
     };
 
     class MaterialParamAst : public ParamAst {
-    public:
     };
 
     class MaterialAst : public AstObject {
     public:
+        TokenValue symbol = {material_tk, ""};
         std::vector<MaterialParamAst *> params;
         std::vector<TechniqueAst *> techniques;
 
@@ -164,6 +238,21 @@ namespace OgreScriptLSP {
         }
     };
 
+    class SamplerParamAst : public ParamAst {
+    };
+
+    class SamplerAst : public AstObject {
+    public:
+        std::vector<SamplerParamAst *> params;
+
+        ~SamplerAst() override {
+            for (auto ele: params) {
+                delete ele;
+            }
+            params.clear();
+        }
+    };
+
     class MaterialScriptAst {
     public:
         std::string uri;
@@ -171,6 +260,8 @@ namespace OgreScriptLSP {
         std::vector<ProgramAst *> programs;
         std::vector<AbstractAst *> abstracts;
         std::vector<ImportAst *> imports;
+        std::vector<SharedParamsAst *> sharedParams;
+        std::vector<SamplerAst *> sampler;
 
         explicit MaterialScriptAst(std::string uri) {
             this->uri = std::move(uri);
@@ -193,6 +284,14 @@ namespace OgreScriptLSP {
                 delete ele;
             }
             imports.clear();
+            for (auto ele: sharedParams) {
+                delete ele;
+            }
+            sharedParams.clear();
+            for (auto ele: sampler) {
+                delete ele;
+            }
+            sampler.clear();
         }
 
         std::vector<MaterialAst *> allMaterials() {

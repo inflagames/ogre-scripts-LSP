@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.26)
 project(ogre_scripts_LSP_lib)
 
 # define application version here
-add_definitions(-DAPP_VERSION="v0.0.1")
+add_definitions(-DAPP_VERSION="v0.0.2")
 
 include(FetchContent)
 FetchContent_Declare(
@@ -31,6 +31,10 @@ add_library(ogre_scripts_LSP_lib STATIC
         core/inc/goto.h
         core/src/program_arg.cpp
         core/inc/program_arg.h
+        core/src/symbols.cpp
+        core/inc/symbols.h
+        core/src/semantic_tokens.cpp
+        core/inc/semantic_tokens.h
 )
 
 add_executable(ogre_scripts_LSP main.cpp)

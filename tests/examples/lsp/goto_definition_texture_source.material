@@ -1,0 +1,21 @@
+abstract texture_source Texture/Source/Example1 {
+    filename mymovie.ogg
+    play_mode play
+    sound_mode on
+}
+
+material Example {
+    receive_shadows on
+    technique {
+        pass some {
+            diffuse_color 1 1 0 1
+
+            texture_unit normal {
+                texture normal_map2.jpg
+
+				texture_source texture : Texture/Source/Example1 {
+				}
+            }
+        }
+    }
+}

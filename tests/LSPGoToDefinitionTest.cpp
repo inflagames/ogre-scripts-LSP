@@ -139,16 +139,86 @@ TEST (LSPGoToDefinitionTest, definitionMaterial_ShouldReturnGoToDefinition_byDef
 }
 
 TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_validaDefinition) {
-    validateGoTo({27, 44}, {{0, 17},
+    validateGoTo({66, 44}, {{0, 17},
                             {0, 36}}, "file://./examples/lsp/goto_definition_program.material");
 }
 
 TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_sameMaterialDefinition) {
-    validateGoTo({10, 29}, {{10, 15},
+    validateGoTo({59, 40}, {{10, 15},
                             {10, 34}}, "file://./examples/lsp/goto_definition_program.material");
+}
+
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_geometryExample) {
+    validateGoTo({70, 40}, {{14, 17},
+                            {14, 36}}, "file://./examples/lsp/goto_definition_program.material");
+}
+
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_hullExample) {
+    validateGoTo({74, 60}, {{18, 26},
+                            {18, 77}}, "file://./examples/lsp/goto_definition_program.material");
+}
+
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_domainExample) {
+    validateGoTo({77, 55}, {{30, 28},
+                            {30, 79}}, "file://./examples/lsp/goto_definition_program.material");
+}
+
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_computedProgramExample) {
+    validateGoTo({80, 50}, {{45, 16},
+                            {45, 68}}, "file://./examples/lsp/goto_definition_program.material");
 }
 
 TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_techniqueDefinitionPosition) {
     validateGoTo({0, 20}, {{0, 19},
-                            {0, 35}}, "file://./examples/lsp/goto_definition_technique.material");
+                           {0, 35}}, "file://./examples/lsp/goto_definition_technique.material");
+}
+
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_passRtshaderSystemDefinitionPosition) {
+    validateGoTo({18, 33}, {{0, 25},
+                            {0, 34}}, "file://./examples/lsp/goto_definition_rtshader.material");
+}
+
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_textureUnitRtshaderSystemDefinitionPosition) {
+    validateGoTo({13, 30}, {{0, 25},
+                            {0, 34}}, "file://./examples/lsp/goto_definition_rtshader.material");
+}
+
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_shadowReceiverExample) {
+    validateGoTo({8, 40}, {{0, 9},
+                           {0, 32}}, "file://./examples/lsp/goto_definition_shadow_mat.material");
+}
+
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_shadowCasterExample) {
+    validateGoTo({9, 44}, {{3, 9},
+                           {3, 30}}, "file://./examples/lsp/goto_definition_shadow_mat.material");
+}
+
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_sharedParamsExample) {
+    validateGoTo({20, 40}, {{0, 14},
+                            {0, 26}}, "file://./examples/lsp/goto_definition_shared_param.material");
+}
+
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_sharedParamsInObjectExample) {
+    validateGoTo({0, 20}, {{0, 14},
+                           {0, 26}}, "file://./examples/lsp/goto_definition_shared_param.material");
+}
+
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_sharedParamsInProgramExample) {
+    validateGoTo({9, 30}, {{0, 14},
+                           {0, 26}}, "file://./examples/lsp/goto_definition_shared_param.material");
+}
+
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_textureSourceExample) {
+    validateGoTo({15, 34}, {{0, 24},
+                            {0, 47}}, "file://./examples/lsp/goto_definition_texture_source.material");
+}
+
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_samplerExample) {
+    validateGoTo({14, 32}, {{0, 8},
+                            {0, 23}}, "file://./examples/lsp/goto_definition_sampler.material");
+}
+
+TEST (LSPGoToDefinitionTest, definitionProgram_ShouldReturnGoToDefinition_samplerInObjectExample) {
+    validateGoTo({0, 10}, {{0, 8},
+                           {0, 23}}, "file://./examples/lsp/goto_definition_sampler.material");
 }

@@ -2,10 +2,10 @@
 #define OGRE_SCRIPTS_LSP_LIB_GOTO_H
 
 
-#include "lsp_protocol.h"
-#include "token.h"
-#include "parser.h"
-#include "ast_tree.h"
+#include "../lsp_protocol.h"
+#include "../lang/token.h"
+#include "../lang/parser.h"
+#include "../lang/ast_tree.h"
 
 namespace OgreScriptLSP {
     class GoTo {

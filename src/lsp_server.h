@@ -6,9 +6,11 @@
 #include <map>
 #include <set>
 
+#include "lang/parser.h"
 #include "lsp_protocol.h"
-#include "parser.h"
-#include "formatter.h"
+#include "lsp/formatter.h"
+#include "lsp/symbols.h"
+#include "lsp/semantic_tokens.h"
 
 #define HEADER_CONTENT_LENGTH "Content-Length"
 #define HEADER_CONTENT_TYPE "Content-Type"

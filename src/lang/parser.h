@@ -1,12 +1,13 @@
 #ifndef JS_AI_PARSER_H
 #define JS_AI_PARSER_H
 
+#include <memory>
+
 #include "scanner.h"
 #include "ast_tree.h"
-#include "exceptions.h"
-#include "lsp_protocol.h"
-#include "goto.h"
-#include <memory>
+#include "../exceptions.h"
+#include "../lsp_protocol.h"
+#include "../lsp/goto.h"
 
 #define MATERIAL_BLOCK 1
 #define PROGRAM_VERTEX_BLOCK 2

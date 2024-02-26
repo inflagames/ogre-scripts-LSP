@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "../src/parser.h"
+#include "../src/lang/parser.h"
 
 TEST (ParserTest, parse_ShouldParseFileCorrectly_example002) {
     auto *parser = new OgreScriptLSP::Parser();

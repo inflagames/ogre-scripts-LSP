@@ -7,7 +7,7 @@
 #include <algorithm>
 
 #include "nlohmann/json.hpp"
-#include "logs.h"
+#include "utils/logs.h"
 
 #define DIAGNOSTIC_SEVERITY_ERROR 1
 #define DIAGNOSTIC_SEVERITY_WARNING 2

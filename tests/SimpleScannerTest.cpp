@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "../core/inc/scanner.h"
+#include "../src/scanner.h"
 #include "utils/utils.h"
 
 TEST (ScannerTest, scanner_ShouldOpenScriptFile) {

@@ -7,7 +7,7 @@
 
 #include "gtest/gtest.h"
 
-#include "../core/inc/lsp_server.h"
+#include "../src/lsp_server.h"
 #include "utils/utils.h"
 
 
@@ -191,7 +191,7 @@ TEST (LSPSyncTest, clientSync_LspServerShouldOpenCloseChangeFiles_validateLspAft
 }
 
 /**
- * This test is replicating a bug from the integration with JetBrains plugin
+ * This test is replicating a bug from the tools with JetBrains plugin
  */
 TEST (LSPSyncTest, clientSync_ShouldReceiveDiagnostic) {
     auto *lsp = new LspServer();
@@ -244,7 +244,7 @@ TEST (LSPSyncTest, clientSync_ShouldReceiveDiagnostic) {
 }
 
 /**
- * This test is replicating a bug from the integration with JetBrains plugin
+ * This test is replicating a bug from the tools with JetBrains plugin
  */
 TEST (LSPSyncTest, clientSync_CoverServerCrashIssueInServer_validateBug) {
     auto *lsp = new LspServer();

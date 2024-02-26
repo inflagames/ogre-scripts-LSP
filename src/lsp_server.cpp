@@ -1,6 +1,6 @@
-#include "../inc/lsp_server.h"
-#include "../inc/symbols.h"
-#include "../inc/semantic_tokens.h"
+#include "lsp_server.h"
+#include "symbols.h"
+#include "semantic_tokens.h"
 
 void OgreScriptLSP::LspServer::runServer(std::ostream &oos, std::istream &ios) {
     // run server until exit or crash

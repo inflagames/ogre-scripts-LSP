@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "../core/inc/lsp_server.h"
+#include "../src/lsp_server.h"
 #include "utils/utils.h"
 
 

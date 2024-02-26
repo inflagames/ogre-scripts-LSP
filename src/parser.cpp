@@ -1,4 +1,4 @@
-#include "../inc/parser.h"
+#include "parser.h"
 
 OgreScriptLSP::Parser::Parser() {
     scanner = std::make_unique<Scanner>();

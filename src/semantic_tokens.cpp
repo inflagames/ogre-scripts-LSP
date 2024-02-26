@@ -1,4 +1,4 @@
-#include "../inc/semantic_tokens.h"
+#include "semantic_tokens.h"
 
 OgreScriptLSP::ResultBase *
 OgreScriptLSP::SemanticToken::getSemanticTokens(OgreScriptLSP::Parser *parser, Range range) {

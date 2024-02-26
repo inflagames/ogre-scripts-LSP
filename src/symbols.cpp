@@ -1,4 +1,4 @@
-#include "../inc/symbols.h"
+#include "symbols.h"
 
 OgreScriptLSP::ResultArray *OgreScriptLSP::Symbols::getSymbols(OgreScriptLSP::Parser *parser) {
     auto *res = new ResultArray();

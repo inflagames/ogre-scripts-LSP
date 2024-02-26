@@ -1,4 +1,4 @@
-#include "../inc/goto.h"
+#include "goto.h"
 
 std::unique_ptr<OgreScriptLSP::ResultBase> OgreScriptLSP::GoTo::goToDefinition(OgreScriptLSP::MaterialScriptAst *script,
                                                                                std::unique_ptr<std::map<std::pair<int, std::string>, TokenValue>> declarations,

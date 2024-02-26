@@ -5,7 +5,7 @@
 #include "lsp_protocol.h"
 #include "token.h"
 #include "parser.h"
-#include "../inc/ast_tree.h"
+#include "ast_tree.h"
 
 namespace OgreScriptLSP {
     class GoTo {

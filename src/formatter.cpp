@@ -1,4 +1,4 @@
-#include "../inc/formatter.h"
+#include "formatter.h"
 
 // toDo (gonzalezext)[07.02.24]: support for trimFinalNewLines is not implemented
 OgreScriptLSP::ResultArray *

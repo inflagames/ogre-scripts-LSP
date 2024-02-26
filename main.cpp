@@ -1,7 +1,7 @@
 // start LSP
 
-#include "core/inc/lsp_server.h"
-#include "core/inc/program_arg.h"
+#include "src/lsp_server.h"
+#include "src/program_arg.h"
 
 int main(int argc, const char **argv) {
     {

@@ -1,4 +1,4 @@
-#include "../inc/scanner.h"
+#include "scanner.h"
 
 OgreScriptLSP::Scanner::Scanner() = default;
 

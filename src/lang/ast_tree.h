@@ -293,17 +293,6 @@ namespace OgreScriptLSP {
             }
             sampler.clear();
         }
-
-        std::vector<MaterialAst *> allMaterials() {
-            std::vector<MaterialAst *> res;
-            res.insert(res.end(), materials.begin(), materials.end());
-            for (auto a: abstracts) {
-                if (a->type.tk == material_tk) {
-                    res.push_back(dynamic_cast<MaterialAst *>(a->body));
-                }
-            }
-            return res;
-        }
     };
 }
 

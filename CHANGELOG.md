@@ -4,4 +4,4 @@ TBD
 
 ## Change Log
 
-TBD
+- Changed: Restructure files in project and remove unused methods

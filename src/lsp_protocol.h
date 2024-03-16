@@ -151,11 +151,11 @@ namespace OgreScriptLSP {
     };
 
     struct ResultArray : ResultBase {
-        std::vector<ResultBase *> elements;
+        std::vector<std::unique_ptr<ResultBase>> elements;
 
         nlohmann::json toJson() override {
             nlohmann::json array = nlohmann::json::array();
-            for (auto ele: elements) {
+            for (const auto &ele: elements) {
                 array.push_back(ele->toJson());
             }
             return array;
@@ -685,11 +685,10 @@ namespace OgreScriptLSP {
     struct RequestMessage : Message {
         std::string id;
         std::string method;
-        ParamsBase *params = nullptr;
+        std::unique_ptr<ParamsBase> params;
 
         RequestMessage() : Message("") {
             jsonrpc = method = id = "";
-            params = new ParamsBase();
         }
 
         void fromJson(const nlohmann::json &j) override {
@@ -708,31 +707,31 @@ namespace OgreScriptLSP {
             }
             if (j.contains("params")) {
                 if ("initialize" == method) {
-                    params = new InitializeParams();
+                    params = std::make_unique<InitializeParams>();
                 } else if ("textDocument/formatting" == method) {
-                    params = new DocumentFormattingParams();
+                    params = std::make_unique<DocumentFormattingParams>();
                 } else if ("textDocument/rangeFormatting" == method) {
-                    params = new DocumentRangeFormattingParams();
+                    params = std::make_unique<DocumentRangeFormattingParams>();
                 } else if ("textDocument/definition" == method) {
-                    params = new DefinitionParams();
+                    params = std::make_unique<DefinitionParams>();
                 } else if ("textDocument/declaration" == method) {
-                    params = new DeclarationParams();
+                    params = std::make_unique<DeclarationParams>();
                 } else if ("textDocument/didOpen" == method) {
-                    params = new DidOpenTextDocumentParams();
+                    params = std::make_unique<DidOpenTextDocumentParams>();
                 } else if ("textDocument/didClose" == method) {
-                    params = new DidCloseTextDocumentParams();
+                    params = std::make_unique<DidCloseTextDocumentParams>();
                 } else if ("textDocument/didSave" == method) {
-                    params = new DidSaveTextDocumentParams();
+                    params = std::make_unique<DidSaveTextDocumentParams>();
                 } else if ("textDocument/documentSymbol" == method) {
-                    params = new DocumentSymbolParams();
+                    params = std::make_unique<DocumentSymbolParams>();
                 } else if ("textDocument/didChange" == method) {
-                    params = new DidChangeTextDocumentParams();
+                    params = std::make_unique<DidChangeTextDocumentParams>();
                 } else if ("textDocument/semanticTokens/full" == method) {
-                    params = new SemanticTokensParams();
+                    params = std::make_unique<SemanticTokensParams>();
                 } else if ("textDocument/semanticTokens/full/delta" == method) {
-                    params = new SemanticTokensDeltaParams();
+                    params = std::make_unique<SemanticTokensDeltaParams>();
                 } else if ("textDocument/semanticTokens/range" == method) {
-                    params = new SemanticTokensRangeParams();
+                    params = std::make_unique<SemanticTokensRangeParams>();
                 }
                 if (params != nullptr) {
                     params->fromJson(j.at("params"));
@@ -758,11 +757,10 @@ namespace OgreScriptLSP {
 
     struct NotificationMessage : Message {
         std::string method;
-        ResultBase *params;
+        std::unique_ptr<ResultBase> params;
 
         explicit NotificationMessage(std::string method) : Message("2.0") {
             this->method = std::move(method);
-            params = nullptr;
         }
 
         void fromJson(const nlohmann::json &j) override {}
@@ -780,7 +778,7 @@ namespace OgreScriptLSP {
 
     struct ResponseMessage : Message {
         std::string id;
-        ResultBase *result;
+        std::unique_ptr<ResultBase> result;
 
         struct ResponseError {
             ErrorCode code{};
@@ -796,7 +794,6 @@ namespace OgreScriptLSP {
 
         ResponseMessage() : Message("2.0") {
             id = "";
-            result = nullptr;
             error = {};
         }
 
@@ -816,7 +813,12 @@ namespace OgreScriptLSP {
     struct Action {
         int contentLength;
         std::string contentType;
-        Message *message;
+        std::unique_ptr<Message> message;
+
+        Action(int contentLength, std::string contentType, Message *message) : contentLength(contentLength),
+                                                                               contentType(std::move(contentType)) {
+            this->message = std::unique_ptr<Message>(message);
+        }
     };
 }
 

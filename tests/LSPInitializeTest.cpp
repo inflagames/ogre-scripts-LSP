@@ -16,15 +16,15 @@ TEST (LSPInitializeTest, readHeadBody_ShouldReadCorrectlyTheHeadAndBody) {
     ASSERT_EQ(193, msg.contentLength);
     ASSERT_EQ("application/vscode; charset=utf-8", msg.contentType);
 
-    msg = lsp->readContent(msg, osMock);
+    lsp->readContent(msg, osMock);
 
     ASSERT_TRUE(msg.message != nullptr);
-    RequestMessage *rm = ((RequestMessage *) msg.message);
+    RequestMessage *rm = ((RequestMessage *) msg.message.get());
     ASSERT_EQ("2.0", rm->jsonrpc);
     ASSERT_EQ("1234", rm->id);
     ASSERT_EQ("initialize", rm->method);
 
-    InitializeParams *p = ((InitializeParams *) rm->params);
+    auto p = (InitializeParams *) rm->params.get();
     ASSERT_EQ(31, p->processId);
     ASSERT_EQ("/some/that", p->rootUri);
 }

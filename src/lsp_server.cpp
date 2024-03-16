@@ -6,14 +6,14 @@ void OgreScriptLSP::LspServer::runServer(std::ostream &oos, std::istream &ios) {
         try {
             message = "";
             Action act = readHeaders(ios);
-            act = readContent(act, ios);
+            readContent(act, ios);
             Logs::getInstance().log("Request: " + message);
 
             if (ios.eof()) {
                 throw OgreScriptLSP::ServerEOFException("Client EOF");
             }
 
-            auto *rm = (RequestMessage *) act.message;
+            auto *rm = (RequestMessage *) act.message.get();
             if ("initialize" == rm->method) {
                 initialize(rm, oos);
             } else if ("initialized" == rm->method) {
@@ -70,7 +70,7 @@ void OgreScriptLSP::LspServer::initialize(OgreScriptLSP::RequestMessage *rm, std
 
 void OgreScriptLSP::LspServer::semanticTokens(RequestMessage *rm, std::ostream &oos) {
     try {
-        auto params = (SemanticTokensParams *) rm->params;
+        auto params = (SemanticTokensParams *) rm->params.get();
         auto parser = getParserByUri(params->textDocument.uri);
         Range range = {{0, 0},
                        {INT32_MAX, INT32_MAX}};
@@ -89,7 +89,7 @@ void OgreScriptLSP::LspServer::semanticTokens(RequestMessage *rm, std::ostream &
 
 void OgreScriptLSP::LspServer::documentSymbols(RequestMessage *rm, std::ostream &oos) {
     try {
-        auto params = (DocumentSymbolParams *) rm->params;
+        auto params = (DocumentSymbolParams *) rm->params.get();
         auto parser = getParserByUri(params->textDocument.uri);
         ResponseMessage re = newResponseMessage(rm->id, Symbols::getSymbols(parser));
         sendResponse(nlohmann::to_string(re.toJson()), oos);
@@ -101,7 +101,7 @@ void OgreScriptLSP::LspServer::documentSymbols(RequestMessage *rm, std::ostream 
 
 void OgreScriptLSP::LspServer::didOpen(RequestMessage *rm, std::ostream &oos) {
     try {
-        auto params = (DidOpenTextDocumentParams *) rm->params;
+        auto params = (DidOpenTextDocumentParams *) rm->params.get();
         sendDiagnostic(updateParser(params->textDocument.uri, params->textDocument.text), oos);
     } catch (std::exception &e) {
         // toDo (gonzalezext)[21.02.24]: send error to client
@@ -111,7 +111,7 @@ void OgreScriptLSP::LspServer::didOpen(RequestMessage *rm, std::ostream &oos) {
 
 void OgreScriptLSP::LspServer::didChange(RequestMessage *rm, std::ostream &oos) {
     // toDo (gonzalezext)[10.02.24]: not support for range changes
-    auto params = ((DidChangeTextDocumentParams *) rm->params);
+    auto params = (DidChangeTextDocumentParams *) rm->params.get();
     sendDiagnostic(updateParser(params->textDocument.uri, params->contentChanges[0].text), oos);
 }
 
@@ -124,18 +124,18 @@ OgreScriptLSP::Parser *OgreScriptLSP::LspServer::updateParser(const std::string 
 }
 
 void OgreScriptLSP::LspServer::didClose(RequestMessage *rm) {
-    std::string uri = ((DidCloseTextDocumentParams *) rm->params)->textDocument.uri;
+    std::string uri = ((DidCloseTextDocumentParams *) rm->params.get())->textDocument.uri;
     parsers.erase(uri);
 }
 
 void OgreScriptLSP::LspServer::goToDefinition(RequestMessage *rm, std::ostream &oos) {
     try {
-        DefinitionParams *definitionParams = ((DefinitionParams *) rm->params);
+        auto definitionParams = (DefinitionParams *) rm->params.get();
         auto parser = getParserByUri(definitionParams->textDocument.uri);
         auto res = OgreScriptLSP::GoTo::goToDefinition(parser->getScript(), parser->getDeclarations(),
                                                        definitionParams->position);
 
-        ResponseMessage re = newResponseMessage(rm->id, res.get());
+        ResponseMessage re = newResponseMessage(rm->id, res.release());
         sendResponse(nlohmann::to_string(re.toJson()), oos);
     } catch (std::exception &e) {
         // toDo (gonzalezext)[03.02.24]: send fail to client
@@ -145,12 +145,12 @@ void OgreScriptLSP::LspServer::goToDefinition(RequestMessage *rm, std::ostream &
 
 void OgreScriptLSP::LspServer::formatting(RequestMessage *rm, bool withRange, std::ostream &oos) {
     try {
-        auto parser = getParserByUri(((DocumentFormattingParams *) rm->params)->textDocument.uri);
-        FormattingOptions options = ((DocumentFormattingParams *) rm->params)->options;
+        auto parser = getParserByUri(((DocumentFormattingParams *) rm->params.get())->textDocument.uri);
+        FormattingOptions options = ((DocumentFormattingParams *) rm->params.get())->options;
         ResultBase *res;
         if (withRange) {
             res = OgreScriptLSP::Formatter::formatting(parser, options,
-                                                       ((DocumentRangeFormattingParams *) rm->params)->range);
+                                                       ((DocumentRangeFormattingParams *) rm->params.get())->range);
         } else {
             res = OgreScriptLSP::Formatter::formatting(parser, options);
         }
@@ -229,7 +229,7 @@ std::string OgreScriptLSP::LspServer::readHeaderValue(std::istream &os) {
     return name;
 }
 
-OgreScriptLSP::Action OgreScriptLSP::LspServer::readContent(Action action, std::istream &os) {
+void OgreScriptLSP::LspServer::readContent(Action &action, std::istream &os) {
     std::string jsonrpc;
     for (int i = 0; i < action.contentLength; ++i) {
         if (nextCharacter(os) == EOF) {
@@ -241,13 +241,11 @@ OgreScriptLSP::Action OgreScriptLSP::LspServer::readContent(Action action, std::
     try {
         // convert content to json obj
         nlohmann::json j = nlohmann::json::parse(jsonrpc);
-        ((RequestMessage *) action.message)->fromJson(j);
+        ((RequestMessage *) action.message.get())->fromJson(j);
     } catch (nlohmann::json::exception &e) {
         Logs::getInstance().log("Error with nlohmann::json lib", e);
         // toDo (gonzalezext)[26.01.24]: handle error here
     }
-
-    return action;
 }
 
 char OgreScriptLSP::LspServer::nextCharacter(std::istream &os) {
@@ -300,13 +298,13 @@ OgreScriptLSP::ResponseMessage
 OgreScriptLSP::LspServer::newResponseMessage(std::string id, OgreScriptLSP::ResultBase *result) {
     ResponseMessage res;
     res.id = std::move(id);
-    res.result = result;
+    res.result = std::unique_ptr<ResultBase>(result);
     return res;
 }
 
 OgreScriptLSP::NotificationMessage
 OgreScriptLSP::LspServer::newNotificationMessage(std::string method, OgreScriptLSP::ResultBase *params) {
     NotificationMessage notification(std::move(method));
-    notification.params = params;
+    notification.params = std::unique_ptr<ResultBase>(params);
     return notification;
 }

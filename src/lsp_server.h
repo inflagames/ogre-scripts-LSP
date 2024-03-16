@@ -38,7 +38,7 @@ namespace OgreScriptLSP {
 
         std::string readHeaderValue(std::istream &os = std::cin);
 
-        Action readContent(Action action, std::istream &os = std::cin);
+        void readContent(Action &action, std::istream &os = std::cin);
 
         void initialize(RequestMessage *rm, std::ostream &oos = std::cout);
 

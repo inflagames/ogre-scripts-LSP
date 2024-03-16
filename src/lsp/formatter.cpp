@@ -87,7 +87,7 @@ OgreScriptLSP::Formatter::formatting(Parser *parser, FormattingOptions options, 
 
     // mainly for range formatting
     for (auto it = res->elements.begin(); it != res->elements.end(); it++) {
-        auto e = (TextEdit *) *it;
+        auto e = (TextEdit *) it->get();
         if (!range.inRange(e->range)) {
             res->elements.erase(it);
         }

@@ -7,3 +7,4 @@ TBD
 - Changed: Restructure files in project and remove unused methods
 - Fix: Update all pointer uses in ast_tree to avoid memory leaks
 - Fix: Update all pointers around the LSP to avoid memory leaks
+- Added: Include support for pass params validation

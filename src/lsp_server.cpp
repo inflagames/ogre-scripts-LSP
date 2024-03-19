@@ -1,4 +1,5 @@
 #include "lsp_server.h"
+#include "lang/params_validator.h"
 
 void OgreScriptLSP::LspServer::runServer(std::ostream &oos, std::istream &ios) {
     // run server until exit or crash
@@ -262,12 +263,18 @@ OgreScriptLSP::Parser *OgreScriptLSP::LspServer::getParserByUri(const std::strin
     if (!parsers.contains(uri)) {
         parsers[uri] = std::make_unique<OgreScriptLSP::Parser>();
         parsers[uri]->parse(uri);
+
+        // validate params
+        ParamsValidator::getSingleton()->paramsAnalysis(parsers[uri].get());
     }
     return parsers[uri].get();
 }
 
 void OgreScriptLSP::LspServer::updateParserByUri(const std::string &uri, OgreScriptLSP::Parser *parser) {
     parsers[uri] = std::unique_ptr<OgreScriptLSP::Parser>(parser);
+
+    // validate params
+    ParamsValidator::getSingleton()->paramsAnalysis(parsers[uri].get());
 }
 
 void OgreScriptLSP::LspServer::sendDiagnostic(Parser *parser, std::ostream &oos) {

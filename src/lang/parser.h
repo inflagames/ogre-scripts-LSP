@@ -53,8 +53,8 @@ namespace OgreScriptLSP {
             return decl;
         }
 
-        std::vector<BaseException> getExceptions() {
-            return exceptions;
+        std::vector<BaseException> *getExceptions() {
+            return &exceptions;
         }
 
         void loadScript(const std::string &fileUri, const std::string &code = "");

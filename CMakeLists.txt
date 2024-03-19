@@ -13,30 +13,9 @@ FetchContent_MakeAvailable(json)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_library(ogre_scripts_LSP_lib STATIC
-        src/lang/scanner.cpp
-        src/lang/scanner.h
-        src/lang/parser.cpp
-        src/lang/parser.h
-        src/lang/ast_tree.h
-        src/lang/token.h
-        src/lsp/formatter.cpp
-        src/lsp/formatter.h
-        src/lsp/goto.cpp
-        src/lsp/goto.h
-        src/lsp/symbols.cpp
-        src/lsp/symbols.h
-        src/lsp/semantic_tokens.cpp
-        src/lsp/semantic_tokens.h
-        src/utils/logs.h
-        src/utils/logs.cpp
-        src/utils/program_arg.cpp
-        src/utils/program_arg.h
-        src/lsp_server.cpp
-        src/lsp_server.h
-        src/lsp_protocol.h
-        src/exceptions.h
-)
+file(GLOB_RECURSE SOURCES_FILES "${PROJECT_SOURCE_DIR}/src/*.cpp")
+file(GLOB_RECURSE HEADER_FILES "${PROJECT_SOURCE_DIR}/src/*.h")
+add_library(ogre_scripts_LSP_lib STATIC ${SOURCES_FILES} ${HEADER_FILES})
 
 add_executable(ogre_scripts_LSP main.cpp)
 

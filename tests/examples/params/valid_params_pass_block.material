@@ -1,0 +1,186 @@
+material level_floor {
+    technique {
+        pass perlight {
+            // ambient
+            ambient 1 1 1
+            ambient 1 1 1 1
+
+            // diffuse
+            diffuse .87 .99 1.0 1.0
+            diffuse .87 .99 1.0
+
+            // specular
+            specular .87 .99 1.0 1.0
+            specular .87 .99 1.0
+
+            // emissive
+            emissive .87 .99 1.0 1.0
+            emissive .87 .99 1.0
+
+            // scene_blend
+            scene_blend add
+            scene_blend modulate
+            scene_blend colour_blend
+            scene_blend alpha_blend
+            scene_blend one one_minus_dest_alpha
+            scene_blend one zero
+
+            // separate_scene_blend
+            separate_scene_blend add modulate
+            separate_scene_blend one one_minus_dest_alpha one one
+
+            // scene_blend_op
+            scene_blend_op add
+            scene_blend_op subtract
+            scene_blend_op reverse_subtract
+            scene_blend_op min
+            scene_blend_op max
+
+            // separate_scene_blend_op
+            separate_scene_blend_op add subtract
+            separate_scene_blend_op add add
+            separate_scene_blend_op min add
+
+            // depth_check
+            depth_check on
+            depth_check off
+
+            // depth_write
+            depth_write on
+            depth_write off
+
+            // depth_func
+            depth_func always_fail
+            depth_func always_pass
+            depth_func less
+            depth_func less_equal
+            depth_func equal
+            depth_func not_equal
+            depth_func greater_equal
+            depth_func greater
+
+            // depth_bias
+
+            // iteration_depth_bias
+
+            // alpha_rejection
+            alpha_rejection always_fail 134
+            alpha_rejection always_pass 2
+            alpha_rejection less 2
+            alpha_rejection less_equal 1
+            alpha_rejection equal 4
+            alpha_rejection not_equal 1
+            alpha_rejection greater_equal 5
+            alpha_rejection greater 45
+
+            // alpha_to_coverage
+            alpha_to_coverage on
+            alpha_to_coverage off
+
+            // light_scissor
+            light_scissor on
+            light_scissor off
+
+            // light_clip_planes
+            light_clip_planes on
+            light_clip_planes off
+
+            // illumination_stage
+            illumination_stage ambient
+            illumination_stage per_light
+            illumination_stage decal
+            illumination_stage none
+
+            // transparent_sorting
+            transparent_sorting on
+            transparent_sorting off
+            transparent_sorting force
+
+            // cull_hardware
+            cull_hardware clockwise
+            cull_hardware anticlockwise
+            cull_hardware none
+
+            // cull_software
+            cull_software back
+            cull_software front
+            cull_software none
+
+            // lighting
+            lighting on
+            lighting off
+
+            // shading
+            shading flat
+            shading gouraud
+            shading phong
+
+            // polygon_mode
+            polygon_mode solid
+            polygon_mode wireframe
+            polygon_mode points
+
+            // polygon_mode_overrideable
+            polygon_mode_overrideable false
+            polygon_mode_overrideable true
+
+            // fog_override
+            fog_override false
+            fog_override true none 1 1 1 0.002 100 10000
+            fog_override true linear 1 1 1 0.002 100 10000
+            fog_override true exp 1 1 1 0.002 100 10000
+            fog_override true exp2 1 1 1 0.002 100 10000
+
+            // colour_write
+            colour_write on
+            colour_write off
+            colour_write on on on on
+            colour_write off off off off
+
+            // start_light
+            start_light 0
+            start_light 1
+
+            // max_lights
+            max_lights 8
+            max_lights 7
+
+            // iteration
+            iteration 10
+            iteration once
+            iteration once_per_light
+            iteration 1 per_light
+            iteration 1 per_n_lights 2
+            iteration once point
+            iteration once_per_light directional
+            iteration 1 per_light spot
+            iteration 1 per_n_lights 2 spot
+
+            // point_size
+            point_size 1.0
+            point_size .0
+
+            // point_sprites
+            point_sprites on
+            point_sprites off
+
+            // point_size_attenuation
+            point_size_attenuation off
+            point_size_attenuation on constant
+            point_size_attenuation on linear
+            point_size_attenuation on quadratic
+
+            // point_size_min
+            point_size_min 1
+            point_size_min .0
+
+            // point_size_max
+            point_size_max 1.
+            point_size_max .0
+
+            // line_width
+            line_width 1
+            line_width 10.
+        }
+    }
+}

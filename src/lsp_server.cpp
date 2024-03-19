@@ -272,7 +272,7 @@ void OgreScriptLSP::LspServer::updateParserByUri(const std::string &uri, OgreScr
 
 void OgreScriptLSP::LspServer::sendDiagnostic(Parser *parser, std::ostream &oos) {
     std::vector<Diagnostic> diagnostics;
-    for (const auto &err: parser->getExceptions()) {
+    for (const auto &err: *parser->getExceptions()) {
         diagnostics.push_back(Diagnostic{DIAGNOSTIC_SEVERITY_ERROR, err.range, err.message});
     }
 

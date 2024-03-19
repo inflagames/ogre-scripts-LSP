@@ -9,7 +9,7 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly_example002) {
 
     parser->parse();
 
-    ASSERT_EQ(0, parser->getExceptions().size());
+    ASSERT_EQ(0, parser->getExceptions()->size());
 }
 
 TEST (ParserTest, parse_ShouldParseFileCorrectly_example001) {
@@ -19,7 +19,7 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly_example001) {
 
     parser->parse();
 
-    ASSERT_EQ(0, parser->getExceptions().size());
+    ASSERT_EQ(0, parser->getExceptions()->size());
 }
 
 TEST (ParserTest, parse_ShouldParseFileCorrectly_example003) {
@@ -29,7 +29,7 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly_example003) {
 
     parser->parse();
 
-    ASSERT_EQ(0, parser->getExceptions().size());
+    ASSERT_EQ(0, parser->getExceptions()->size());
 }
 
 TEST (ParserTest, parse_ShouldParseFileCorrectly_example004) {
@@ -39,7 +39,7 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly_example004) {
 
     parser->parse();
 
-    ASSERT_EQ(0, parser->getExceptions().size());
+    ASSERT_EQ(0, parser->getExceptions()->size());
 }
 
 TEST (ParserTest, parse_ShouldParseFileCorrectly_example005) {
@@ -49,7 +49,7 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly_example005) {
 
     parser->parse();
 
-    ASSERT_EQ(0, parser->getExceptions().size());
+    ASSERT_EQ(0, parser->getExceptions()->size());
 }
 
 TEST (ParserTest, parse_ShouldParseFileCorrectly_example006) {
@@ -59,7 +59,7 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly_example006) {
 
     parser->parse();
 
-    ASSERT_EQ(0, parser->getExceptions().size());
+    ASSERT_EQ(0, parser->getExceptions()->size());
 }
 
 TEST (ParserTest, parse_ShouldParseFileCorrectly_example007) {
@@ -69,7 +69,7 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly_example007) {
 
     parser->parse();
 
-    ASSERT_EQ(0, parser->getExceptions().size());
+    ASSERT_EQ(0, parser->getExceptions()->size());
 }
 
 TEST (ParserTest, parse_ShouldParseFileCorrectly_example008) {
@@ -79,7 +79,7 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly_example008) {
 
     parser->parse();
 
-    ASSERT_EQ(0, parser->getExceptions().size());
+    ASSERT_EQ(0, parser->getExceptions()->size());
 }
 
 TEST (ParserTest, parse_ShouldParseFileCorrectly) {
@@ -89,7 +89,7 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly) {
 
     parser->parse();
 
-    ASSERT_EQ(0, parser->getExceptions().size());
+    ASSERT_EQ(0, parser->getExceptions()->size());
     ASSERT_EQ(7, parser->getScript()->programs.size());
     ASSERT_EQ(4, parser->getScript()->materials.size());
     ASSERT_EQ(4, parser->getScript()->abstracts.size());
@@ -103,7 +103,7 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly_withBadTokens) {
 
     parser->parse();
 
-    ASSERT_EQ(1, parser->getExceptions().size());
+    ASSERT_EQ(1, parser->getExceptions()->size());
     ASSERT_EQ(0, parser->getScript()->programs.size());
     ASSERT_EQ(1, parser->getScript()->materials.size());
     ASSERT_EQ(0, parser->getScript()->abstracts.size());

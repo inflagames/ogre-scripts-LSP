@@ -18,6 +18,8 @@ namespace OgreScriptLSP {
     class ParamAst {
     public:
         std::vector<TokenValue> items;
+
+        virtual ~ParamAst() = default;
     };
 
     class ParamProgramAst : public ParamAst {

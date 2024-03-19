@@ -103,7 +103,7 @@ std::string OgreScriptLSP::Formatter::repeatCharacter(char c, const std::size_t 
 std::optional<OgreScriptLSP::Range>
 OgreScriptLSP::Formatter::inException(OgreScriptLSP::Range range, OgreScriptLSP::Parser *parser) {
     // toDo (gonzalezext)[18.02.24]: this can be more efficient with some kind of algorithm
-    for (const auto &e: parser->getExceptions()) {
+    for (const auto &e: *parser->getExceptions()) {
         if (range.inRange(e.range)) {
             return e.range;
         }

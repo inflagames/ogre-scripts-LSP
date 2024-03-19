@@ -14,6 +14,17 @@ TEST (ValidParamsTest, params_shouldValidatePassParams) {
     ASSERT_EQ(0, parser->getExceptions()->size());
 }
 
+TEST (ValidParamsTest, params_shouldValidateMaterialParams) {
+    auto *parser = new OgreScriptLSP::Parser();
+    std::string scriptFile = "./examples/params/valid_params_material_block.material";
+    parser->loadScript(scriptFile);
+
+    parser->parse();
+    OgreScriptLSP::ParamsValidator::getSingleton()->paramsAnalysis(parser);
+
+    ASSERT_EQ(0, parser->getExceptions()->size());
+}
+
 void validateChild(OgreScriptLSP::ParamsTree *&tree,
                    const std::vector<std::string> &tokenNames,
                    OgreScriptLSP::Token token,
@@ -36,7 +47,8 @@ void validateChild(OgreScriptLSP::ParamsTree *&tree,
 
 TEST (ValidParamsTest, paramsStructure_shouldExtractNextSimpleToken) {
     std::string def = "<example> <some><kk>";
-    OgreScriptLSP::ParamsValidator::getSingleton()->loadChildFromDefinition(def);
+    OgreScriptLSP::ParamsTree *tree = OgreScriptLSP::ParamsValidator::getSingleton()->getPassParamTree();
+    OgreScriptLSP::ParamsValidator::getSingleton()->loadChildFromDefinition(def, tree);
     OgreScriptLSP::ParamsTree *ch = OgreScriptLSP::ParamsValidator::getSingleton()->getPassParamTree();
 
     validateChild(ch, {"example"}, OgreScriptLSP::identifier);
@@ -46,7 +58,8 @@ TEST (ValidParamsTest, paramsStructure_shouldExtractNextSimpleToken) {
 
 TEST (ValidParamsTest, paramsStructure_shouldExtractNextMultiplesTokens) {
     std::string def = "<example> [ <some> <kk> ][<asv><hgkd>](number)";
-    OgreScriptLSP::ParamsValidator::getSingleton()->loadChildFromDefinition(def);
+    OgreScriptLSP::ParamsTree *tree = OgreScriptLSP::ParamsValidator::getSingleton()->getPassParamTree();
+    OgreScriptLSP::ParamsValidator::getSingleton()->loadChildFromDefinition(def, tree);
     OgreScriptLSP::ParamsTree *ch = OgreScriptLSP::ParamsValidator::getSingleton()->getPassParamTree();
 
     validateChild(ch, {"example"}, OgreScriptLSP::identifier);

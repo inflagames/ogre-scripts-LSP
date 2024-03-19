@@ -2,6 +2,7 @@
 
 
 OgreScriptLSP::ParamsValidator::ParamsValidator() {
+    setupMaterialParams();
     setupPassParams();
 }
 
@@ -45,9 +46,41 @@ void OgreScriptLSP::ParamsValidator::validateParams(std::vector<std::unique_ptr<
 }
 
 void OgreScriptLSP::ParamsValidator::validateParam(OgreScriptLSP::ParamAst *paramAst) {
-    if (auto params = dynamic_cast<PassParamAst *>(paramAst)) {
-        passParamTree->validateParams(params, 0, PARAM_PASS_ERROR);
+    if (auto paramsPass = dynamic_cast<PassParamAst *>(paramAst)) {
+        passParamTree->validateParams(paramsPass, 0, PARAM_PASS_ERROR);
+    } else if (auto paramsMat = dynamic_cast<MaterialParamAst *>(paramAst)) {
+        materialParamTree->validateParams(paramsMat, 0, PARAM_PASS_ERROR);
     }
+}
+
+void OgreScriptLSP::ParamsValidator::setupMaterialParams() {
+    materialParamTree = std::make_unique<ParamsTree>();
+
+    // lod_strategy
+    std::string lodStrategy = "<lod_strategy>[<distance_sphere><distance_box><pixel_count><screen_ratio_pixel_count>]";
+    loadChildFromDefinition(lodStrategy, materialParamTree.get());
+
+    // lod_values
+    std::string lodValues = "<lod_values>";
+    for (int i = 0; i < 20; ++i) {
+        lodValues += "(number)";
+        loadChildFromDefinition(lodValues, materialParamTree.get());
+    }
+
+    // lod_distances (deprecated)
+
+    // receive_shadows
+    std::string onOff = "[<on><off>]";
+    std::string receiveShadows = "<receive_shadows>" + onOff;
+    loadChildFromDefinition(receiveShadows, materialParamTree.get());
+
+    // transparency_casts_shadows
+    std::string transparencyCastsShadows = "<transparency_casts_shadows>" + onOff;
+    loadChildFromDefinition(transparencyCastsShadows, materialParamTree.get());
+
+    // set_texture_alias
+    std::string setTextureAlias = "<set_texture_alias>(identifier)(identifier)";
+    loadChildFromDefinition(setTextureAlias, materialParamTree.get());
 }
 
 void OgreScriptLSP::ParamsValidator::setupPassParams() {
@@ -57,196 +90,196 @@ void OgreScriptLSP::ParamsValidator::setupPassParams() {
     std::string colour = "(number)(number)(number)";
     std::string colourWithAlpha = colour + "(number)";
     std::string ambient = "<ambient>" + colour;
-    loadChildFromDefinition(ambient);
+    loadChildFromDefinition(ambient, passParamTree.get());
     ambient = "<ambient>" + colourWithAlpha;
-    loadChildFromDefinition(ambient);
+    loadChildFromDefinition(ambient, passParamTree.get());
 
     // diffuse
     std::string diffuse = "<diffuse>" + colour;
-    loadChildFromDefinition(diffuse);
+    loadChildFromDefinition(diffuse, passParamTree.get());
     diffuse = "<diffuse>" + colourWithAlpha;
-    loadChildFromDefinition(diffuse);
+    loadChildFromDefinition(diffuse, passParamTree.get());
 
     // specular
     std::string specular = "<specular>" + colour;
-    loadChildFromDefinition(specular);
+    loadChildFromDefinition(specular, passParamTree.get());
     specular = "<specular>" + colourWithAlpha;
-    loadChildFromDefinition(specular);
+    loadChildFromDefinition(specular, passParamTree.get());
 
     // emissive
     std::string emissive = "<emissive>" + colour;
-    loadChildFromDefinition(emissive);
+    loadChildFromDefinition(emissive, passParamTree.get());
     emissive = "<emissive>" + colourWithAlpha;
-    loadChildFromDefinition(emissive);
+    loadChildFromDefinition(emissive, passParamTree.get());
 
     // scene_blend
     std::string sceneBlendFactor = "[<one><zero><dest_colour><source_colour><one_minus_dest_colour><one_minus_source_colour><dest_alpha><source_alpha><one_minus_dest_alpha><one_minus_source_alpha>]";
     std::string sceneBlendType = "[<add><modulate><colour_blend><alpha_blend>]";
     std::string sceneBlend = "<scene_blend>" + sceneBlendType;
-    loadChildFromDefinition(sceneBlend);
+    loadChildFromDefinition(sceneBlend, passParamTree.get());
     sceneBlend = "<scene_blend>" + sceneBlendFactor + sceneBlendFactor;
-    loadChildFromDefinition(sceneBlend);
+    loadChildFromDefinition(sceneBlend, passParamTree.get());
 
     // separate_scene_blend
     std::string separateSceneBlend1 = "<separate_scene_blend>" + sceneBlendType + sceneBlendType;
-    loadChildFromDefinition(separateSceneBlend1);
+    loadChildFromDefinition(separateSceneBlend1, passParamTree.get());
     std::string separateSceneBlend2 =
             "<separate_scene_blend>" + sceneBlendFactor + sceneBlendFactor + sceneBlendFactor + sceneBlendFactor;
-    loadChildFromDefinition(separateSceneBlend2);
+    loadChildFromDefinition(separateSceneBlend2, passParamTree.get());
 
     // scene_blend_op
     std::string op = "[<add><subtract><reverse_subtract><min><max>]";
     std::string sceneBlendOp = "<scene_blend_op>" + op;
-    loadChildFromDefinition(sceneBlendOp);
+    loadChildFromDefinition(sceneBlendOp, passParamTree.get());
 
     // separate_scene_blend_op
     std::string separateSceneBlendOp = "<separate_scene_blend_op>" + op + op;
-    loadChildFromDefinition(separateSceneBlendOp);
+    loadChildFromDefinition(separateSceneBlendOp, passParamTree.get());
 
     // depth_check
     std::string onOff = "[<on><off>]";
     std::string depthCheck = "<depth_check>" + onOff;
-    loadChildFromDefinition(depthCheck);
+    loadChildFromDefinition(depthCheck, passParamTree.get());
 
     // depth_write
     std::string depthWrite = "<depth_write>" + onOff;
-    loadChildFromDefinition(depthWrite);
+    loadChildFromDefinition(depthWrite, passParamTree.get());
 
     // depth_func
     std::string func = "[<always_fail><always_pass><less><less_equal><equal><not_equal><greater_equal><greater>]";
     std::string depthFunc = "<depth_func>" + func;
-    loadChildFromDefinition(depthFunc);
+    loadChildFromDefinition(depthFunc, passParamTree.get());
 
     // depth_bias
     std::string depthBias = "<depth_bias>";
-    loadChildFromDefinition(depthBias);
+    loadChildFromDefinition(depthBias, passParamTree.get());
 
     // iteration_depth_bias
     std::string iterationDepthBias = "<iteration_depth_bias>";
-    loadChildFromDefinition(iterationDepthBias);
+    loadChildFromDefinition(iterationDepthBias, passParamTree.get());
 
     // alpha_rejection
     std::string alphaRejection = "<alpha_rejection>" + func;
-    loadChildFromDefinition(alphaRejection);
+    loadChildFromDefinition(alphaRejection, passParamTree.get());
 
     // alpha_to_coverage
     std::string alphaToCoverage = "<alpha_to_coverage>" + onOff;
-    loadChildFromDefinition(alphaToCoverage);
+    loadChildFromDefinition(alphaToCoverage, passParamTree.get());
 
     // lightScissor
     std::string lightScissor = "<light_scissor>" + onOff;
-    loadChildFromDefinition(lightScissor);
+    loadChildFromDefinition(lightScissor, passParamTree.get());
 
     // light_clip_planes
     std::string lightClipPlanes = "<light_clip_planes>" + onOff;
-    loadChildFromDefinition(lightClipPlanes);
+    loadChildFromDefinition(lightClipPlanes, passParamTree.get());
 
     // illumination_stage
     std::string state = "[<ambient><per_light><decal><none>]";
     std::string illuminationStage = "<illumination_stage>" + state;
-    loadChildFromDefinition(illuminationStage);
+    loadChildFromDefinition(illuminationStage, passParamTree.get());
 
     // transparent_sorting
     std::string onOffForce = "[<on><off><force>]";
     std::string transparentSorting = "<transparent_sorting>" + onOffForce;
-    loadChildFromDefinition(transparentSorting);
+    loadChildFromDefinition(transparentSorting, passParamTree.get());
 
     // cull_hardware
     std::string cullHardwareMode = "[<clockwise><anticlockwise><none>]";
     std::string cullHardware = "<cull_hardware>" + cullHardwareMode;
-    loadChildFromDefinition(cullHardware);
+    loadChildFromDefinition(cullHardware, passParamTree.get());
 
     // cull_software
     std::string cullSoftwareMode = "[<back><front><none>]";
     std::string cullSoftware = "<cull_software>" + cullSoftwareMode;
-    loadChildFromDefinition(cullSoftware);
+    loadChildFromDefinition(cullSoftware, passParamTree.get());
 
     // lighting
     std::string lighting = "<lighting>" + onOff;
-    loadChildFromDefinition(lighting);
+    loadChildFromDefinition(lighting, passParamTree.get());
 
     // shading
     std::string shadingModes = "[<flat><gouraud><phong>]";
     std::string shading = "<shading>" + shadingModes;
-    loadChildFromDefinition(shading);
+    loadChildFromDefinition(shading, passParamTree.get());
 
     // polygon_mode
     std::string polygonModeType = "[<solid><wireframe><points>]";
     std::string polygonMode = "<polygon_mode>" + polygonModeType;
-    loadChildFromDefinition(polygonMode);
+    loadChildFromDefinition(polygonMode, passParamTree.get());
 
     // polygon_mode_overrideable
     std::string polygonModeOverrideable = "<polygon_mode_overrideable>[<true><false>]";
-    loadChildFromDefinition(polygonModeOverrideable);
+    loadChildFromDefinition(polygonModeOverrideable, passParamTree.get());
 
     // fog_override
     std::string fogOverrideType = "[<none><linear><exp><exp2>]";
     std::string fogOverride = "<fog_override><false>";
-    loadChildFromDefinition(fogOverride);
+    loadChildFromDefinition(fogOverride, passParamTree.get());
     fogOverride = "<fog_override><true>" + fogOverrideType + colour + "(number)(number)(number)";
-    loadChildFromDefinition(fogOverride);
+    loadChildFromDefinition(fogOverride, passParamTree.get());
 
     // colour_write
     std::string colourWrite = "<colour_write>" + onOff;
-    loadChildFromDefinition(colourWrite);
+    loadChildFromDefinition(colourWrite, passParamTree.get());
     colourWrite = "<colour_write>" + onOff + onOff + onOff + onOff;
-    loadChildFromDefinition(colourWrite);
+    loadChildFromDefinition(colourWrite, passParamTree.get());
 
     // start_light
     std::string startLight = "<start_light>(number)";
-    loadChildFromDefinition(startLight);
+    loadChildFromDefinition(startLight, passParamTree.get());
 
     // max_lights
     std::string maxLights = "<max_lights>(number)";
-    loadChildFromDefinition(maxLights);
+    loadChildFromDefinition(maxLights, passParamTree.get());
 
     // iteration
     std::string lightType = "[<point><directional><spot>]";
     std::string iteration = "<iteration>(number)";
-    loadChildFromDefinition(iteration);
+    loadChildFromDefinition(iteration, passParamTree.get());
     iteration = "<iteration>(number)<per_light>";
-    loadChildFromDefinition(iteration);
+    loadChildFromDefinition(iteration, passParamTree.get());
     iteration = "<iteration>(number)<per_light>" + lightType;
-    loadChildFromDefinition(iteration);
+    loadChildFromDefinition(iteration, passParamTree.get());
     iteration = "<iteration>(number)<per_n_lights>(number)";
-    loadChildFromDefinition(iteration);
+    loadChildFromDefinition(iteration, passParamTree.get());
     iteration = "<iteration>(number)<per_n_lights>(number)" + lightType;
-    loadChildFromDefinition(iteration);
+    loadChildFromDefinition(iteration, passParamTree.get());
     iteration = "<iteration>[<once><once_per_light>]";
-    loadChildFromDefinition(iteration);
+    loadChildFromDefinition(iteration, passParamTree.get());
     iteration = "<iteration>[<once><once_per_light>]" + lightType;
-    loadChildFromDefinition(iteration);
+    loadChildFromDefinition(iteration, passParamTree.get());
 
     // point_size
     std::string pointSize = "<point_size>(number)";
-    loadChildFromDefinition(pointSize);
+    loadChildFromDefinition(pointSize, passParamTree.get());
 
     // point_sprites
     std::string pointSprites = "<point_sprites>" + onOff;
-    loadChildFromDefinition(pointSprites);
+    loadChildFromDefinition(pointSprites, passParamTree.get());
 
     // point_size_attenuation
     std::string pointSizeAttenuation = "<point_size_attenuation><off>";
-    loadChildFromDefinition(pointSizeAttenuation);
+    loadChildFromDefinition(pointSizeAttenuation, passParamTree.get());
     pointSizeAttenuation = "<point_size_attenuation><on>[<constant><linear><quadratic>]";
-    loadChildFromDefinition(pointSizeAttenuation);
+    loadChildFromDefinition(pointSizeAttenuation, passParamTree.get());
 
     // point_size_min
     std::string pointSizeMin = "<point_size_min>(number)";
-    loadChildFromDefinition(pointSizeMin);
+    loadChildFromDefinition(pointSizeMin, passParamTree.get());
 
     // point_size_max
     std::string pointSizeMax = "<point_size_max>(number)";
-    loadChildFromDefinition(pointSizeMax);
+    loadChildFromDefinition(pointSizeMax, passParamTree.get());
 
     // line_width
     std::string lineWidth = "<line_width>(number)";
-    loadChildFromDefinition(lineWidth);
+    loadChildFromDefinition(lineWidth, passParamTree.get());
 }
 
-void OgreScriptLSP::ParamsValidator::loadChildFromDefinition(std::string &definition) {
+void OgreScriptLSP::ParamsValidator::loadChildFromDefinition(std::string &definition, ParamsTree* treeRoot) {
     int pos = 0;
-    ParamsTree *tree = passParamTree.get();
+    ParamsTree *tree = treeRoot;
 
     std::vector<std::string> tkName = nextParamsToken(definition, pos);
     while (!tkName.empty()) {

@@ -1,0 +1,31 @@
+material level_floor {
+    // lod_strategy
+    lod_strategy distance_sphere
+    lod_strategy distance_box
+    lod_strategy pixel_count
+    lod_strategy screen_ratio_pixel_count
+
+    // lod_values
+    lod_values 1
+    lod_values 1 2
+    lod_values 1 2 3
+    lod_values 1 2 3 7 5 45 8 76 5 876 87 6 768 786
+
+    // lod_distances
+
+    // receive_shadows
+    receive_shadows on
+    receive_shadows off
+
+    // transparency_casts_shadows
+    transparency_casts_shadows on
+    transparency_casts_shadows off
+
+    // set_texture_alias
+    set_texture_alias some that
+
+    technique {
+        pass perlight {
+        }
+    }
+}

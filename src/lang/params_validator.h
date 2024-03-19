@@ -83,8 +83,7 @@ namespace OgreScriptLSP {
 
         void
         validateParams(OgreScriptLSP::ParamAst *paramAst, int position, std::string error) { // NOLINT(*-no-recursion)
-            // toDo (gonzalezext)[16.03.24]: uncomment when added params structure
-            if (children.empty() || (isEndParam && paramAst->items.size() <= position)) {
+            if (isEndParam && (children.empty() || paramAst->items.size() <= position)) {
                 return;
             } else if (children.empty()) {
                 // invalid structure
@@ -95,7 +94,8 @@ namespace OgreScriptLSP {
             for (const auto &ch: children) {
                 if (ch && ch->_token == param.tk) {
                     if ((param.tk == identifier && ch->checkNames(param.literal)) ||
-                        param.tk == number_literal) {
+                        (param.tk == identifier && ch->checkNames("(identifier)")) ||
+                        (param.tk == number_literal && ch->checkNames("(number)"))) {
                         return ch->validateParams(paramAst, position + 1, error);
                     }
                 }
@@ -119,18 +119,21 @@ namespace OgreScriptLSP {
 
         void setupPassParams();
 
+        void setupMaterialParams();
+
         std::vector<std::string> nextParamsToken(const std::string &definition, int &position);
 
         std::string nextParamToken(const std::string &definition, int &position, char delimiter = '>');
 
         void consumeSpaces(const std::string &definition, int &position);
 
-        void loadChildFromDefinition(std::string &definition);
+        void loadChildFromDefinition(std::string &definition, ParamsTree *treeRoot);
 
         [[nodiscard]] ParamsTree *getPassParamTree() const;
 
     private:
         std::unique_ptr<ParamsTree> passParamTree;
+        std::unique_ptr<ParamsTree> materialParamTree;
     };
 }
 

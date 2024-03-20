@@ -92,11 +92,12 @@ namespace OgreScriptLSP {
 
             auto &param = paramAst->items[position];
             for (const auto &ch: children) {
-                if (ch && ch->_token == param.tk) {
+                if ((ch && ch->_token == param.tk) || param.tk == variable) {
                     if ((param.tk == identifier && ch->checkNames(param.literal)) ||
                         (param.tk == identifier && ch->checkNames("(identifier)")) ||
                         (param.tk == match_literal && ch->checkNames("(match)")) ||
-                        (param.tk == number_literal && ch->checkNames("(number)"))) {
+                        (param.tk == number_literal && ch->checkNames("(number)")) ||
+                        param.tk == variable) {
                         return ch->validateParams(paramAst, position + 1, error);
                     }
                 }

@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 
 #include "../src/lang/parser.h"
+#include "../src/lang/params_validator.h"
 
 TEST (ParserTest, parse_ShouldParseFileCorrectly_example002) {
     auto *parser = new OgreScriptLSP::Parser();
@@ -8,6 +9,7 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly_example002) {
     parser->loadScript(scriptFile);
 
     parser->parse();
+    OgreScriptLSP::ParamsValidator::getSingleton()->paramsAnalysis(parser);
 
     ASSERT_EQ(0, parser->getExceptions()->size());
 }
@@ -18,6 +20,7 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly_example001) {
     parser->loadScript(scriptFile);
 
     parser->parse();
+    OgreScriptLSP::ParamsValidator::getSingleton()->paramsAnalysis(parser);
 
     ASSERT_EQ(0, parser->getExceptions()->size());
 }
@@ -28,6 +31,7 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly_example003) {
     parser->loadScript(scriptFile);
 
     parser->parse();
+    OgreScriptLSP::ParamsValidator::getSingleton()->paramsAnalysis(parser);
 
     ASSERT_EQ(0, parser->getExceptions()->size());
 }
@@ -38,6 +42,7 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly_example004) {
     parser->loadScript(scriptFile);
 
     parser->parse();
+    OgreScriptLSP::ParamsValidator::getSingleton()->paramsAnalysis(parser);
 
     ASSERT_EQ(0, parser->getExceptions()->size());
 }
@@ -48,6 +53,7 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly_example005) {
     parser->loadScript(scriptFile);
 
     parser->parse();
+    OgreScriptLSP::ParamsValidator::getSingleton()->paramsAnalysis(parser);
 
     ASSERT_EQ(0, parser->getExceptions()->size());
 }
@@ -58,6 +64,7 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly_example006) {
     parser->loadScript(scriptFile);
 
     parser->parse();
+    OgreScriptLSP::ParamsValidator::getSingleton()->paramsAnalysis(parser);
 
     ASSERT_EQ(0, parser->getExceptions()->size());
 }
@@ -68,6 +75,7 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly_example007) {
     parser->loadScript(scriptFile);
 
     parser->parse();
+    OgreScriptLSP::ParamsValidator::getSingleton()->paramsAnalysis(parser);
 
     ASSERT_EQ(0, parser->getExceptions()->size());
 }
@@ -78,6 +86,18 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly_example008) {
     parser->loadScript(scriptFile);
 
     parser->parse();
+    OgreScriptLSP::ParamsValidator::getSingleton()->paramsAnalysis(parser);
+
+    ASSERT_EQ(0, parser->getExceptions()->size());
+}
+
+TEST (ParserTest, parse_ShouldParseFileCorrectly_example009) {
+    auto *parser = new OgreScriptLSP::Parser();
+    std::string scriptFile = "./examples/valid_examples/example009.material";
+    parser->loadScript(scriptFile);
+
+    parser->parse();
+    OgreScriptLSP::ParamsValidator::getSingleton()->paramsAnalysis(parser);
 
     ASSERT_EQ(0, parser->getExceptions()->size());
 }
@@ -88,6 +108,7 @@ TEST (ParserTest, parse_ShouldParseFileCorrectly) {
     parser->loadScript(scriptFile);
 
     parser->parse();
+    OgreScriptLSP::ParamsValidator::getSingleton()->paramsAnalysis(parser);
 
     ASSERT_EQ(0, parser->getExceptions()->size());
     ASSERT_EQ(7, parser->getScript()->programs.size());

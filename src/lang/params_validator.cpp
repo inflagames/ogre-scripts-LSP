@@ -360,6 +360,8 @@ void OgreScriptLSP::ParamsValidator::setupPassParams() {
     // point_size_attenuation
     std::string pointSizeAttenuation = "<point_size_attenuation><off>";
     loadChildFromDefinition(pointSizeAttenuation, passParamTree.get());
+    pointSizeAttenuation = "<point_size_attenuation><on>";
+    loadChildFromDefinition(pointSizeAttenuation, passParamTree.get());
     pointSizeAttenuation = "<point_size_attenuation><on>[<constant><linear><quadratic>]";
     loadChildFromDefinition(pointSizeAttenuation, passParamTree.get());
 

@@ -85,7 +85,7 @@ namespace OgreScriptLSP {
         validateParams(OgreScriptLSP::ParamAst *paramAst, int position, std::string error) { // NOLINT(*-no-recursion)
             if (isEndParam && (children.empty() || paramAst->items.size() <= position)) {
                 return;
-            } else if (children.empty()) {
+            } else if (children.empty() || paramAst->items.size() <= position) {
                 // invalid structure
                 throw ParamsException(std::move(error), paramAst->items[position - 1].toRange());
             }

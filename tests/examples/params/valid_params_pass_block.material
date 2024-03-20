@@ -181,6 +181,7 @@ material level_floor {
             point_size_attenuation on constant
             point_size_attenuation on linear
             point_size_attenuation on quadratic
+			point_size_attenuation on
 
             // point_size_min
             point_size_min 1

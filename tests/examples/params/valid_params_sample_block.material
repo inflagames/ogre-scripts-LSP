@@ -7,7 +7,7 @@ sampler some {
     filtering linear linear linear
     filtering anisotropic linear point
     filtering point linear none
-    filtering linear linear anisotropic
+    filtering linear linear none
 
     // max_anisotropy
     max_anisotropy 1

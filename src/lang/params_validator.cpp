@@ -465,6 +465,9 @@ void OgreScriptLSP::ParamsValidator::setupSampleSharedParams(OgreScriptLSP::Para
     // filtering
     std::string filtering = "<filtering>[<none><bilinear><trilinear><anisotropic>]";
     loadChildFromDefinition(filtering, treeRoot);
+    std::string filterExtra = "[<point><linear><anisotropic>]";
+    filtering = "<filtering>" + filterExtra + filterExtra + "[<point><linear><none>]";
+    loadChildFromDefinition(filtering, treeRoot);
 
     // max_anisotropy
     std::string maxAnisotropy = "<max_anisotropy>(number)";

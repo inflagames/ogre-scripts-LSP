@@ -7,15 +7,19 @@ material level_floor {
                 texture_alias example
 
                 // texture
-                texture some.jpg
+                texture some.jpg gamma
                 texture some.jpg 1d
                 texture some.jpg 2d
                 texture some.jpg 3d
                 texture some.jpg cubic
                 texture some.jpg cubic unlimited
+                texture some.jpg cubic unlimited gamma
                 texture some.jpg cubic 12
                 texture some.jpg cubic 1
+                texture some.jpg cubic 1 gamma
                 texture 10points.png 0 PF_BYTE_RGBA
+                texture 10points.png 0 PF_BYTE_RGBA gamma
+                texture $IBL_Diffuse cubic gamma
 
                 // anim_texture
                 anim_texture some.jpg 5 2.5

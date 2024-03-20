@@ -390,7 +390,11 @@ void OgreScriptLSP::ParamsValidator::setupTextureUnitParams() {
     loadChildFromDefinition(texture, textureUnitParamTree.get());
     texture = "<texture>(identifier)";
     loadChildFromDefinition(texture, textureUnitParamTree.get());
+    texture = "<texture>(identifier)<gamma>";
+    loadChildFromDefinition(texture, textureUnitParamTree.get());
     texture = "<texture>(identifier)[<1d><2d><3d><cubic>]";
+    loadChildFromDefinition(texture, textureUnitParamTree.get());
+    texture = "<texture>(identifier)[<1d><2d><3d><cubic>]<gamma>";
     loadChildFromDefinition(texture, textureUnitParamTree.get());
     texture = "<texture>(identifier)[<1d><2d><3d><cubic>][<unlimited>]";
     loadChildFromDefinition(texture, textureUnitParamTree.get());

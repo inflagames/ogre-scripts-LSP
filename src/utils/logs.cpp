@@ -1,7 +1,7 @@
 #include <memory>
 #include <utility>
 
-#include "../inc/logs.h"
+#include "logs.h"
 
 Logs &Logs::getInstance() {
     static Logs instance;

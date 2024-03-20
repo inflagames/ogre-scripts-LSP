@@ -138,7 +138,9 @@ material_pass = <pass_tk> <object_definition>? <left_curly_bracket_tk> <material
 material_pass_body = <param_line> | <material_texture> | <material_program>
 
 material_texture = <texture_unit_tk> <object_definition>? <left_curly_bracket_tk> <material_texture_body>* <right_curly_bracket_tk>
-material_texture_body = <param_line> | <material_rtshader> | <material_texture_source>
+material_texture_body = <param_line> | <sampler_ref> | <material_rtshader> | <material_texture_source>
+
+sampler_ref = <sampler_ref> <identifier>
 
 material_rtshader = <rtshader_system_tk> <object_definition>? <left_curly_bracket_tk> <material_rtshader_body>* <right_curly_bracket_tk>
 material_rtshader_body = <param_line>
@@ -153,7 +155,7 @@ shared_params_ref = <shared_params_ref_tk> <identifier>
 
 // common implementations
 param_line = <param><endl_tk> | <param> <param_line>
-param = <identifier> | <string_literal> | <number_literal> | <variable> | <comma_tk>
+param = <identifier> | <match_literal> | <string_literal> | <number_literal> | <variable> | <comma_tk>
 
 object_definition = <top_object_definition> | <match_literal> | <numer_literal>
 top_object_definition = <definition_opt> | <definition_opt> <colon_tk> <definition_opt>

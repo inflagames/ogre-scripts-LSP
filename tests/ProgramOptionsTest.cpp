@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "../core/inc/program_arg.h"
+#include "../src/utils/program_arg.h"
 
 TEST (ProgramOptionsTest, parseCorrectlyTheArguments) {
     const char *args[] = {"myapp", HELP, HELP_LONG, LOG, LOG_LONG};

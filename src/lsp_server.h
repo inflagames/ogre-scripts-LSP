@@ -6,9 +6,11 @@
 #include <map>
 #include <set>
 
+#include "lang/parser.h"
 #include "lsp_protocol.h"
-#include "parser.h"
-#include "formatter.h"
+#include "lsp/formatter.h"
+#include "lsp/symbols.h"
+#include "lsp/semantic_tokens.h"
 
 #define HEADER_CONTENT_LENGTH "Content-Length"
 #define HEADER_CONTENT_TYPE "Content-Type"
@@ -36,7 +38,7 @@ namespace OgreScriptLSP {
 
         std::string readHeaderValue(std::istream &os = std::cin);
 
-        Action readContent(Action action, std::istream &os = std::cin);
+        void readContent(Action &action, std::istream &os = std::cin);
 
         void initialize(RequestMessage *rm, std::ostream &oos = std::cout);
 

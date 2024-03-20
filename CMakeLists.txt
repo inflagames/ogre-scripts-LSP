@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.26)
 project(ogre_scripts_LSP_lib)
 
 # define application version here
-add_definitions(-DAPP_VERSION="v0.0.2")
+add_definitions(-DAPP_VERSION="v0.0.3")
 
 include(FetchContent)
 FetchContent_Declare(
@@ -13,29 +13,9 @@ FetchContent_MakeAvailable(json)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_library(ogre_scripts_LSP_lib STATIC
-        core/src/scanner.cpp
-        core/inc/scanner.h
-        core/src/parser.cpp
-        core/inc/parser.h
-        core/src/lsp_server.cpp
-        core/inc/lsp_server.h
-        core/inc/lsp_protocol.h
-        core/inc/ast_tree.h
-        core/inc/exceptions.h
-        core/inc/logs.h
-        core/src/logs.cpp
-        core/src/formatter.cpp
-        core/inc/formatter.h
-        core/src/goto.cpp
-        core/inc/goto.h
-        core/src/program_arg.cpp
-        core/inc/program_arg.h
-        core/src/symbols.cpp
-        core/inc/symbols.h
-        core/src/semantic_tokens.cpp
-        core/inc/semantic_tokens.h
-)
+file(GLOB_RECURSE SOURCES_FILES "${PROJECT_SOURCE_DIR}/src/*.cpp")
+file(GLOB_RECURSE HEADER_FILES "${PROJECT_SOURCE_DIR}/src/*.h")
+add_library(ogre_scripts_LSP_lib STATIC ${SOURCES_FILES} ${HEADER_FILES})
 
 add_executable(ogre_scripts_LSP main.cpp)
 

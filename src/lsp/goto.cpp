@@ -1,4 +1,4 @@
-#include "../inc/goto.h"
+#include "goto.h"
 
 std::unique_ptr<OgreScriptLSP::ResultBase> OgreScriptLSP::GoTo::goToDefinition(OgreScriptLSP::MaterialScriptAst *script,
                                                                                std::unique_ptr<std::map<std::pair<int, std::string>, TokenValue>> declarations,
@@ -17,36 +17,36 @@ std::unique_ptr<OgreScriptLSP::ResultBase> OgreScriptLSP::GoTo::goToDefinition(O
 
 std::optional<std::pair<int, std::string>>
 OgreScriptLSP::GoTo::search(OgreScriptLSP::MaterialScriptAst *script, OgreScriptLSP::Position position) {
-    for (auto m: script->materials) {
-        auto r = searchMaterial(m, position);
+    for (const auto &m: script->materials) {
+        auto r = searchMaterial(m.get(), position);
         if (r.has_value()) {
             return r;
         }
     }
 
-    for (auto a: script->abstracts) {
-        auto r = searchAbstract(a, position);
+    for (const auto &a: script->abstracts) {
+        auto r = searchAbstract(a.get(), position);
         if (r.has_value()) {
             return r;
         }
     }
 
-    for (auto p: script->programs) {
-        auto r = searchProgram(p, position);
+    for (const auto &p: script->programs) {
+        auto r = searchProgram(p.get(), position);
         if (r.has_value()) {
             return r;
         }
     }
 
-    for (auto sp: script->sharedParams) {
-        auto r = searchSharedParam(sp, position);
+    for (const auto &sp: script->sharedParams) {
+        auto r = searchSharedParam(sp.get(), position);
         if (r.has_value()) {
             return r;
         }
     }
 
-    for (auto s: script->sampler) {
-        auto r = searchSampler(s, position);
+    for (const auto &s: script->samplers) {
+        auto r = searchSampler(s.get(), position);
         if (r.has_value()) {
             return r;
         }
@@ -67,22 +67,22 @@ std::optional<std::pair<int, std::string>>
 OgreScriptLSP::GoTo::searchAbstract(OgreScriptLSP::AbstractAst *abstract, OgreScriptLSP::Position position) {
     switch (abstract->type.tk) {
         case material_tk: {
-            return searchMaterial(dynamic_cast<MaterialAst *>(abstract->body), position);
+            return searchMaterial(dynamic_cast<MaterialAst *>(abstract->body.get()), position);
         }
         case technique_tk: {
-            return searchTechnique(dynamic_cast<TechniqueAst *>(abstract->body), position);
+            return searchTechnique(dynamic_cast<TechniqueAst *>(abstract->body.get()), position);
         }
         case pass_tk: {
-            return searchPass(dynamic_cast<PassAst *>(abstract->body), position);
+            return searchPass(dynamic_cast<PassAst *>(abstract->body.get()), position);
         }
         case texture_unit_tk: {
-            return searchTexture(dynamic_cast<TextureUnitAst *>(abstract->body), position);
+            return searchTexture(dynamic_cast<TextureUnitAst *>(abstract->body.get()), position);
         }
         case rtshader_system_tk: {
-            return searchRtShader(dynamic_cast<RtShaderAst *>(abstract->body), position);
+            return searchRtShader(dynamic_cast<RtShaderAst *>(abstract->body.get()), position);
         }
         case texture_source_tk: {
-            return searchTextureSource(dynamic_cast<TextureSourceAst *>(abstract->body), position);
+            return searchTextureSource(dynamic_cast<TextureSourceAst *>(abstract->body.get()), position);
         }
         default:
             return std::nullopt;
@@ -95,8 +95,8 @@ OgreScriptLSP::GoTo::searchMaterial(OgreScriptLSP::MaterialAst *material, OgreSc
     if (o.has_value()) {
         return o;
     }
-    for (auto t: material->techniques) {
-        auto r = searchTechnique(t, position);
+    for (const auto &t: material->techniques) {
+        auto r = searchTechnique(t.get(), position);
         if (r.has_value()) {
             return r;
         }
@@ -110,14 +110,14 @@ OgreScriptLSP::GoTo::searchTechnique(OgreScriptLSP::TechniqueAst *technique, Ogr
     if (o.has_value()) {
         return o;
     }
-    for (auto p: technique->passes) {
-        auto r = searchPass(p, position);
+    for (const auto &p: technique->passes) {
+        auto r = searchPass(p.get(), position);
         if (r.has_value()) {
             return r;
         }
     }
-    for (auto s: technique->shadowMaterials) {
-        auto r = searchShadowMat(s, position);
+    for (const auto &s: technique->shadowMaterials) {
+        auto r = searchShadowMat(s.get(), position);
         if (r.has_value()) {
             return r;
         }
@@ -139,20 +139,20 @@ OgreScriptLSP::GoTo::searchPass(OgreScriptLSP::PassAst *pass, OgreScriptLSP::Pos
     if (o.has_value()) {
         return o;
     }
-    for (auto t: pass->textures) {
-        auto r = searchTexture(t, position);
+    for (const auto &t: pass->textures) {
+        auto r = searchTexture(t.get(), position);
         if (r.has_value()) {
             return r;
         }
     }
-    for (auto pr: pass->programsReferences) {
-        auto r = searchProgramRef(pr, position);
+    for (const auto &pr: pass->programsReferences) {
+        auto r = searchProgramRef(pr.get(), position);
         if (r.has_value()) {
             return r;
         }
     }
-    for (auto rt: pass->shaders) {
-        auto r = searchRtShader(rt, position);
+    for (const auto &rt: pass->shaders) {
+        auto r = searchRtShader(rt.get(), position);
         if (r.has_value()) {
             return r;
         }
@@ -166,20 +166,20 @@ OgreScriptLSP::GoTo::searchTexture(OgreScriptLSP::TextureUnitAst *texture, OgreS
     if (o.has_value()) {
         return o;
     }
-    for (auto rt: texture->shaders) {
-        auto r = searchRtShader(rt, position);
+    for (const auto &rt: texture->shaders) {
+        auto r = searchRtShader(rt.get(), position);
         if (r.has_value()) {
             return r;
         }
     }
-    for (auto ts: texture->textureSources) {
-        auto r = searchTextureSource(ts, position);
+    for (const auto &ts: texture->textureSources) {
+        auto r = searchTextureSource(ts.get(), position);
         if (r.has_value()) {
             return r;
         }
     }
-    for (auto s: texture->sampleReferences) {
-        auto r = searchSamplerRef(s, position);
+    for (const auto &s: texture->sampleReferences) {
+        auto r = searchSamplerRef(s.get(), position);
         if (r.has_value()) {
             return r;
         }
@@ -230,8 +230,8 @@ OgreScriptLSP::GoTo::searchProgram(OgreScriptLSP::ProgramAst *program, OgreScrip
     if (o.has_value()) {
         return o;
     }
-    for (const auto sp: program->sharedParams) {
-        auto r = searchSharedParamRef(sp, position);
+    for (const auto &sp: program->sharedParams) {
+        auto r = searchSharedParamRef(sp.get(), position);
         if (r.has_value()) {
             return r;
         }
@@ -245,8 +245,8 @@ OgreScriptLSP::GoTo::searchProgramRef(OgreScriptLSP::MaterialProgramAst *program
     if (programRef->name.toRange().inRange(position)) {
         return std::make_pair(type, programRef->name.literal);
     }
-    for (const auto sp: programRef->sharedParams) {
-        auto r = searchSharedParamRef(sp, position);
+    for (const auto &sp: programRef->sharedParams) {
+        auto r = searchSharedParamRef(sp.get(), position);
         if (r.has_value()) {
             return r;
         }

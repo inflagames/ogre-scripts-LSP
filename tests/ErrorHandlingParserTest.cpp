@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "../core/inc/parser.h"
+#include "../src/lang/parser.h"
 
 TEST (ParserTest, parse_ShouldFailWithErrorsAndRecuperate) {
     auto *parser = new OgreScriptLSP::Parser();
@@ -8,9 +8,9 @@ TEST (ParserTest, parse_ShouldFailWithErrorsAndRecuperate) {
     parser->loadScript(scriptFile);
 
     parser->parse();
-    ASSERT_GT(parser->getExceptions().size(), 0);
+    ASSERT_GT(parser->getExceptions()->size(), 0);
 
-    auto exceptions = parser->getExceptions();
+    auto exceptions = *parser->getExceptions();
     auto e = exceptions[0];
     ASSERT_EQ(PROGRAM_NAME_MISSING, e.message);
     ASSERT_EQ(1, e.range.start.line);

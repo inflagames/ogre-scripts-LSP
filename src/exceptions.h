@@ -48,6 +48,13 @@
 #define SCANNER_INVALID_MATCH_LITERAL "Invalid match literal"
 #define SCANNER_EOF_ERROR "EOF error"
 
+// Params exceptions
+#define PARAM_MATERIAL_ERROR "Invalid material param"
+#define PARAM_TECHNIQUE_ERROR "Invalid technique param"
+#define PARAM_PASS_ERROR "Invalid pass param"
+#define PARAM_TEXTURE_UNIT_ERROR "Invalid texture unit param"
+#define PARAM_SAMPLER_ERROR "Invalid sampler param"
+
 // General error messages
 #define FILE_IS_NOT_OPEN_OR_NOT_EXIST "File is not open or not exist"
 
@@ -59,6 +66,12 @@ namespace OgreScriptLSP {
 
         BaseException(std::string message, Range range)
                 : message(std::move(message)), range(range) {}
+    };
+
+    struct ParamsException : public BaseException {
+    public:
+        explicit ParamsException(std::string message, Range range)
+                : BaseException(std::move(message), range) {}
     };
 
     struct ParseException : public BaseException {

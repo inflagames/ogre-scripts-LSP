@@ -2,8 +2,8 @@
 #define OGRE_SCRIPTS_LSP_LIB_FORMATTER_H
 
 
-#include "lsp_protocol.h"
-#include "parser.h"
+#include "../lsp_protocol.h"
+#include "../lang/parser.h"
 
 namespace OgreScriptLSP {
     class Formatter {

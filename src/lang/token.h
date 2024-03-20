@@ -1,7 +1,7 @@
 #ifndef JS_AI_TOKEN_H
 #define JS_AI_TOKEN_H
 
-#include "lsp_protocol.h"
+#include "../lsp_protocol.h"
 
 namespace OgreScriptLSP {
     enum Token {

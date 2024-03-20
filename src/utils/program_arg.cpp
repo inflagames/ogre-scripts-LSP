@@ -1,8 +1,4 @@
-//
-// Created by gonzalezext on 16.02.24.
-//
-
-#include "../inc/program_arg.h"
+#include "program_arg.h"
 
 ProgramArg::ProgramArg(int argc, const char **argv) {
     programName = std::string(argv[0]);

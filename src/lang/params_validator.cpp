@@ -360,6 +360,8 @@ void OgreScriptLSP::ParamsValidator::setupPassParams() {
     // point_size_attenuation
     std::string pointSizeAttenuation = "<point_size_attenuation><off>";
     loadChildFromDefinition(pointSizeAttenuation, passParamTree.get());
+    pointSizeAttenuation = "<point_size_attenuation><on>";
+    loadChildFromDefinition(pointSizeAttenuation, passParamTree.get());
     pointSizeAttenuation = "<point_size_attenuation><on>[<constant><linear><quadratic>]";
     loadChildFromDefinition(pointSizeAttenuation, passParamTree.get());
 
@@ -388,11 +390,17 @@ void OgreScriptLSP::ParamsValidator::setupTextureUnitParams() {
     loadChildFromDefinition(texture, textureUnitParamTree.get());
     texture = "<texture>(identifier)";
     loadChildFromDefinition(texture, textureUnitParamTree.get());
+    texture = "<texture>(identifier)<gamma>";
+    loadChildFromDefinition(texture, textureUnitParamTree.get());
     texture = "<texture>(identifier)[<1d><2d><3d><cubic>]";
+    loadChildFromDefinition(texture, textureUnitParamTree.get());
+    texture = "<texture>(identifier)[<1d><2d><3d><cubic>]<gamma>";
     loadChildFromDefinition(texture, textureUnitParamTree.get());
     texture = "<texture>(identifier)[<1d><2d><3d><cubic>][<unlimited>]";
     loadChildFromDefinition(texture, textureUnitParamTree.get());
     texture = "<texture>(identifier)[<1d><2d><3d><cubic>](number)";
+    loadChildFromDefinition(texture, textureUnitParamTree.get());
+    texture = "<texture>(identifier)(number)";
     loadChildFromDefinition(texture, textureUnitParamTree.get());
 
     // anim_texture

@@ -1,6 +1,6 @@
 # Version v0.0.3
 
-TBD
+Fixed issues with memory leaks in the code and add support for validate params in the different logic blocks (pass, material, technique, textureUnit, sample).
 
 ## Change Log
 

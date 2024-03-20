@@ -138,7 +138,7 @@ material level_floor {
 
             // fog_override
             fog_override false
-            fog_override true none 1 1 1 0.002 100 10000
+            fog_override true none
             fog_override true linear 1 1 1 0.002 100 10000
             fog_override true exp 1 1 1 0.002 100 10000
             fog_override true exp2 1 1 1 0.002 100 10000

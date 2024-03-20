@@ -310,10 +310,12 @@ void OgreScriptLSP::ParamsValidator::setupPassParams() {
     loadChildFromDefinition(polygonModeOverrideable, passParamTree.get());
 
     // fog_override
-    std::string fogOverrideType = "[<none><linear><exp><exp2>]";
+    std::string fogOverrideType = "[<linear><exp><exp2>]";
     std::string fogOverride = "<fog_override><false>";
     loadChildFromDefinition(fogOverride, passParamTree.get());
     fogOverride = "<fog_override><true>" + fogOverrideType + colour + "(number)(number)(number)";
+    loadChildFromDefinition(fogOverride, passParamTree.get());
+    fogOverride = "<fog_override><true><none>";
     loadChildFromDefinition(fogOverride, passParamTree.get());
 
     // colour_write

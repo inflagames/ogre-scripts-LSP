@@ -396,6 +396,8 @@ void OgreScriptLSP::ParamsValidator::setupTextureUnitParams() {
     loadChildFromDefinition(texture, textureUnitParamTree.get());
     texture = "<texture>(identifier)[<1d><2d><3d><cubic>](number)";
     loadChildFromDefinition(texture, textureUnitParamTree.get());
+    texture = "<texture>(identifier)(number)";
+    loadChildFromDefinition(texture, textureUnitParamTree.get());
 
     // anim_texture
     std::string animTexture = "<anim_texture>(identifier)(number)(number)";

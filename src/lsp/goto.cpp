@@ -45,7 +45,7 @@ OgreScriptLSP::GoTo::search(OgreScriptLSP::MaterialScriptAst *script, OgreScript
         }
     }
 
-    for (const auto &s: script->sampler) {
+    for (const auto &s: script->samplers) {
         auto r = searchSampler(s.get(), position);
         if (r.has_value()) {
             return r;

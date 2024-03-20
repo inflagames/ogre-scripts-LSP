@@ -35,6 +35,10 @@ void OgreScriptLSP::ParamsValidator::paramsAnalysis(Parser *parser) {
     for (auto &mat: parser->getScript()->materials) {
         paramsAnalysis(mat.get(), parser);
     }
+
+    for (auto &s : parser->getScript()->samplers) {
+
+    }
 }
 
 void OgreScriptLSP::ParamsValidator::paramsAnalysis(OgreScriptLSP::MaterialAst *mat, Parser *parser) {

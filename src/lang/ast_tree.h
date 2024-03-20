@@ -155,7 +155,7 @@ namespace OgreScriptLSP {
         std::vector<std::unique_ptr<AbstractAst>> abstracts;
         std::vector<std::unique_ptr<ImportAst>> imports;
         std::vector<std::unique_ptr<SharedParamsAst>> sharedParams;
-        std::vector<std::unique_ptr<SamplerAst>> sampler;
+        std::vector<std::unique_ptr<SamplerAst>> samplers;
 
         explicit MaterialScriptAst(std::string uri) {
             this->uri = std::move(uri);

@@ -208,7 +208,7 @@ void OgreScriptLSP::Parser::sampler(MaterialScriptAst *scriptAst) {
 
     consumeCloseCurlyBracket();
 
-    scriptAst->sampler.push_back(std::move(sampler));
+    scriptAst->samplers.push_back(std::move(sampler));
 }
 
 void OgreScriptLSP::Parser::samplerBody(SamplerAst *sampler) {

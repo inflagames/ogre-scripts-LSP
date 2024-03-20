@@ -104,47 +104,6 @@ void OgreScriptLSP::ParamsValidator::validateParam(OgreScriptLSP::ParamAst *para
     }
 }
 
-void OgreScriptLSP::ParamsValidator::setupSamplerParams() {
-    samplerParamTree = std::make_unique<ParamsTree>();
-
-    // filtering
-    std::string filtering = "<filtering>[<none><bilinear><trilinear><anisotropic>]";
-    loadChildFromDefinition(filtering, samplerParamTree.get());
-
-    // max_anisotropy
-    std::string maxAnisotropy = "<max_anisotropy>(number)";
-    loadChildFromDefinition(maxAnisotropy, samplerParamTree.get());
-
-    // mipmap_bias
-    std::string mipmapBias = "<mipmap_bias>(number)";
-    loadChildFromDefinition(mipmapBias, samplerParamTree.get());
-
-    // compare_test
-    std::string onOff = "[<on><off>]";
-    std::string compareTest = "<compare_test>" + onOff;
-    loadChildFromDefinition(compareTest, samplerParamTree.get());
-
-    // tex_address_mode
-    std::string texAddressModeOp = "[<wrap><mirror><clamp><border>]";
-    std::string texAddressMode = "<tex_address_mode>" + texAddressModeOp;
-    loadChildFromDefinition(texAddressMode, samplerParamTree.get());
-    texAddressMode = "<tex_address_mode>" + texAddressModeOp + texAddressModeOp;
-    loadChildFromDefinition(texAddressMode, samplerParamTree.get());
-    texAddressMode = "<tex_address_mode>" + texAddressModeOp + texAddressModeOp + texAddressModeOp;
-    loadChildFromDefinition(texAddressMode, samplerParamTree.get());
-
-    // tex_border_colour
-    std::string texBorderColour = "<tex_border_colour>(number)(number)(number)";
-    loadChildFromDefinition(texBorderColour, samplerParamTree.get());
-    texBorderColour = "<tex_border_colour>(number)(number)(number)(number)";
-    loadChildFromDefinition(texBorderColour, samplerParamTree.get());
-
-    // comp_func
-    std::string compareFunctions = "[<always_fail><always_pass><less><less_equal><equal><not_equal><greater_equal><greater>]";
-    std::string compFunc = "<comp_func>" + compareFunctions;
-    loadChildFromDefinition(compFunc, samplerParamTree.get());
-}
-
 void OgreScriptLSP::ParamsValidator::setupMaterialParams() {
     materialParamTree = std::make_unique<ParamsTree>();
 
@@ -488,6 +447,53 @@ void OgreScriptLSP::ParamsValidator::setupTextureUnitParams() {
     // unordered_access_mip
     std::string unorderedAccessMip = "<unordered_access_mip>(number)";
     loadChildFromDefinition(unorderedAccessMip, textureUnitParamTree.get());
+
+    // load sample shared params
+    setupSampleSharedParams(textureUnitParamTree.get());
+}
+
+void OgreScriptLSP::ParamsValidator::setupSamplerParams() {
+    samplerParamTree = std::make_unique<ParamsTree>();
+    setupSampleSharedParams(samplerParamTree.get());
+}
+
+void OgreScriptLSP::ParamsValidator::setupSampleSharedParams(OgreScriptLSP::ParamsTree *treeRoot) {
+    // filtering
+    std::string filtering = "<filtering>[<none><bilinear><trilinear><anisotropic>]";
+    loadChildFromDefinition(filtering, treeRoot);
+
+    // max_anisotropy
+    std::string maxAnisotropy = "<max_anisotropy>(number)";
+    loadChildFromDefinition(maxAnisotropy, treeRoot);
+
+    // mipmap_bias
+    std::string mipmapBias = "<mipmap_bias>(number)";
+    loadChildFromDefinition(mipmapBias, treeRoot);
+
+    // compare_test
+    std::string onOff = "[<on><off>]";
+    std::string compareTest = "<compare_test>" + onOff;
+    loadChildFromDefinition(compareTest, treeRoot);
+
+    // tex_address_mode
+    std::string texAddressModeOp = "[<wrap><mirror><clamp><border>]";
+    std::string texAddressMode = "<tex_address_mode>" + texAddressModeOp;
+    loadChildFromDefinition(texAddressMode, treeRoot);
+    texAddressMode = "<tex_address_mode>" + texAddressModeOp + texAddressModeOp;
+    loadChildFromDefinition(texAddressMode, treeRoot);
+    texAddressMode = "<tex_address_mode>" + texAddressModeOp + texAddressModeOp + texAddressModeOp;
+    loadChildFromDefinition(texAddressMode, treeRoot);
+
+    // tex_border_colour
+    std::string texBorderColour = "<tex_border_colour>(number)(number)(number)";
+    loadChildFromDefinition(texBorderColour, treeRoot);
+    texBorderColour = "<tex_border_colour>(number)(number)(number)(number)";
+    loadChildFromDefinition(texBorderColour, treeRoot);
+
+    // comp_func
+    std::string compareFunctions = "[<always_fail><always_pass><less><less_equal><equal><not_equal><greater_equal><greater>]";
+    std::string compFunc = "<comp_func>" + compareFunctions;
+    loadChildFromDefinition(compFunc, treeRoot);
 }
 
 void OgreScriptLSP::ParamsValidator::loadChildFromDefinition(std::string &definition, ParamsTree *treeRoot) {

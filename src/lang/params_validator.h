@@ -130,6 +130,8 @@ namespace OgreScriptLSP {
 
         void setupSamplerParams();
 
+        void setupSampleSharedParams(ParamsTree *treeRoot);
+
         void setupMaterialParams();
 
         void setupTechniqueParams();

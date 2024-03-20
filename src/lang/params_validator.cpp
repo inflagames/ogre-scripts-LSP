@@ -12,26 +12,53 @@ OgreScriptLSP::ParamsValidator *OgreScriptLSP::ParamsValidator::getSingleton() {
 }
 
 void OgreScriptLSP::ParamsValidator::paramsAnalysis(Parser *parser) {
-    for (auto &mat: parser->getScript()->materials) {
-        validateParams(reinterpret_cast<std::vector<std::unique_ptr<ParamAst>> *>(&mat->params), parser);
-
-        for (auto &t: mat->techniques) {
-            validateParams(reinterpret_cast<std::vector<std::unique_ptr<ParamAst>> *>(&t->params), parser);
-
-            for (auto &p: t->passes) {
-                validateParams(reinterpret_cast<std::vector<std::unique_ptr<ParamAst>> *>(&p->params), parser);
-
-                for (auto &s: p->shaders) {
-                    validateParams(reinterpret_cast<std::vector<std::unique_ptr<ParamAst>> *>(&s->params), parser);
-                }
-                for (auto &s: p->programsReferences) {
-                    validateParams(reinterpret_cast<std::vector<std::unique_ptr<ParamAst>> *>(&s->params), parser);
-                }
-                for (auto &s: p->textures) {
-                    validateParams(reinterpret_cast<std::vector<std::unique_ptr<ParamAst>> *>(&s->params), parser);
-                }
-            }
+    for (auto &abs: parser->getScript()->abstracts) {
+        switch (abs->type.tk) {
+            case material_tk:
+                paramsAnalysis(dynamic_cast<MaterialAst*>(abs->body.get()), parser);
+                break;
+            case technique_tk:
+                paramsAnalysis(dynamic_cast<TechniqueAst*>(abs->body.get()), parser);
+                break;
+            case pass_tk:
+                paramsAnalysis(dynamic_cast<PassAst*>(abs->body.get()), parser);
+                break;
+            default:
+                break;
         }
+    }
+    for (auto &mat: parser->getScript()->materials) {
+        paramsAnalysis(mat.get(), parser);
+    }
+}
+
+void OgreScriptLSP::ParamsValidator::paramsAnalysis(OgreScriptLSP::MaterialAst *mat, Parser *parser) {
+    validateParams(reinterpret_cast<std::vector<std::unique_ptr<ParamAst>> *>(&mat->params), parser);
+
+    for (auto &t: mat->techniques) {
+        paramsAnalysis(t.get(), parser);
+    }
+}
+
+void OgreScriptLSP::ParamsValidator::paramsAnalysis(OgreScriptLSP::TechniqueAst *t, Parser *parser) {
+    validateParams(reinterpret_cast<std::vector<std::unique_ptr<ParamAst>> *>(&t->params), parser);
+
+    for (auto &p: t->passes) {
+        paramsAnalysis(p.get(), parser);
+    }
+}
+
+void OgreScriptLSP::ParamsValidator::paramsAnalysis(OgreScriptLSP::PassAst *p, Parser *parser) {
+    validateParams(reinterpret_cast<std::vector<std::unique_ptr<ParamAst>> *>(&p->params), parser);
+
+    for (auto &s: p->shaders) {
+        validateParams(reinterpret_cast<std::vector<std::unique_ptr<ParamAst>> *>(&s->params), parser);
+    }
+    for (auto &s: p->programsReferences) {
+        validateParams(reinterpret_cast<std::vector<std::unique_ptr<ParamAst>> *>(&s->params), parser);
+    }
+    for (auto &s: p->textures) {
+        validateParams(reinterpret_cast<std::vector<std::unique_ptr<ParamAst>> *>(&s->params), parser);
     }
 }
 
@@ -49,7 +76,7 @@ void OgreScriptLSP::ParamsValidator::validateParam(OgreScriptLSP::ParamAst *para
     if (auto paramsPass = dynamic_cast<PassParamAst *>(paramAst)) {
         passParamTree->validateParams(paramsPass, 0, PARAM_PASS_ERROR);
     } else if (auto paramsMat = dynamic_cast<MaterialParamAst *>(paramAst)) {
-        materialParamTree->validateParams(paramsMat, 0, PARAM_PASS_ERROR);
+        materialParamTree->validateParams(paramsMat, 0, PARAM_MATERIAL_ERROR);
     }
 }
 
@@ -277,7 +304,7 @@ void OgreScriptLSP::ParamsValidator::setupPassParams() {
     loadChildFromDefinition(lineWidth, passParamTree.get());
 }
 
-void OgreScriptLSP::ParamsValidator::loadChildFromDefinition(std::string &definition, ParamsTree* treeRoot) {
+void OgreScriptLSP::ParamsValidator::loadChildFromDefinition(std::string &definition, ParamsTree *treeRoot) {
     int pos = 0;
     ParamsTree *tree = treeRoot;
 

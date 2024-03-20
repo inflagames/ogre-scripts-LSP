@@ -113,6 +113,12 @@ namespace OgreScriptLSP {
 
         void paramsAnalysis(Parser *parser);
 
+        void paramsAnalysis(MaterialAst *materialAst, Parser *parser);
+
+        void paramsAnalysis(TechniqueAst *materialAst, Parser *parser);
+
+        void paramsAnalysis(PassAst *materialAst, Parser *parser);
+
         void validateParams(std::vector<std::unique_ptr<ParamAst>> *params, Parser *parser);
 
         void validateParam(OgreScriptLSP::ParamAst *paramAst);

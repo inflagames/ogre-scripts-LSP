@@ -49,6 +49,7 @@
 #define SCANNER_EOF_ERROR "EOF error"
 
 // Params exceptions
+#define PARAM_MATERIAL_ERROR "Invalid material param"
 #define PARAM_PASS_ERROR "Invalid pass param"
 
 // General error messages

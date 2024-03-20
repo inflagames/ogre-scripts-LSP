@@ -25,6 +25,18 @@ TEST (ValidParamsTest, params_shouldValidateMaterialParams) {
     ASSERT_EQ(0, parser->getExceptions()->size());
 }
 
+TEST (ValidParamsTest, params_shouldValidateTechniqueParams) {
+    auto *parser = new OgreScriptLSP::Parser();
+    std::string scriptFile = "./examples/params/valid_params_technique_block.material";
+    parser->loadScript(scriptFile);
+
+    parser->parse();
+    OgreScriptLSP::ParamsValidator::getSingleton()->paramsAnalysis(parser);
+
+    ASSERT_EQ(0, parser->getExceptions()->size());
+}
+
+
 void validateChild(OgreScriptLSP::ParamsTree *&tree,
                    const std::vector<std::string> &tokenNames,
                    OgreScriptLSP::Token token,

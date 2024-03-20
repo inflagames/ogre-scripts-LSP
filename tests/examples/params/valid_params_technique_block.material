@@ -1,0 +1,21 @@
+material level_floor {
+    technique {
+        // scheme
+        scheme
+
+        // lod_index
+        lod_index 12
+        lod_index 1000
+
+        // gpu_vendor_rule
+        gpu_vendor_rule include nvidia
+        gpu_vendor_rule exclude nvidia
+        gpu_vendor_rule include *950*
+        gpu_vendor_rule exclude *950*
+
+        // gpu_device_rule
+
+        pass perlight {
+        }
+    }
+}

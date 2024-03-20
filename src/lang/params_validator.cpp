@@ -3,6 +3,7 @@
 
 OgreScriptLSP::ParamsValidator::ParamsValidator() {
     setupMaterialParams();
+    setupTechniqueParams();
     setupPassParams();
 }
 
@@ -15,13 +16,13 @@ void OgreScriptLSP::ParamsValidator::paramsAnalysis(Parser *parser) {
     for (auto &abs: parser->getScript()->abstracts) {
         switch (abs->type.tk) {
             case material_tk:
-                paramsAnalysis(dynamic_cast<MaterialAst*>(abs->body.get()), parser);
+                paramsAnalysis(dynamic_cast<MaterialAst *>(abs->body.get()), parser);
                 break;
             case technique_tk:
-                paramsAnalysis(dynamic_cast<TechniqueAst*>(abs->body.get()), parser);
+                paramsAnalysis(dynamic_cast<TechniqueAst *>(abs->body.get()), parser);
                 break;
             case pass_tk:
-                paramsAnalysis(dynamic_cast<PassAst*>(abs->body.get()), parser);
+                paramsAnalysis(dynamic_cast<PassAst *>(abs->body.get()), parser);
                 break;
             default:
                 break;
@@ -77,6 +78,8 @@ void OgreScriptLSP::ParamsValidator::validateParam(OgreScriptLSP::ParamAst *para
         passParamTree->validateParams(paramsPass, 0, PARAM_PASS_ERROR);
     } else if (auto paramsMat = dynamic_cast<MaterialParamAst *>(paramAst)) {
         materialParamTree->validateParams(paramsMat, 0, PARAM_MATERIAL_ERROR);
+    } else if (auto paramsTech = dynamic_cast<TechniqueParamAst *>(paramAst)) {
+        techniqueParamTree->validateParams(paramsTech, 0, PARAM_MATERIAL_ERROR);
     }
 }
 
@@ -108,6 +111,24 @@ void OgreScriptLSP::ParamsValidator::setupMaterialParams() {
     // set_texture_alias
     std::string setTextureAlias = "<set_texture_alias>(identifier)(identifier)";
     loadChildFromDefinition(setTextureAlias, materialParamTree.get());
+}
+
+void OgreScriptLSP::ParamsValidator::setupTechniqueParams() {
+    techniqueParamTree = std::make_unique<ParamsTree>();
+
+    // scheme
+    std::string scheme = "<scheme>";
+    loadChildFromDefinition(scheme, techniqueParamTree.get());
+
+    // lod_index
+    std::string lodIndex = "<lod_index>(number)";
+    loadChildFromDefinition(lodIndex, techniqueParamTree.get());
+
+    // gpu_vendor_rule | gpu_device_rule
+    std::string gpuRule = "[<gpu_vendor_rule><gpu_device_rule>][<include><exclude>](identifier)";
+    loadChildFromDefinition(gpuRule, techniqueParamTree.get());
+    gpuRule = "[<gpu_vendor_rule><gpu_device_rule>][<include><exclude>](match)";
+    loadChildFromDefinition(gpuRule, techniqueParamTree.get());
 }
 
 void OgreScriptLSP::ParamsValidator::setupPassParams() {
@@ -313,6 +334,8 @@ void OgreScriptLSP::ParamsValidator::loadChildFromDefinition(std::string &defini
         Token tk = identifier;
         if (std::any_of(tkName.begin(), tkName.end(), [](const std::string &n) { return n == "(number)"; })) {
             tk = number_literal;
+        } else if (std::any_of(tkName.begin(), tkName.end(), [](const std::string &n) { return n == "(match)"; })) {
+            tk = match_literal;
         }
         tree = tree->newChild(tkName, tk);
         tkName = nextParamsToken(definition, pos);

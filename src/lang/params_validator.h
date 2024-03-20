@@ -95,6 +95,7 @@ namespace OgreScriptLSP {
                 if (ch && ch->_token == param.tk) {
                     if ((param.tk == identifier && ch->checkNames(param.literal)) ||
                         (param.tk == identifier && ch->checkNames("(identifier)")) ||
+                        (param.tk == match_literal && ch->checkNames("(match)")) ||
                         (param.tk == number_literal && ch->checkNames("(number)"))) {
                         return ch->validateParams(paramAst, position + 1, error);
                     }
@@ -127,6 +128,8 @@ namespace OgreScriptLSP {
 
         void setupMaterialParams();
 
+        void setupTechniqueParams();
+
         std::vector<std::string> nextParamsToken(const std::string &definition, int &position);
 
         std::string nextParamToken(const std::string &definition, int &position, char delimiter = '>');
@@ -138,8 +141,9 @@ namespace OgreScriptLSP {
         [[nodiscard]] ParamsTree *getPassParamTree() const;
 
     private:
-        std::unique_ptr<ParamsTree> passParamTree;
         std::unique_ptr<ParamsTree> materialParamTree;
+        std::unique_ptr<ParamsTree> techniqueParamTree;
+        std::unique_ptr<ParamsTree> passParamTree;
     };
 }
 

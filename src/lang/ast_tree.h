@@ -119,10 +119,13 @@ namespace OgreScriptLSP {
         std::vector<std::unique_ptr<MaterialProgramAst>> programsReferences;
     };
 
+    class TechniqueParamAst : public ParamAst {
+    };
+
     class TechniqueAst : public AstObject {
     public:
         std::vector<std::unique_ptr<PassAst>> passes;
-        std::vector<std::unique_ptr<PassParamAst>> params;
+        std::vector<std::unique_ptr<TechniqueParamAst>> params;
         std::vector<std::unique_ptr<ShadowMaterialAst>> shadowMaterials;
     };
 

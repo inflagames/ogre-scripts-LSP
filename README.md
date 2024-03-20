@@ -155,7 +155,7 @@ shared_params_ref = <shared_params_ref_tk> <identifier>
 
 // common implementations
 param_line = <param><endl_tk> | <param> <param_line>
-param = <identifier> | <string_literal> | <number_literal> | <variable> | <comma_tk>
+param = <identifier> | <match_literal> | <string_literal> | <number_literal> | <variable> | <comma_tk>
 
 object_definition = <top_object_definition> | <match_literal> | <numer_literal>
 top_object_definition = <definition_opt> | <definition_opt> <colon_tk> <definition_opt>

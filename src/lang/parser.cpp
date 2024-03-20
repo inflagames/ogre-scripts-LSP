@@ -379,7 +379,7 @@ void OgreScriptLSP::Parser::materialTechniqueBody(OgreScriptLSP::TechniqueAst *t
             continue;
         }
         if (tk.tk == identifier) {
-            auto param = std::make_unique<PassParamAst>();
+            auto param = std::make_unique<TechniqueParamAst>();
             paramsLine(param.get());
             technique->params.push_back(std::move(param));
             continue;
@@ -675,7 +675,7 @@ void OgreScriptLSP::Parser::paramsLine(ParamAst *params) {
     while (!isEof() && getToken().tk != endl_tk && !isMainStructure()) {
         TokenValue tk = getToken();
         if (tk.tk != identifier && tk.tk != string_literal && tk.tk != number_literal &&
-            tk.tk != variable && tk.tk != comma_tk) {
+            tk.tk != variable  && tk.tk != comma_tk && tk.tk != match_literal) {
             exceptions.push_back(ParseException(NOT_VALID_PARAM, tk.toRange()));
             recuperateLine();
             return;

@@ -4,6 +4,10 @@ sampler some {
     filtering bilinear
     filtering trilinear
     filtering anisotropic
+    filtering linear linear linear
+    filtering anisotropic linear point
+    filtering point linear none
+    filtering linear linear anisotropic
 
     // max_anisotropy
     max_anisotropy 1

@@ -107,6 +107,10 @@ void OgreScriptLSP::ParamsValidator::validateParam(OgreScriptLSP::ParamAst *para
 void OgreScriptLSP::ParamsValidator::setupMaterialParams() {
     materialParamTree = std::make_unique<ParamsTree>();
 
+    // define variable
+    std::string defineVariable = "<set>";
+    loadChildFromDefinition(defineVariable, materialParamTree.get());
+
     // lod_strategy
     std::string lodStrategy = "<lod_strategy>[<distance_sphere><distance_box><pixel_count><screen_ratio_pixel_count>]";
     loadChildFromDefinition(lodStrategy, materialParamTree.get());

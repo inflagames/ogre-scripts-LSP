@@ -45,21 +45,21 @@ material level_floor {
                 colour_op alpha_blend
 
                 // colour_op_ex
-                colour_op_ex source1 texture current
-                colour_op_ex source2 texture diffuse
-                colour_op_ex modulate texture specular
-                colour_op_ex modulate_x2 texture manual
-                colour_op_ex modulate_x4 texture manual
-                colour_op_ex add texture manual
-                colour_op_ex add_signed texture manual
-                colour_op_ex add_smooth texture manual
-                colour_op_ex subtract texture manual
-                colour_op_ex blend_diffuse_alpha texture manual
-                colour_op_ex blend_texture_alpha texture manual
-                colour_op_ex blend_current_alpha texture manual
-                colour_op_ex blend_manual texture manual
-                colour_op_ex dotproduct texture manual
-                colour_op_ex blend_diffuse_colour texture manual
+                colour_op_ex source1 src_texture src_current
+                colour_op_ex source2 src_texture src_diffuse
+                colour_op_ex modulate src_texture src_specular
+                colour_op_ex modulate_x2 src_texture src_manual
+                colour_op_ex modulate_x4 src_texture src_manual
+                colour_op_ex add src_texture src_manual
+                colour_op_ex add_signed src_texture src_manual
+                colour_op_ex add_smooth src_texture src_manual
+                colour_op_ex subtract src_texture src_manual
+                colour_op_ex blend_diffuse_alpha src_texture src_manual
+                colour_op_ex blend_texture_alpha src_texture src_manual
+                colour_op_ex blend_current_alpha src_texture src_manual
+                colour_op_ex blend_manual src_texture src_manual
+                colour_op_ex dotproduct src_texture src_manual
+                colour_op_ex blend_diffuse_colour src_texture src_manual
 
                 // colour_op_multipass_fallback
                 colour_op_multipass_fallback one zero
@@ -73,21 +73,22 @@ material level_floor {
                 colour_op_multipass_fallback one one_minus_source_alpha
 
                 // alpha_op_ex
-                alpha_op_ex source1 texture current
-                alpha_op_ex source2 texture diffuse
-                alpha_op_ex modulate texture specular
-                alpha_op_ex modulate_x2 texture manual
-                alpha_op_ex modulate_x4 texture manual
-                alpha_op_ex add texture manual
-                alpha_op_ex add_signed texture manual
-                alpha_op_ex add_smooth texture manual
-                alpha_op_ex subtract texture manual
-                alpha_op_ex blend_diffuse_alpha texture manual
-                alpha_op_ex blend_texture_alpha texture manual
-                alpha_op_ex blend_current_alpha texture manual
-                alpha_op_ex blend_manual texture manual
-                alpha_op_ex dotproduct texture manual
-                alpha_op_ex blend_diffuse_colour texture manual
+                alpha_op_ex source1 src_texture src_current
+                alpha_op_ex source2 src_texture src_diffuse
+                alpha_op_ex modulate src_texture src_specular
+                alpha_op_ex modulate_x2 src_texture src_manual
+                alpha_op_ex modulate_x4 src_texture src_manual
+                alpha_op_ex add src_texture src_manual
+                alpha_op_ex add_signed src_texture src_manual
+                alpha_op_ex add_smooth src_texture src_manual
+                alpha_op_ex subtract src_texture src_manual
+                alpha_op_ex blend_diffuse_alpha src_texture src_manual
+                alpha_op_ex blend_texture_alpha src_texture src_manual
+                alpha_op_ex blend_current_alpha src_texture src_manual
+                alpha_op_ex blend_manual src_texture src_manual
+                alpha_op_ex dotproduct src_texture src_manual
+                alpha_op_ex blend_diffuse_colour src_texture src_manual
+                alpha_op_ex add src_texture src_current
 
                 // env_map
                 env_map off

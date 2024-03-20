@@ -166,11 +166,23 @@ void OgreScriptLSP::ParamsValidator::setupPassParams() {
     loadChildFromDefinition(ambient, passParamTree.get());
     ambient = "<ambient>" + colourWithAlpha;
     loadChildFromDefinition(ambient, passParamTree.get());
+    ambient = "<ambient>" + colourWithAlpha + "(number)";
+    loadChildFromDefinition(ambient, passParamTree.get());
+    ambient = "<ambient><vertexcolour>";
+    loadChildFromDefinition(ambient, passParamTree.get());
+    ambient = "<ambient><vertexcolour>(number)";
+    loadChildFromDefinition(ambient, passParamTree.get());
 
     // diffuse
     std::string diffuse = "<diffuse>" + colour;
     loadChildFromDefinition(diffuse, passParamTree.get());
     diffuse = "<diffuse>" + colourWithAlpha;
+    loadChildFromDefinition(diffuse, passParamTree.get());
+    diffuse = "<diffuse>" + colourWithAlpha + "(number)";
+    loadChildFromDefinition(diffuse, passParamTree.get());
+    diffuse = "<diffuse><vertexcolour>";
+    loadChildFromDefinition(diffuse, passParamTree.get());
+    diffuse = "<diffuse><vertexcolour>(number)";
     loadChildFromDefinition(diffuse, passParamTree.get());
 
     // specular
@@ -178,11 +190,23 @@ void OgreScriptLSP::ParamsValidator::setupPassParams() {
     loadChildFromDefinition(specular, passParamTree.get());
     specular = "<specular>" + colourWithAlpha;
     loadChildFromDefinition(specular, passParamTree.get());
+    specular = "<specular>" + colourWithAlpha + "(number)";
+    loadChildFromDefinition(specular, passParamTree.get());
+    specular = "<specular><vertexcolour>";
+    loadChildFromDefinition(specular, passParamTree.get());
+    specular = "<specular><vertexcolour>(number)";
+    loadChildFromDefinition(specular, passParamTree.get());
 
     // emissive
     std::string emissive = "<emissive>" + colour;
     loadChildFromDefinition(emissive, passParamTree.get());
     emissive = "<emissive>" + colourWithAlpha;
+    loadChildFromDefinition(emissive, passParamTree.get());
+    emissive = "<emissive>" + colourWithAlpha + "(number)";
+    loadChildFromDefinition(emissive, passParamTree.get());
+    emissive = "<emissive><vertexcolour>";
+    loadChildFromDefinition(emissive, passParamTree.get());
+    emissive = "<emissive><vertexcolour>(number)";
     loadChildFromDefinition(emissive, passParamTree.get());
 
     // scene_blend
@@ -403,7 +427,7 @@ void OgreScriptLSP::ParamsValidator::setupTextureUnitParams() {
 
     // colour_op_ex
     std::string colourOpExOp = "[<source1><source2><modulate><modulate_x2><modulate_x4><add><add_signed><add_smooth><subtract><blend_diffuse_alpha><blend_texture_alpha><blend_current_alpha><blend_manual><dotproduct><blend_diffuse_colour>]";
-    std::string colourOpExSource = "[<current><texture><diffuse><specular><manual>]";
+    std::string colourOpExSource = "[<src_current><src_texture><src_diffuse><src_specular><src_manual>]";
     std::string colourOpEx = "<colour_op_ex>" + colourOpExOp + colourOpExSource + colourOpExSource;
     loadChildFromDefinition(colourOpEx, textureUnitParamTree.get());
 

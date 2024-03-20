@@ -4,18 +4,30 @@ material level_floor {
             // ambient
             ambient 1 1 1
             ambient 1 1 1 1
+            ambient vertexcolour
+            ambient vertexcolour
+            ambient vertexcolour 1.
 
             // diffuse
             diffuse .87 .99 1.0 1.0
             diffuse .87 .99 1.0
+            diffuse vertexcolour
+            diffuse vertexcolour
+            diffuse vertexcolour 1.
 
             // specular
             specular .87 .99 1.0 1.0
+            specular .87 .99 1.0 1.0 1.
             specular .87 .99 1.0
+            specular vertexcolour
+            specular vertexcolour 1.
 
             // emissive
             emissive .87 .99 1.0 1.0
             emissive .87 .99 1.0
+            emissive vertexcolour
+            emissive vertexcolour
+            emissive vertexcolour 1.
 
             // scene_blend
             scene_blend add

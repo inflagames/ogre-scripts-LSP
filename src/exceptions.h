@@ -53,6 +53,7 @@
 #define PARAM_TECHNIQUE_ERROR "Invalid technique param"
 #define PARAM_PASS_ERROR "Invalid pass param"
 #define PARAM_TEXTURE_UNIT_ERROR "Invalid texture unit param"
+#define PARAM_SAMPLER_ERROR "Invalid sampler param"
 
 // General error messages
 #define FILE_IS_NOT_OPEN_OR_NOT_EXIST "File is not open or not exist"

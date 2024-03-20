@@ -11,3 +11,4 @@ TBD
 - Added: Include support for material params validation
 - Added: Include support for technique params validation
 - Fix: Issue with allow match_literals on params list
+- Added: Include support for texture unit params validation

@@ -6,6 +6,7 @@ OgreScriptLSP::ParamsValidator::ParamsValidator() {
     setupTechniqueParams();
     setupPassParams();
     setupTextureUnitParams();
+    setupSamplerParams();
 }
 
 OgreScriptLSP::ParamsValidator *OgreScriptLSP::ParamsValidator::getSingleton() {
@@ -36,9 +37,13 @@ void OgreScriptLSP::ParamsValidator::paramsAnalysis(Parser *parser) {
         paramsAnalysis(mat.get(), parser);
     }
 
-    for (auto &s : parser->getScript()->samplers) {
-
+    for (auto &s: parser->getScript()->samplers) {
+        paramsAnalysis(s.get(), parser);
     }
+}
+
+void OgreScriptLSP::ParamsValidator::paramsAnalysis(OgreScriptLSP::SamplerAst *sampler, Parser *parser) {
+    validateParams(reinterpret_cast<std::vector<std::unique_ptr<ParamAst>> *>(&sampler->params), parser);
 }
 
 void OgreScriptLSP::ParamsValidator::paramsAnalysis(OgreScriptLSP::MaterialAst *mat, Parser *parser) {
@@ -94,7 +99,50 @@ void OgreScriptLSP::ParamsValidator::validateParam(OgreScriptLSP::ParamAst *para
         techniqueParamTree->validateParams(paramsTech, 0, PARAM_TECHNIQUE_ERROR);
     } else if (auto paramsTextUnit = dynamic_cast<TextureUnitParamAst *>(paramAst)) {
         textureUnitParamTree->validateParams(paramsTextUnit, 0, PARAM_TEXTURE_UNIT_ERROR);
+    } else if (auto paramsSampler = dynamic_cast<SamplerParamAst *>(paramAst)) {
+        samplerParamTree->validateParams(paramsSampler, 0, PARAM_SAMPLER_ERROR);
     }
+}
+
+void OgreScriptLSP::ParamsValidator::setupSamplerParams() {
+    samplerParamTree = std::make_unique<ParamsTree>();
+
+    // filtering
+    std::string filtering = "<filtering>[<none><bilinear><trilinear><anisotropic>]";
+    loadChildFromDefinition(filtering, samplerParamTree.get());
+
+    // max_anisotropy
+    std::string maxAnisotropy = "<max_anisotropy>(number)";
+    loadChildFromDefinition(maxAnisotropy, samplerParamTree.get());
+
+    // mipmap_bias
+    std::string mipmapBias = "<mipmap_bias>(number)";
+    loadChildFromDefinition(mipmapBias, samplerParamTree.get());
+
+    // compare_test
+    std::string onOff = "[<on><off>]";
+    std::string compareTest = "<compare_test>" + onOff;
+    loadChildFromDefinition(compareTest, samplerParamTree.get());
+
+    // tex_address_mode
+    std::string texAddressModeOp = "[<wrap><mirror><clamp><border>]";
+    std::string texAddressMode = "<tex_address_mode>" + texAddressModeOp;
+    loadChildFromDefinition(texAddressMode, samplerParamTree.get());
+    texAddressMode = "<tex_address_mode>" + texAddressModeOp + texAddressModeOp;
+    loadChildFromDefinition(texAddressMode, samplerParamTree.get());
+    texAddressMode = "<tex_address_mode>" + texAddressModeOp + texAddressModeOp + texAddressModeOp;
+    loadChildFromDefinition(texAddressMode, samplerParamTree.get());
+
+    // tex_border_colour
+    std::string texBorderColour = "<tex_border_colour>(number)(number)(number)";
+    loadChildFromDefinition(texBorderColour, samplerParamTree.get());
+    texBorderColour = "<tex_border_colour>(number)(number)(number)(number)";
+    loadChildFromDefinition(texBorderColour, samplerParamTree.get());
+
+    // comp_func
+    std::string compareFunctions = "[<always_fail><always_pass><less><less_equal><equal><not_equal><greater_equal><greater>]";
+    std::string compFunc = "<comp_func>" + compareFunctions;
+    loadChildFromDefinition(compFunc, samplerParamTree.get());
 }
 
 void OgreScriptLSP::ParamsValidator::setupMaterialParams() {

@@ -1,0 +1,39 @@
+sampler some {
+    // filtering
+    filtering none
+    filtering bilinear
+    filtering trilinear
+    filtering anisotropic
+
+    // max_anisotropy
+    max_anisotropy 1
+
+    // tex_address_mode
+    tex_address_mode wrap
+    tex_address_mode mirror
+    tex_address_mode clamp
+    tex_address_mode border
+    tex_address_mode border wrap
+    tex_address_mode border wrap clamp
+
+    // tex_border_colour
+    tex_border_colour 0.0 1.0 0.3
+    tex_border_colour 0.0 0.0 0.0 1.0
+
+    // mipmap_bias
+    mipmap_bias 0
+
+    // compare_test
+    compare_test on
+    compare_test off
+
+    // comp_func
+    comp_func always_fail
+    comp_func always_pass
+    comp_func less
+    comp_func less_equal
+    comp_func equal
+    comp_func not_equal
+    comp_func greater_equal
+    comp_func greater
+}

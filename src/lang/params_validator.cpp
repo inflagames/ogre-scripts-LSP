@@ -5,6 +5,7 @@ OgreScriptLSP::ParamsValidator::ParamsValidator() {
     setupMaterialParams();
     setupTechniqueParams();
     setupPassParams();
+    setupTextureUnitParams();
 }
 
 OgreScriptLSP::ParamsValidator *OgreScriptLSP::ParamsValidator::getSingleton() {
@@ -23,6 +24,9 @@ void OgreScriptLSP::ParamsValidator::paramsAnalysis(Parser *parser) {
                 break;
             case pass_tk:
                 paramsAnalysis(dynamic_cast<PassAst *>(abs->body.get()), parser);
+                break;
+            case texture_unit_tk:
+                paramsAnalysis(dynamic_cast<TextureUnitAst *>(abs->body.get()), parser);
                 break;
             default:
                 break;
@@ -59,8 +63,12 @@ void OgreScriptLSP::ParamsValidator::paramsAnalysis(OgreScriptLSP::PassAst *p, P
         validateParams(reinterpret_cast<std::vector<std::unique_ptr<ParamAst>> *>(&s->params), parser);
     }
     for (auto &s: p->textures) {
-        validateParams(reinterpret_cast<std::vector<std::unique_ptr<ParamAst>> *>(&s->params), parser);
+        paramsAnalysis(s.get(), parser);
     }
+}
+
+void OgreScriptLSP::ParamsValidator::paramsAnalysis(OgreScriptLSP::TextureUnitAst *p, Parser *parser) {
+    validateParams(reinterpret_cast<std::vector<std::unique_ptr<ParamAst>> *>(&p->params), parser);
 }
 
 void OgreScriptLSP::ParamsValidator::validateParams(std::vector<std::unique_ptr<ParamAst>> *params, Parser *parser) {
@@ -79,7 +87,9 @@ void OgreScriptLSP::ParamsValidator::validateParam(OgreScriptLSP::ParamAst *para
     } else if (auto paramsMat = dynamic_cast<MaterialParamAst *>(paramAst)) {
         materialParamTree->validateParams(paramsMat, 0, PARAM_MATERIAL_ERROR);
     } else if (auto paramsTech = dynamic_cast<TechniqueParamAst *>(paramAst)) {
-        techniqueParamTree->validateParams(paramsTech, 0, PARAM_MATERIAL_ERROR);
+        techniqueParamTree->validateParams(paramsTech, 0, PARAM_TECHNIQUE_ERROR);
+    } else if (auto paramsTextUnit = dynamic_cast<TextureUnitParamAst *>(paramAst)) {
+        textureUnitParamTree->validateParams(paramsTextUnit, 0, PARAM_TEXTURE_UNIT_ERROR);
     }
 }
 
@@ -323,6 +333,109 @@ void OgreScriptLSP::ParamsValidator::setupPassParams() {
     // line_width
     std::string lineWidth = "<line_width>(number)";
     loadChildFromDefinition(lineWidth, passParamTree.get());
+}
+
+void OgreScriptLSP::ParamsValidator::setupTextureUnitParams() {
+    textureUnitParamTree = std::make_unique<ParamsTree>();
+
+    // texture_alias
+    std::string textureAlias = "<texture_alias>(identifier)";
+    loadChildFromDefinition(textureAlias, textureUnitParamTree.get());
+
+    // texture
+    std::string texture = "<texture>";
+    loadChildFromDefinition(texture, textureUnitParamTree.get());
+    texture = "<texture>(identifier)";
+    loadChildFromDefinition(texture, textureUnitParamTree.get());
+    texture = "<texture>(identifier)[<1d><2d><3d><cubic>]";
+    loadChildFromDefinition(texture, textureUnitParamTree.get());
+    texture = "<texture>(identifier)[<1d><2d><3d><cubic>][<unlimited>]";
+    loadChildFromDefinition(texture, textureUnitParamTree.get());
+    texture = "<texture>(identifier)[<1d><2d><3d><cubic>](number)";
+    loadChildFromDefinition(texture, textureUnitParamTree.get());
+
+    // anim_texture
+    std::string animTexture = "<anim_texture>(identifier)(number)(number)";
+    loadChildFromDefinition(animTexture, textureUnitParamTree.get());
+    animTexture = "<anim_texture>";
+    for (int i = 0; i < 20; ++i) {
+        animTexture += "(identifier)";
+        std::string tmp = animTexture + "(number)";
+        loadChildFromDefinition(tmp, textureUnitParamTree.get());
+    }
+
+    // cubic_texture
+    std::string cubicTexture = "<cubic_texture>(identifier)[<combinedUVW><separateUV>]";
+    loadChildFromDefinition(cubicTexture, textureUnitParamTree.get());
+
+    // content_type
+    std::string contentType = "<content_type>[<named><shadow><compositor>]";
+    loadChildFromDefinition(contentType, textureUnitParamTree.get());
+    contentType = "<content_type>[<named><shadow><compositor>](identifier)";
+    loadChildFromDefinition(contentType, textureUnitParamTree.get());
+    contentType = "<content_type>[<named><shadow><compositor>](identifier)(identifier)";
+    loadChildFromDefinition(contentType, textureUnitParamTree.get());
+    contentType = "<content_type>[<named><shadow><compositor>](identifier)(identifier)(number)";
+    loadChildFromDefinition(contentType, textureUnitParamTree.get());
+
+    // tex_coord_set
+    std::string texCoordSet = "<tex_coord_set>(number)";
+    loadChildFromDefinition(texCoordSet, textureUnitParamTree.get());
+
+    // colour_op
+    std::string colourOp = "<colour_op>[<replace><add><modulate><alpha_blend>]";
+    loadChildFromDefinition(colourOp, textureUnitParamTree.get());
+
+    // colour_op_ex
+    std::string colourOpExOp = "[<source1><source2><modulate><modulate_x2><modulate_x4><add><add_signed><add_smooth><subtract><blend_diffuse_alpha><blend_texture_alpha><blend_current_alpha><blend_manual><dotproduct><blend_diffuse_colour>]";
+    std::string colourOpExSource = "[<current><texture><diffuse><specular><manual>]";
+    std::string colourOpEx = "<colour_op_ex>" + colourOpExOp + colourOpExSource + colourOpExSource;
+    loadChildFromDefinition(colourOpEx, textureUnitParamTree.get());
+
+    // colour_op_multipass_fallback
+    std::string sceneBlendFactor = "[<one><zero><dest_colour><source_colour><one_minus_dest_colour><one_minus_source_colour><dest_alpha><source_alpha><one_minus_dest_alpha><one_minus_source_alpha>]";
+    std::string colourOpMultipassFallback = "<colour_op_multipass_fallback>" + sceneBlendFactor + sceneBlendFactor;
+    loadChildFromDefinition(colourOpMultipassFallback, textureUnitParamTree.get());
+
+    // alpha_op_ex
+    std::string alphaOpEx = "<alpha_op_ex>" + colourOpExOp + colourOpExSource + colourOpExSource;
+    loadChildFromDefinition(alphaOpEx, textureUnitParamTree.get());
+
+    // env_map
+    std::string envMap = "<env_map>[<off><spherical><planar><cubic_reflection><cubic_normal>]";
+    loadChildFromDefinition(envMap, textureUnitParamTree.get());
+
+    // scroll
+    std::string scroll = "<scroll>(number)(number)";
+    loadChildFromDefinition(scroll, textureUnitParamTree.get());
+
+    // scroll_anim
+    std::string scrollAnim = "<scroll_anim>(number)(number)";
+    loadChildFromDefinition(scrollAnim, textureUnitParamTree.get());
+
+    // rotate
+    std::string rotate = "<rotate>(number)";
+    loadChildFromDefinition(rotate, textureUnitParamTree.get());
+
+    // rotate_anim
+    std::string rotateAnim = "<rotate_anim>(number)";
+    loadChildFromDefinition(rotateAnim, textureUnitParamTree.get());
+
+    // scale
+    std::string scale = "<scale>(number)(number)";
+    loadChildFromDefinition(scale, textureUnitParamTree.get());
+
+    // wave_xform
+    std::string waveXform = "<wave_xform>[<scroll_x><scroll_y><rotate><scale_x><scale_y>][<sine><triangle><square><sawtooth><inverse_sawtooth><pwm>](number)(number)(number)(number)";
+    loadChildFromDefinition(waveXform, textureUnitParamTree.get());
+
+    // transform
+    std::string transform = "<transform>(number)(number)(number)(number)(number)(number)(number)(number)(number)(number)(number)(number)(number)(number)(number)(number)";
+    loadChildFromDefinition(transform, textureUnitParamTree.get());
+
+    // unordered_access_mip
+    std::string unorderedAccessMip = "<unordered_access_mip>(number)";
+    loadChildFromDefinition(unorderedAccessMip, textureUnitParamTree.get());
 }
 
 void OgreScriptLSP::ParamsValidator::loadChildFromDefinition(std::string &definition, ParamsTree *treeRoot) {

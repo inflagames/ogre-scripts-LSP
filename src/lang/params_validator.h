@@ -120,15 +120,19 @@ namespace OgreScriptLSP {
 
         void paramsAnalysis(PassAst *materialAst, Parser *parser);
 
+        void paramsAnalysis(TextureUnitAst *materialAst, Parser *parser);
+
         void validateParams(std::vector<std::unique_ptr<ParamAst>> *params, Parser *parser);
 
         void validateParam(OgreScriptLSP::ParamAst *paramAst);
 
-        void setupPassParams();
-
         void setupMaterialParams();
 
         void setupTechniqueParams();
+
+        void setupPassParams();
+
+        void setupTextureUnitParams();
 
         std::vector<std::string> nextParamsToken(const std::string &definition, int &position);
 
@@ -144,6 +148,7 @@ namespace OgreScriptLSP {
         std::unique_ptr<ParamsTree> materialParamTree;
         std::unique_ptr<ParamsTree> techniqueParamTree;
         std::unique_ptr<ParamsTree> passParamTree;
+        std::unique_ptr<ParamsTree> textureUnitParamTree;
     };
 }
 

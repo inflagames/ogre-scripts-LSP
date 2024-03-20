@@ -1,0 +1,132 @@
+material level_floor {
+    technique {
+        pass perlight {
+            texture_unit shadowmap {
+                // texture_alias
+                texture_alias normal
+                texture_alias example
+
+                // texture
+                texture some.jpg
+                texture some.jpg 1d
+                texture some.jpg 2d
+                texture some.jpg 3d
+                texture some.jpg cubic
+                texture some.jpg cubic unlimited
+                texture some.jpg cubic 12
+                texture some.jpg cubic 1
+
+                // anim_texture
+                anim_texture some.jpg 5 2.5
+                anim_texture some1.jpg some2.jpg 5.
+                anim_texture some1.jpg some2.jpg some3.jpg 5.
+                anim_texture some1.jpg some2.jpg some3.jpg some4.jpg 5.
+
+                // cubic_texture
+                cubic_texture some combinedUVW
+                cubic_texture some separateUV
+
+                // content_type
+                content_type named
+                content_type shadow
+                content_type compositor
+                content_type compositor nametmp
+                content_type compositor nametmp texturename
+                content_type compositor nametmp texturename 1
+
+                // tex_coord_set
+                tex_coord_set 2
+                tex_coord_set 0
+
+                // colour_op
+                colour_op replace
+                colour_op add
+                colour_op modulate
+                colour_op alpha_blend
+
+                // colour_op_ex
+                colour_op_ex source1 texture current
+                colour_op_ex source2 texture diffuse
+                colour_op_ex modulate texture specular
+                colour_op_ex modulate_x2 texture manual
+                colour_op_ex modulate_x4 texture manual
+                colour_op_ex add texture manual
+                colour_op_ex add_signed texture manual
+                colour_op_ex add_smooth texture manual
+                colour_op_ex subtract texture manual
+                colour_op_ex blend_diffuse_alpha texture manual
+                colour_op_ex blend_texture_alpha texture manual
+                colour_op_ex blend_current_alpha texture manual
+                colour_op_ex blend_manual texture manual
+                colour_op_ex dotproduct texture manual
+                colour_op_ex blend_diffuse_colour texture manual
+
+                // colour_op_multipass_fallback
+                colour_op_multipass_fallback one zero
+                colour_op_multipass_fallback one dest_colour
+                colour_op_multipass_fallback one source_colour
+                colour_op_multipass_fallback one one_minus_dest_colour
+                colour_op_multipass_fallback one one_minus_source_colour
+                colour_op_multipass_fallback one dest_alpha
+                colour_op_multipass_fallback one source_alpha
+                colour_op_multipass_fallback one one_minus_dest_alpha
+                colour_op_multipass_fallback one one_minus_source_alpha
+
+                // alpha_op_ex
+                alpha_op_ex source1 texture current
+                alpha_op_ex source2 texture diffuse
+                alpha_op_ex modulate texture specular
+                alpha_op_ex modulate_x2 texture manual
+                alpha_op_ex modulate_x4 texture manual
+                alpha_op_ex add texture manual
+                alpha_op_ex add_signed texture manual
+                alpha_op_ex add_smooth texture manual
+                alpha_op_ex subtract texture manual
+                alpha_op_ex blend_diffuse_alpha texture manual
+                alpha_op_ex blend_texture_alpha texture manual
+                alpha_op_ex blend_current_alpha texture manual
+                alpha_op_ex blend_manual texture manual
+                alpha_op_ex dotproduct texture manual
+                alpha_op_ex blend_diffuse_colour texture manual
+
+                // env_map
+                env_map off
+                env_map spherical
+                env_map planar
+                env_map cubic_reflection
+                env_map cubic_normal
+
+                // scroll
+                scroll 1 3
+                scroll 0 0
+
+                // scroll_anim
+                scroll_anim 1 4
+                scroll_anim 0 0
+
+                // rotate
+                rotate 234
+
+                // rotate_anim
+                rotate_anim 12
+
+                // scale
+                scale 1 34
+
+                // wave_xform
+                wave_xform scroll_x sine 1.0 0.2 0.0 5.0
+                wave_xform scroll_y triangle 1.0 0.2 0.0 5.0
+                wave_xform rotate square 1.0 0.2 0.0 5.0
+                wave_xform scale_x sawtooth 1.0 0.2 0.0 5.0
+                wave_xform scale_y inverse_sawtooth 1.0 0.2 0.0 5.0
+                wave_xform scale_y pwm 1.0 0.2 0.0 5.0
+
+                // transform
+                transform 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+
+                // unordered_access_mip
+                unordered_access_mip 0
+            }
+        }
+    }
+}
